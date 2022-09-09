@@ -1,0 +1,146 @@
+plugins {
+  id 'com.android.application'
+  id 'org.jetbrains.kotlin.android'
+  id 'com.google.devtools.ksp'
+  id 'com.diffplug.spotless'
+  id 'androidx.navigation.safeargs.kotlin'
+}
+
+android {
+  compileSdk 33
+
+  defaultConfig {
+    applicationId 'org.iriswallet'
+    compileSdk 32
+    minSdk 26
+    targetSdk 33
+    versionCode 1
+    versionName '0.1.0'
+    ndk {
+      abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
+    }
+    testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+  }
+
+  signingConfigs {
+    debug {
+      storeFile file('debug.keystore')
+    }
+  }
+
+  buildTypes {
+    debug {
+      signingConfig signingConfigs.debug
+      applicationIdSuffix '.debug'
+      debuggable true
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      shrinkResources false
+      versionNameSuffix '-debug'
+    }
+    release {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      shrinkResources true
+    }
+  }
+
+  flavorDimensions += 'bitcoinNetwork'
+  productFlavors {
+    bitcoinTestnet {
+      applicationIdSuffix '.testnet'
+      manifestPlaceholders = [appName: '@string/app_name_testnet']
+      versionNameSuffix '-testnet'
+    }
+    bitcoinSignet {
+      applicationIdSuffix '.signet'
+      manifestPlaceholders = [appName: '@string/app_name_signet']
+      versionNameSuffix '-signet'
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
+
+  buildFeatures {
+    dataBinding true
+    viewBinding true
+  }
+
+  lint {
+    checkDependencies true
+  }
+}
+
+spotless {
+  format 'misc', {
+    target '**/*.gradle', '**/*.md', '**/.gitignore', '**/*.sh', '**/*.xml'
+    trimTrailingWhitespace()
+    indentWithSpaces()
+    endWithNewline()
+  }
+
+  kotlin {
+    target '**/*.kt'
+    ktfmt().kotlinlangStyle()
+  }
+}
+
+ksp {
+  arg('room.schemaLocation', "$projectDir/schemas")
+}
+
+dependencies {
+  // AndroidX
+  implementation 'androidx.appcompat:appcompat:1.5.0'
+
+  implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha04'
+
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+  implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+
+  implementation 'androidx.core:core-ktx:1.8.0'
+  implementation 'androidx.core:core-splashscreen:1.0.0'
+
+  implementation 'androidx.fragment:fragment-ktx:1.5.2'
+
+  implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
+  implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
+  implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
+  implementation "androidx.lifecycle:lifecycle-service:$androidx_lifecycle_version"
+
+  implementation "androidx.navigation:navigation-fragment-ktx:$androidx_navigation_version"
+  implementation "androidx.navigation:navigation-ui-ktx:$androidx_navigation_version"
+
+  implementation 'androidx.preference:preference-ktx:1.2.0'
+
+  implementation "androidx.room:room-runtime:$room_version"
+  annotationProcessor "androidx.room:room-compiler:$room_version"
+  implementation "androidx.room:room-ktx:$room_version"
+  ksp "androidx.room:room-compiler:$room_version"
+
+  implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
+
+  implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+  // Bitcoindevkit
+  implementation 'org.bitcoindevkit:bdk-android:0.8.2'
+
+  // Google
+  implementation 'com.google.android.gms:play-services-auth:20.3.0'
+
+  implementation 'com.google.android.material:material:1.6.1'
+
+  // Journeyapps
+  implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+
+  // RGB-Tools
+  implementation 'org.rgbtools:rgb-lib-android:0.1.1'
+}
