@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ui.HelpPageFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/helpFaucetLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/big_size"
+                    android:layout_marginTop="@dimen/big_size"
+                    android:layout_marginEnd="@dimen/big_size"
+                    android:text="@string/help_faucet_label"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_label"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/helpFaucetTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/big_size"
+                    android:layout_marginTop="@dimen/small_size"
+                    android:layout_marginEnd="@dimen/big_size"
+                    android:text="@string/help_faucet_text"
+                    android:textColor="@color/color_gray"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetLabelTV" />
+
+                <LinearLayout
+                    android:id="@+id/helpFaucetLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/big_size"
+                    android:layout_marginEnd="@dimen/big_size"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetTV" />
+
+                <TextView
+                    android:id="@+id/helpInternalLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/big_size"
+                    android:layout_marginTop="@dimen/big_size"
+                    android:layout_marginEnd="@dimen/big_size"
+                    android:text="@string/help_internal_label"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_label"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetLL" />
+
+                <TextView
+                    android:id="@+id/helpInternalTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/big_size"
+                    android:layout_marginTop="@dimen/small_size"
+                    android:layout_marginEnd="@dimen/big_size"
+                    android:text="@string/help_internal_text"
+                    android:textColor="@color/color_gray"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintTop_toBottomOf="@+id/helpInternalLabelTV" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

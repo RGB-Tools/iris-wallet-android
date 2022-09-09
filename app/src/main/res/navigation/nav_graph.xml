@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/routingFragment">
+
+    <fragment
+        android:id="@+id/routingFragment"
+        android:name="org.iriswallet.ui.RoutingFragment"
+        app:defaultNavHost="true"
+        tools:layout="@layout/fragment_routing">
+        <action
+            android:id="@+id/action_routingFragment_to_firstRunFragment"
+            app:destination="@id/firstRunFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_routingFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/firstRunFragment"
+        android:name="org.iriswallet.ui.FirstRunFragment"
+        tools:layout="@layout/fragment_first_run">
+        <action
+            android:id="@+id/action_firstRunFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="org.iriswallet.ui.MainFragment"
+        android:label=""
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_assetDetailFragment"
+            app:destination="@id/assetDetailFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_receiveAssetFragment"
+            app:destination="@id/receiveAssetFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_issueAssetFragment"
+            app:destination="@id/issueAssetFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_bitcoinUnspentFragment"
+            app:destination="@id/bitcoinUnspentFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_helpPageFragment"
+            app:destination="@id/helpPageFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/helpPageFragment"
+        android:name="org.iriswallet.ui.HelpPageFragment"
+        android:label="@string/help_title"
+        tools:layout="@layout/fragment_help_page">
+    </fragment>
+    <fragment
+        android:id="@+id/assetDetailFragment"
+        android:name="org.iriswallet.ui.AssetDetailFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_asset_detail">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_assetDetailFragment_to_receiveAssetFragment"
+            app:destination="@id/receiveAssetFragment" />
+        <action
+            android:id="@+id/action_assetDetailFragment_to_sendAssetFragment"
+            app:destination="@id/sendAssetFragment" />
+        <action
+            android:id="@+id/action_assetDetailFragment_to_transferDetailFragment"
+            app:destination="@id/transferDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/receiveAssetFragment"
+        android:name="org.iriswallet.ui.ReceiveAssetFragment"
+        android:label="@string/receive_asset_title"
+        tools:layout="@layout/fragment_receive_asset">
+    </fragment>
+    <fragment
+        android:id="@+id/sendAssetFragment"
+        android:name="org.iriswallet.ui.SendAssetFragment"
+        android:label="@string/send_asset_title"
+        tools:layout="@layout/fragment_send_asset">
+    </fragment>
+    <fragment
+        android:id="@+id/transferDetailFragment"
+        android:name="org.iriswallet.ui.TransferDetailFragment"
+        tools:layout="@layout/fragment_transfer_detail">
+    </fragment>
+    <fragment
+        android:id="@+id/issueAssetFragment"
+        android:name="org.iriswallet.ui.IssueAssetFragment"
+        android:label="@string/issue_asset_title"
+        tools:layout="@layout/fragment_issue_asset">
+        <action
+            android:id="@+id/action_issueAssetFragment_to_assetDetailFragment"
+            app:destination="@id/assetDetailFragment"
+            app:popUpTo="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bitcoinUnspentFragment"
+        android:name="org.iriswallet.ui.BitcoinUnspentFragment"
+        android:label="@string/unspent_list_title"
+        tools:layout="@layout/fragment_bitcoin_unspent">
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="org.iriswallet.ui.SettingsFragment"
+        android:label="@string/settings_title"
+        tools:layout="@layout/fragment_settings">
+    </fragment>
+</navigation>

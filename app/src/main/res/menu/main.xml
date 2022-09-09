@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/refreshMenu"
+        android:title="@string/menu_refresh" />
+    <item android:id="@+id/issueAssetMenu"
+        android:title="@string/menu_issue_asset" />
+    <item android:id="@+id/unspentListMenu"
+        android:title="@string/menu_unspent_list" />
+    <item android:id="@+id/helpPageMenu"
+        android:title="@string/menu_help_page" />
+    <item android:id="@+id/settingsMenu"
+        android:title="@string/menu_settings" />
+</menu>
