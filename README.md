@@ -41,6 +41,8 @@ and then commit the changes.
 
 ## Build
 
+## APKs
+
 Open the project in Android Studio to manually build APKs or use the
 `build_apk.sh` script for automated builds.
 
@@ -61,6 +63,32 @@ Upon invocation, code will be linted and checked with spotless to make sure
 there are no outstanding issues and it's well formatted. The build process gets
 aborted if anything is out of order.
 
+## Bundles
+
+As a first step, lint and format the code:
+```bash
+./gradlew lint
+./gradlew spotlessCheck
+```
+and proceed to fix anything that needs attention.
+
+Once the code is ok, to build the release bundles for upload to the Play Store
+run:
+```bash
+./gradlew bundleRelease
+```
+This will produce unsigned bundles in the `app/build/outputs/bundle/`
+directory, one per variant.
+
+To sign the bundles, run:
+```bash
+jarsigner -keystore <key_store> app/build/outputs/bundle/<variant>/<bundle_name>.aab <key_alias>
+```
+As an example, to sign the testnet variant using the key store located in
+`~/android-keystores/iriswallet.jks` and key alias `upload`, run:
+```bash
+jarsigner -keystore ~/android-keystores/iriswallet.jks app/build/outputs/bundle/bitcoinTestnetRelease/app-bitcoinTestnet-release.aab upload
+```
 
 [bdk-kotlin]: https://github.com/bitcoindevkit/bdk-kotlin
 [rgb-lib]: https://github.com/RGB-Tools/rgb-lib
