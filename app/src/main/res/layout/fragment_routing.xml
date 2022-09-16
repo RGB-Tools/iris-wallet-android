@@ -10,5 +10,6 @@
         android:layout_gravity="center"
         android:background="@drawable/ic_launcher_foreground"
         android:layout_width="288dp"
-        android:layout_height="288dp"/>
+        android:layout_height="288dp"
+        android:contentDescription="@string/logo_desc"/>
 </FrameLayout>

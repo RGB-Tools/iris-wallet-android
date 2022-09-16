@@ -92,7 +92,7 @@ object AppRepository {
             try {
                 Log.d(TAG, "Calling create UTXOs...")
                 newUTXOs = RgbRepository.createUTXOs()
-            } catch (e: RgbLibException.InsufficientFunds) {}
+            } catch (_: RgbLibException.InsufficientFunds) {}
             attempts--
         }
     }

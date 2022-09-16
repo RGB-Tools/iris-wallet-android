@@ -57,7 +57,7 @@ class SendAssetFragment :
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.scanMenu -> {
-                            disableUI(showProgressBar = false)
+                            disableUI()
                             val options = ScanOptions()
                             options.captureActivity = ScanActivity::class.java
                             options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
@@ -158,10 +158,10 @@ class SendAssetFragment :
         binding.sendSendBtn.isEnabled = true
     }
 
-    private fun disableUI(showProgressBar: Boolean = true) {
+    private fun disableUI() {
         binding.sendSendBtn.isEnabled = false
         mActivity.backEnabled = false
-        if (showProgressBar) binding.sendPB.visibility = View.VISIBLE
+        binding.sendPB.visibility = View.VISIBLE
         isLoading = true
         requireActivity().invalidateOptionsMenu()
     }

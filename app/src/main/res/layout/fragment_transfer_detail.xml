@@ -43,7 +43,8 @@
                     android:visibility="invisible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_info" />
+                    app:srcCompat="@drawable/ic_info"
+                    android:contentDescription="@string/transfer_info_desc"/>
 
                 <TextView
                     android:id="@+id/transferAmountLabelTV"

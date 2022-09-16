@@ -132,4 +132,7 @@
     <string name="send_asset_title">Send</string>
     <string name="open_scanner">Open scanner</string>
     <string name="iris_title_desc">Iris RGB Wallet</string>
+    <string name="receive_qrcode_desc">QR code</string>
+    <string name="logo_desc">Iris Wallet logo</string>
+    <string name="transfer_info_desc">Transfer info button</string>
 </resources>

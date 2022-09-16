@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="org.iriswallet">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:name="android.hardware.screen.portrait" />
 
@@ -18,13 +17,14 @@
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
         android:theme="@style/AppTheme"
+        android:supportsRtl="false"
         android:usesCleartextTraffic="true"
         tools:ignore="LockedOrientationActivity"
         tools:targetApi="31">
         <service
             android:name="org.iriswallet.ui.ConnectivityService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
        <activity
             android:name="org.iriswallet.ui.ScanActivity"
             android:exported="false"
