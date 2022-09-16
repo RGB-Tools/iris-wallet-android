@@ -12,8 +12,8 @@ import org.iriswallet.utils.UTXO
 
 object BdkRepository {
 
-    private val keys: ExtendedKeyInfo by lazy {
-        restoreExtendedKey(
+    private val keys: DescriptorSecretKey by lazy {
+        DescriptorSecretKey(
             AppContainer.bitcoinNetwork.toBdkNetwork(),
             AppContainer.bitcoinKeys.mnemonic,
             AppContainer.mnemonicPassword,
@@ -36,14 +36,16 @@ object BdkRepository {
         )
     }
 
-    private fun calculateDescriptor(keys: ExtendedKeyInfo, change: Boolean): String {
+    private fun calculateDescriptor(keys: DescriptorSecretKey, change: Boolean): String {
         val changeNum = if (change) 1 else 0
-        return "wpkh(${keys.xprv}/84'/1'/${AppConstants.derivationAccountVanilla}'/$changeNum/*)"
+        val path = DerivationPath("m/84'/1'/${AppConstants.derivationAccountVanilla}'/$changeNum")
+        return "wpkh(${keys.extend(path).asString()})"
     }
 
-    private fun getWallet(keys: ExtendedKeyInfo): Wallet {
+    private fun getWallet(keys: DescriptorSecretKey): Wallet {
         val descriptor: String = calculateDescriptor(keys, false)
         val changeDescriptor: String = calculateDescriptor(keys, true)
+
         val dbPath = AppContainer.bdkDBVanillaPath
         return Wallet(
             descriptor,
@@ -54,7 +56,7 @@ object BdkRepository {
     }
 
     fun getBalance(): ULong {
-        return vanillaWallet.getBalance()
+        return vanillaWallet.getBalance().total
     }
 
     fun getNewAddress(): String {
@@ -62,12 +64,12 @@ object BdkRepository {
     }
 
     fun listTransfers(): List<Transfer> {
-        val transactions = vanillaWallet.getTransactions()
+        val transactions = vanillaWallet.listTransactions()
         return transactions
-            .filterIsInstance<Transaction.Confirmed>()
-            .sortedBy { it.confirmation.timestamp }
+            .filter { it.confirmationTime != null }
+            .sortedBy { it.confirmationTime!!.timestamp }
             .map { Transfer(it) } +
-            transactions.filterIsInstance<Transaction.Unconfirmed>().map { Transfer(it) }
+            transactions.filter { it.confirmationTime == null }.map { Transfer(it) }
     }
 
     fun listUnspent(): List<UTXO> {

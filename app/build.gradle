@@ -131,7 +131,7 @@ dependencies {
   implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
   // Bitcoindevkit
-  implementation 'org.bitcoindevkit:bdk-android:0.8.2'
+  implementation 'org.bitcoindevkit:bdk-android:0.9.0'
 
   // Google
   implementation 'com.google.android.gms:play-services-auth:20.3.0'

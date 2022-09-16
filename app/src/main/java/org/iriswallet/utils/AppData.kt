@@ -4,7 +4,7 @@ import android.util.Log
 import java.util.*
 import org.bitcoindevkit.LocalUtxo
 import org.bitcoindevkit.Network
-import org.bitcoindevkit.Transaction
+import org.bitcoindevkit.TransactionDetails
 import org.iriswallet.data.AppRepository
 import org.rgbtools.*
 import org.rgbtools.BitcoinNetwork
@@ -132,23 +132,15 @@ data class Transfer(
 ) {
 
     constructor(
-        bdkTransfer: Transaction.Unconfirmed
+        bdkTransfer: TransactionDetails
     ) : this(
-        Date(System.currentTimeMillis()),
-        TransferStatus.WAITING_CONFIRMATIONS,
-        bdkTransfer.details.received > bdkTransfer.details.sent,
-        amount = AppUtils.uLongAbsDiff(bdkTransfer.details.received, bdkTransfer.details.sent),
-        txid = bdkTransfer.details.txid,
-    )
-
-    constructor(
-        bdkTransfer: Transaction.Confirmed
-    ) : this(
-        Date(bdkTransfer.confirmation.timestamp.toLong() * 1000),
-        TransferStatus.SETTLED,
-        bdkTransfer.details.received > bdkTransfer.details.sent,
-        amount = AppUtils.uLongAbsDiff(bdkTransfer.details.received, bdkTransfer.details.sent),
-        txid = bdkTransfer.details.txid,
+        if (bdkTransfer.confirmationTime == null) Date(System.currentTimeMillis())
+        else Date(bdkTransfer.confirmationTime!!.timestamp.toLong() * 1000),
+        if (bdkTransfer.confirmationTime == null) TransferStatus.WAITING_CONFIRMATIONS
+        else TransferStatus.SETTLED,
+        bdkTransfer.received > bdkTransfer.sent,
+        amount = AppUtils.uLongAbsDiff(bdkTransfer.received, bdkTransfer.sent),
+        txid = bdkTransfer.txid,
     )
 
     constructor(
