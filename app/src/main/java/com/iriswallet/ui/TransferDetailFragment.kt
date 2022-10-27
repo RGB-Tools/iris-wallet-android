@@ -49,7 +49,7 @@ class TransferDetailFragment :
                                     disableUI()
                                     viewModel.deleteTransfer(
                                         viewModel.viewingAsset!!,
-                                        transfer.recipient!!
+                                        transfer
                                     )
                                 }
                                 .setNegativeButton(getString(R.string.cancel)) { _, _ -> }

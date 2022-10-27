@@ -185,9 +185,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteTransfer(asset: AppAsset, recipient: String) {
+    fun deleteTransfer(asset: AppAsset, transfer: AppTransfer) {
         viewModelScope.launch(Dispatchers.IO) {
-            AppRepository.deleteRGBTransfer(recipient)
+            AppRepository.deleteRGBTransfer(transfer)
             refreshAssetDetail(asset, allowFailures = true)
             AppRepository.allowedFailure = null
         }

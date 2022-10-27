@@ -27,9 +27,10 @@ object RgbRepository {
         return coloredWallet.createUtxos(online, false, null)
     }
 
-    fun deleteTransfer(recipient: String) {
-        coloredWallet.failTransfers(online, recipient, null)
-        coloredWallet.deleteTransfers(recipient, null)
+    fun deleteTransfer(transfer: AppTransfer) {
+        if (transfer.status != TransferStatus.FAILED)
+            coloredWallet.failTransfers(online, transfer.recipient, null)
+        coloredWallet.deleteTransfers(transfer.recipient, null)
     }
 
     fun getAddress(): String {

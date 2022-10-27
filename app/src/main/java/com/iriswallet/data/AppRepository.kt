@@ -190,9 +190,9 @@ object AppRepository {
         return asset
     }
 
-    fun deleteRGBTransfer(recipient: String) {
-        Log.d(TAG, "Removing transfer '$recipient'")
-        RgbRepository.deleteTransfer(recipient)
+    fun deleteRGBTransfer(transfer: AppTransfer) {
+        Log.d(TAG, "Removing transfer '$transfer'")
+        RgbRepository.deleteTransfer(transfer)
     }
 
     fun genReceiveData(asset: AppAsset?): Receiver {
