@@ -137,14 +137,15 @@ class TransferDetailFragment :
             binding.transferUnblindedUTXOLabelTV.visibility = View.GONE
             binding.transferUnblindedUTXOTV.visibility = View.GONE
         } else {
-            binding.transferUnblindedUTXOTV.text = UTXO(unblindedOutpoint!!).outpointStr()
+            val outpoint = UTXO(unblindedOutpoint!!).outpointStr()
+            binding.transferUnblindedUTXOTV.text = outpoint
             binding.transferUnblindedUTXOTV.paintFlags =
                 binding.transferUnblindedUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
             binding.transferUnblindedUTXOTV.visibility = View.VISIBLE
             binding.transferUnblindedUTXOLabelTV.visibility = View.VISIBLE
             binding.transferUnblindedUTXOTV.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
-                val link = AppContainer.explorerURL + transfer.unblindedUTXO
+                val link = AppContainer.explorerURL + outpoint
                 intent.data = Uri.parse(link)
                 startActivity(intent)
             }
@@ -155,12 +156,13 @@ class TransferDetailFragment :
             binding.transferChangeUTXOLabelTV.visibility = View.GONE
             binding.transferChangeUTXOTV.visibility = View.GONE
         } else {
-            binding.transferChangeUTXOTV.text = UTXO(transfer.changeUTXO!!).outpointStr()
+            val outpoint = UTXO(transfer.changeUTXO!!).outpointStr()
+            binding.transferChangeUTXOTV.text = outpoint
             binding.transferChangeUTXOTV.paintFlags =
                 binding.transferChangeUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
             binding.transferChangeUTXOTV.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
-                val link = AppContainer.explorerURL + transfer.changeUTXO
+                val link = AppContainer.explorerURL + outpoint
                 intent.data = Uri.parse(link)
                 startActivity(intent)
             }
