@@ -83,6 +83,7 @@ class CollectiblesFragment :
 
     override fun enableUI() {
         super.enableUI()
+        binding.collectiblesSwipeRefresh.isEnabled = true
         setLoader(false)
     }
 

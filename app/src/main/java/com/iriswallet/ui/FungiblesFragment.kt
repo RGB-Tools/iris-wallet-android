@@ -83,6 +83,7 @@ class FungiblesFragment :
 
     override fun enableUI() {
         super.enableUI()
+        binding.fungiblesSwipeRefresh.isEnabled = true
         setLoader(false)
     }
 
