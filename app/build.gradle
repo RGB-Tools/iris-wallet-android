@@ -10,7 +10,7 @@ android {
   compileSdk 33
 
   defaultConfig {
-    applicationId 'org.iriswallet'
+    applicationId 'com.iriswallet'
     minSdk 26
     targetSdk 33
     versionCode 1
@@ -75,7 +75,7 @@ android {
   lint {
     checkDependencies true
   }
-  namespace 'org.iriswallet'
+  namespace 'com.iriswallet'
 }
 
 spotless {

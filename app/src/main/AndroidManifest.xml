@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name="org.iriswallet.IrisWallet"
+        android:name=".IrisWallet"
         android:allowBackup="false"
         android:extractNativeLibs="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -22,17 +22,17 @@
         tools:ignore="LockedOrientationActivity"
         tools:targetApi="31">
         <service
-            android:name="org.iriswallet.ui.ConnectivityService"
+            android:name=".ui.ConnectivityService"
             android:enabled="true"
             android:exported="false" />
        <activity
-            android:name="org.iriswallet.ui.ScanActivity"
+            android:name=".ui.ScanActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             tools:ignore="LockedOrientationActivity" />
         <activity
-            android:name="org.iriswallet.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"

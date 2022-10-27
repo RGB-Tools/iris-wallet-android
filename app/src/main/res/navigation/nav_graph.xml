@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/routingFragment"
-        android:name="org.iriswallet.ui.RoutingFragment"
+        android:name="com.iriswallet.ui.RoutingFragment"
         app:defaultNavHost="true"
         tools:layout="@layout/fragment_routing">
         <action
@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/firstRunFragment"
-        android:name="org.iriswallet.ui.FirstRunFragment"
+        android:name="com.iriswallet.ui.FirstRunFragment"
         tools:layout="@layout/fragment_first_run">
         <action
             android:id="@+id/action_firstRunFragment_to_mainFragment"
@@ -31,7 +31,7 @@
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
-        android:name="org.iriswallet.ui.MainFragment"
+        android:name="com.iriswallet.ui.MainFragment"
         android:label=""
         tools:layout="@layout/fragment_main">
         <action
@@ -55,13 +55,13 @@
     </fragment>
     <fragment
         android:id="@+id/helpPageFragment"
-        android:name="org.iriswallet.ui.HelpPageFragment"
+        android:name="com.iriswallet.ui.HelpPageFragment"
         android:label="@string/help_title"
         tools:layout="@layout/fragment_help_page">
     </fragment>
     <fragment
         android:id="@+id/assetDetailFragment"
-        android:name="org.iriswallet.ui.AssetDetailFragment"
+        android:name="com.iriswallet.ui.AssetDetailFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_asset_detail">
         <argument
@@ -79,24 +79,24 @@
     </fragment>
     <fragment
         android:id="@+id/receiveAssetFragment"
-        android:name="org.iriswallet.ui.ReceiveAssetFragment"
+        android:name="com.iriswallet.ui.ReceiveAssetFragment"
         android:label="@string/receive_asset_title"
         tools:layout="@layout/fragment_receive_asset">
     </fragment>
     <fragment
         android:id="@+id/sendAssetFragment"
-        android:name="org.iriswallet.ui.SendAssetFragment"
+        android:name="com.iriswallet.ui.SendAssetFragment"
         android:label="@string/send_asset_title"
         tools:layout="@layout/fragment_send_asset">
     </fragment>
     <fragment
         android:id="@+id/transferDetailFragment"
-        android:name="org.iriswallet.ui.TransferDetailFragment"
+        android:name="com.iriswallet.ui.TransferDetailFragment"
         tools:layout="@layout/fragment_transfer_detail">
     </fragment>
     <fragment
         android:id="@+id/issueAssetFragment"
-        android:name="org.iriswallet.ui.IssueAssetFragment"
+        android:name="com.iriswallet.ui.IssueAssetFragment"
         android:label="@string/issue_asset_title"
         tools:layout="@layout/fragment_issue_asset">
         <action
@@ -106,13 +106,13 @@
     </fragment>
     <fragment
         android:id="@+id/bitcoinUnspentFragment"
-        android:name="org.iriswallet.ui.BitcoinUnspentFragment"
+        android:name="com.iriswallet.ui.BitcoinUnspentFragment"
         android:label="@string/unspent_list_title"
         tools:layout="@layout/fragment_bitcoin_unspent">
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="org.iriswallet.ui.SettingsFragment"
+        android:name="com.iriswallet.ui.SettingsFragment"
         android:label="@string/settings_title"
         tools:layout="@layout/fragment_settings">
     </fragment>
