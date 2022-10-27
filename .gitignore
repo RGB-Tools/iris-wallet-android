@@ -2,6 +2,7 @@
 .gradle
 .project
 .settings
+/keystore.properties
 /local.properties
 /.idea
 .DS_Store
@@ -12,3 +13,4 @@
 /app/.classpath
 /app/build
 /app/release
+/app/src/main/cpp/secrets.cpp

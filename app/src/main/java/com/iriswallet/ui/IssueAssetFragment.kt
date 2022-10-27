@@ -2,6 +2,7 @@ package com.iriswallet.ui
 
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.EditText
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentIssueAssetBinding
+import com.iriswallet.utils.AppConstants
 
 class IssueAssetFragment :
     MainBaseFragment<FragmentIssueAssetBinding>(FragmentIssueAssetBinding::inflate) {
@@ -17,6 +19,7 @@ class IssueAssetFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.tickerInputET.filters = binding.tickerInputET.filters + InputFilter.AllCaps()
         editableFields = arrayOf(binding.tickerInputET, binding.nameInputET, binding.amountInputET)
         for (editText in editableFields) {
             editText.addTextChangedListener(
@@ -36,13 +39,8 @@ class IssueAssetFragment :
                     ) {}
 
                     override fun afterTextChanged(editable: Editable) {
-                        val ticker = binding.tickerInputET.text.toString()
-                        if (ticker != ticker.uppercase()) {
-                            binding.tickerInputET.setText(ticker.uppercase())
-                            binding.tickerInputET.setSelection(binding.tickerInputET.text.length)
-                        }
                         if (editText.inputType == InputType.TYPE_CLASS_NUMBER)
-                            fixETInteger(editText, editable.toString())
+                            fixETAmount(editText, editable.toString(), AppConstants.issueMaxAmount)
                         binding.issueBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.amountInputET)
                     }
@@ -54,7 +52,7 @@ class IssueAssetFragment :
             viewModel.issueAsset(
                 binding.tickerInputET.text.toString(),
                 binding.nameInputET.text.toString(),
-                binding.amountInputET.text.toString()
+                listOf(binding.amountInputET.text.toString())
             )
         }
 
@@ -73,8 +71,8 @@ class IssueAssetFragment :
                     handleError(response.error!!) {
                         toastError(R.string.err_issuing_asset, response.error.message)
                     }
+                    enableUI()
                 }
-                enableUI()
             }
         }
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/horizontal_ll"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:id="@+id/rgbAssetId" style="@style/unspent_asset_id" />
+    <TextView android:id="@+id/rgbAmount" style="@style/unspent_amount_rgb" />
+</LinearLayout>

@@ -1,12 +1,15 @@
 package com.iriswallet.data
 
 import android.content.SharedPreferences
+import com.iriswallet.utils.AppContainer
 
 object SharedPreferencesManager {
 
     private const val PREFS_MNEMONIC = "mnemonic"
     const val PREFS_PIN_ACTIONS_CONFIGURED = "pin_actions_configured"
     const val PREFS_PIN_LOGIN_CONFIGURED = "pin_login_configured"
+    const val PREFS_ELECTRUM_URL = "electrum_url_pref"
+    const val PREFS_PROXY_URL = "proxy_url_pref"
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var encryptedSharedPreferences: SharedPreferences
@@ -28,6 +31,16 @@ object SharedPreferencesManager {
         settingsSharedPreferences.edit().clear().apply()
     }
 
+    var electrumURL: String
+        get() =
+            settingsSharedPreferences.getString(
+                PREFS_ELECTRUM_URL,
+                AppContainer.electrumURLDefault
+            )!!
+        set(value) {
+            settingsSharedPreferences.edit()?.putString(PREFS_ELECTRUM_URL, value)?.apply()
+        }
+
     var mnemonic: String
         get() = encryptedSharedPreferences.getString(PREFS_MNEMONIC, "") ?: ""
         set(value) {
@@ -47,5 +60,11 @@ object SharedPreferencesManager {
         get() = settingsSharedPreferences.getBoolean(PREFS_PIN_LOGIN_CONFIGURED, false)
         set(value) {
             settingsSharedPreferences.edit()?.putBoolean(PREFS_PIN_LOGIN_CONFIGURED, value)?.apply()
+        }
+
+    var proxyURL: String
+        get() = settingsSharedPreferences.getString(PREFS_PROXY_URL, AppContainer.proxyURLDefault)!!
+        set(value) {
+            settingsSharedPreferences.edit()?.putString(PREFS_PROXY_URL, value)?.apply()
         }
 }

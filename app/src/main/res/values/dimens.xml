@@ -6,16 +6,18 @@
     <dimen name="big_size">32dp</dimen>
     <dimen name="medium_xl_size">24dp</dimen>
     <dimen name="medium_size">16dp</dimen>
+    <dimen name="small_xl_size">12dp</dimen>
     <dimen name="small_size">8dp</dimen>
     <dimen name="very_small_size">4dp</dimen>
     <dimen name="unit_size">1dp</dimen>
     <dimen name="elevation_size">@dimen/medium_size</dimen>
+    <dimen name="progress_bar_height">16dip</dimen>
 
     <!-- text sizes-->
-    <dimen name="text_title_standard">28sp</dimen>
-    <dimen name="text_label">24sp</dimen>
-    <dimen name="text_view">20sp</dimen>
+    <dimen name="text_very_very_big">28sp</dimen>
+    <dimen name="text_very_big">24sp</dimen>
+    <dimen name="text_big">20sp</dimen>
     <dimen name="text_medium">16sp</dimen>
-    <dimen name="text_small">12sp</dimen>
-    <dimen name="text_very_small">8sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_very_small">12sp</dimen>
 </resources>

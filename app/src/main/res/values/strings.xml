@@ -1,7 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="app_name_testnet" tools:ignore="UnusedResources">Iris Wallet Testnet</string>
     <string name="app_name_signet" tools:ignore="UnusedResources">Iris Wallet Signet</string>
+    <string name="app_name_testnet" tools:ignore="UnusedResources">Iris Wallet Testnet</string>
+    <string name="app_name_mainnet" tools:ignore="UnusedResources">Iris Wallet</string>
     <string name="failed_transfer">Failed transfer</string>
     <string name="ongoing_transfer">Ongoing transfer</string>
     <string name="not_available" translatable="false">N/A</string>
@@ -11,25 +12,22 @@
 
     <!-- character sets -->
     <string name="uppercase_letters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-    <string name="letters_and_digits">\
-        ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</string>
-    <string name="letters_digits_space_and_dash">\
-        ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -</string>
+    <string name="letters_and_digits">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</string>
+    <string name="letters_digits_space_and_dash">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -</string>
 
     <!-- user messages -->
     <string name="app_exception_msg">%1$s: %2$s</string>
     <string name="recipient_error">Error preparing receive data</string>
     <string name="clipboard_filled">Data copied to clipboard</string>
-    <string name="first_run_disclaimer">WELCOME
-        \n\nIris Wallet is intended to be used to test and experiment with the RGB protocol on the
-        Bitcoin %s network.
+    <string name="welcome">Welcome!</string>
+    <string name="first_run_disclaimer">Iris Wallet is intended to be used to test and experiment
+        with the RGB protocol on the Bitcoin %s network.
         The app is currently using experimental libraries, so breaking changes can happen.
         Please note that this app is not optimised neither for efficiency nor for privacy, and it
-        should be used for testing purposes only.
-        \n\nSee the help page from the main menu for additional details.
-        \n\nIf you understand the above remarks and wish to proceed, press the button below to
-        create a new wallet.</string>
+        should be used for testing purposes only.</string>
     <string name="first_run_create">Create</string>
+    <string name="accept">Accept</string>
+    <string name="do_not_accept">Do not accept</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="OK">OK</string>
@@ -37,7 +35,7 @@
     <string name="address">Address</string>
     <string name="amount">Amount</string>
     <string name="amount_to_pay">Amount to pay</string>
-    <string name="balance">Balance:</string>
+    <string name="your_balance">Your Balance</string>
     <string name="blinded_utxo">blinded UTXO</string>
     <string name="date">Date</string>
     <string name="send">Send</string>
@@ -47,63 +45,79 @@
     <string name="err_refreshing_assets">Error refreshing assets</string>
     <string name="err_listing_unspents">Error listing unspents</string>
     <string name="err_sending">Error sending</string>
+    <string name="faucet_no_assets">There are no available assets</string>
     <string name="sent_txid">Sent %s</string>
     <string name="cancelled_scan_permissions">Cancelled scan due to missing camera
         permission</string>
     <string name="insufficient_bitcoins">insufficient bitcoins</string>
+    <string name="invalid_blinded_utxo">Invalid blinded UTXO</string>
+    <string name="blinded_utxo_already_used">Blinded UTXO already used</string>
     <string name="reached_max_assets">reached max assets</string>
     <string name="back_again_to_exit">Go back again to exit from app</string>
     <string name="blinded_utxo_expiry">This blinded UTXO will expire in 24 hours after its creation</string>
     <string name="connection_err">Connection issues: some functions may not work</string>
-    <string name="err_timeout">Operation is taking much more than expected. Please try to restart
-        the app.</string>
+    <string name="err_getting_offline_assets">Unexpected error while retrieving assets.
+        Please try to restart the app.</string>
+    <string name="err_timeout">The operation is taking much more than expected. You can try waiting
+        or restart the app.</string>
     <string name="err_too_many_attempts">Error loading app. Too many authentication attempts. Exit
         and retry later.</string>
     <string name="exit">Exit</string>
+    <string name="keep_waiting">Keep waiting</string>
     <string name="menu_refresh">Refresh assets</string>
     <string name="menu_unspent_list">View unspent list</string>
-    <string name="menu_help_page">View help page</string>
+    <string name="menu_help_page">Help</string>
+    <string name="menu_about_page">About</string>
     <string name="menu_settings">Settings</string>
     <string name="err_configuring_app_auth">Error configuring authentication</string>
     <string name="auth_failed">Authentication failed</string>
     <string name="no_auth_available">Cannot find authentication, enable it in Android
         settings.</string>
     <string name="err_creating_wallet">Error creating wallet</string>
+    <string name="err_getting_faucet_data">Error getting data from faucets</string>
+    <string name="err_receiving_from_faucet">Error receiving from faucet</string>
     <string name="authentication_prompt_title">Android authentication login</string>
     <string name="authentication_prompt_subtitle">Log in using your Android credential</string>
 
     <!-- text field samples -->
     <string name="sample_amount">0</string>
-    <string name="sample_btc_amount">0</string>
-    <string name="sample_asset_id">\
-        rgb1tmh9cy82j69q098up3s3trvz04chmwr88y227teppylyp7gvqhfs7ev4gy</string>
+    <string name="sample_sat_amount">SAT 1000</string>
+    <string name="sample_rgb_amount">USDT 42</string>
+    <string name="sample_asset_id">rgb1tmh9cy82j69q098up3s3trvz04chmwr88y227teppylyp7gvqhfs7ev4gy</string>
     <string name="sample_asset_name">USD Tether</string>
     <string name="sample_asset_ticker">USDT</string>
-    <string name="sample_blinded_utxo">\
-        utxob1ju6wce4d8p4mzp1pqu3mywmnu62uueru4sxj7vg2f8ak89m3rdfqy8djth</string>
+    <string name="sample_blinded_utxo">utxob1ju6wce4d8p4mzp1pqu3mywmnu62uueru4sxj7vg2f8ak89m3rdfqy8djth</string>
     <string name="sample_date">1970–01–01</string>
     <string name="sample_datetime">1970–01–01 00:00:00</string>
+    <string name="sample_faucet_name">RGB-Tools Faucet</string>
+    <string name="sample_asset_group_name">Collectibles assets</string>
     <string name="sample_time">00:00:00</string>
-    <string name="sample_utxo">\
-        6593e8d4e6974b26add99c7d75472a0994bb76145ace7b24353b4628fece8e12:0</string>
-    <string name="sample_txid">\
-        ba5b5cf2206a6012414ec69a334749f002a7b30d603abbacf28db734264c06ea</string>
+    <string name="sample_utxo">6593e8d4e6974b26add99c7d75472a0994bb76145ace7b24353b4628fece8e12:0</string>
+    <string name="sample_txid">ba5b5cf2206a6012414ec69a334749f002a7b30d603abbacf28db734264c06ea</string>
 
     <!-- layout strings -->
-    <string name="asset_id_label">ASSET ID:</string>
+    <string name="asset_id_label">Asset ID</string>
     <string name="receive_button">Receive</string>
-    <string name="flashlight_icon_description">toggle flashlight</string>
-    <string name="forward_arrow_icon_description">click item to open detail</string>
-    <string name="wallet_icon_description">wallet icon</string>
+    <string name="request">Request</string>
+    <string name="flashlight_icon_description">Toggle flashlight</string>
+    <string name="wallet_icon_description">Wallet icon</string>
+    <string name="collectible_image_description">Collectible image</string>
+    <string name="collectible_video_description">Collectible video</string>
+    <string name="iris_title_desc">Iris RGB Wallet</string>
+    <string name="receive_qrcode_desc">QR code</string>
+    <string name="logo_desc">Iris Wallet logo</string>
+    <string name="copy_desc">Copy data button</string>
     <string name="help_title">Help</string>
+    <string name="about_title">About</string>
     <string name="issue_asset_title">Issue new asset</string>
     <string name="receive_asset_title">Receive</string>
     <string name="unspent_list_title">Unspent list</string>
+    <string name="faucet_title">Faucets</string>
     <string name="settings_title">Settings</string>
     <string name="issue_button">Issue asset</string>
     <string name="main_receive_button">Receive assets</string>
-    <string name="main_subtitle">My Assets</string>
-    <string name="automatic">INTERNAL</string>
+    <string name="main_title">My assets</string>
+    <string name="internal">INTERNAL</string>
     <string name="auto_text_utxo">Automated internal transaction to create new UTXOs for asset
         allocations</string>
     <string name="asset_ticker">Asset ticker</string>
@@ -118,7 +132,7 @@
     <string name="unblinded_utxo">Unblinded UTXO</string>
     <string name="help_faucet_label">Where can I get %s bitcoins?</string>
     <string name="help_faucet_text">You can get testnet bitcoin by using on of the many available
-        faucet, below are linked few example but you can always find more using a search
+        faucet, below are linked few examples but you can always find more using a search
         engine:</string>
     <string name="help_internal_label">Why do I see outgoing Bitcoin transactions that I didn\'t
         authorise?</string>
@@ -126,13 +140,53 @@
         output, if you do not have available UTXOs to receive, issue, or send yourself change
         assets, the wallet will use the available bitcoin balance to generate new UTXOs.
         Such transactions are marked in the transaction list as “internal”</string>
+    <string name="help_min_balance_label">What is the minimum bitcoin balance needed to issue and
+        receive RGB assets?</string>
+    <string name="help_min_balance_text">To create a set of UTXOs needed to issue and receive
+        assets the initial bitcoin balance needs to be at least 10,000 satoshis.</string>
+    <string name="help_feedback_label">Where can I send feedback or ask for support?</string>
+    <string name="help_feedback_text">For support and feedback there is a dedicated Telegram
+        group: https://t.me/IrisWallet</string>
+    <string name="faucet_label">Available faucets</string>
+    <string name="faucet_info">You can get free RGB assets from the available faucets</string>
+    <string name="menu_faucets">Faucets</string>
     <string name="menu_issue_asset">Issue new asset</string>
     <string name="delete_transfer">Delete transfer</string>
     <string name="copy_text">Copy</string>
     <string name="send_asset_title">Send</string>
     <string name="open_scanner">Open scanner</string>
-    <string name="iris_title_desc">Iris RGB Wallet</string>
-    <string name="receive_qrcode_desc">QR code</string>
-    <string name="logo_desc">Iris Wallet logo</string>
-    <string name="transfer_info_desc">Transfer info button</string>
+    <string name="fungibles">Fungibles</string>
+    <string name="collectibles">Collectibles</string>
+    <string name="pref_pin_login_title">Ask authentication for logging in to the app</string>
+    <string name="pref_pin_login_summary">Enable android authentication for logging in to the
+        app</string>
+    <string name="pref_pin_actions_title">Ask authentication for important operations</string>
+    <string name="pref_pin_actions_summary">Enable android authentication for spending
+        operations</string>
+    <string name="pref_electrum_url_title">Specify an electrum URL</string>
+    <string name="pref_electrum_url_summary">Specify which electrum server to use for Bitcoin and
+        RGB operations</string>
+    <string name="pref_electrum_url_dialog_title">Insert an electrum URL</string>
+    <string name="pref_electrum_url_dialog_summary">Insert an electrum server URL to use for Bitcoin
+        and RGB operations. Please note that after changing this option you need to close and
+        re-open the app in order to the changes to have effect.</string>
+    <string name="pref_proxy_url_title">Specify an RGB proxy URL</string>
+    <string name="pref_proxy_url_summary">Specify which proxy server to use for RGB
+        operations</string>
+    <string name="pref_proxy_url_dialog_title">Insert an RGB proxy URL</string>
+    <string name="pref_proxy_url_dialog_summary">Insert a proxy server URL to use for RGB
+        operations. Please note that after changing this option you need to close and re-open the
+        app in order to the changes to have effect.</string>
+    <string name="sat_amount">SAT %s</string>
+    <string name="rgb_amount">%1$s %2$s</string>
+    <string name="transactions">Transactions</string>
+    <string name="request_succeeded">Request succeeded. You will receive an asset named "%s"</string>
+    <string name="terms_and_conditions">Terms &amp; Conditions</string>
+    <string name="terms_not_accepted">You cannot proceed without agreeing to the Terms of Use for
+        the Iris Wallet. Wallet data will be erased.</string>
+    <string name="terms_of_service_link">Terms Of Service</string>
+    <string name="privacy_policy_link" >Privacy Policy</string>
+    <string name="app_version">App version: %s</string>
+    <string name="pending_asset_faucet">Pending asset from faucet. Please wait, it should arrive in
+        a few minutes</string>
 </resources>

@@ -1,20 +1,11 @@
 package com.iriswallet.ui
 
-import android.content.ClipData
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentReceiveAssetBinding
 import com.iriswallet.utils.AppConstants
-import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.Receiver
 
@@ -22,8 +13,6 @@ class ReceiveAssetFragment :
     MainBaseFragment<FragmentReceiveAssetBinding>(FragmentReceiveAssetBinding::inflate) {
 
     private var receiveData: Receiver? = null
-
-    private var isLoading = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,53 +22,17 @@ class ReceiveAssetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(
-            object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.receive_asset, menu)
-                    val copyDataItem = menu.findItem(R.id.copyDataMenu)
-                    copyDataItem.isEnabled = !isLoading
-                }
+        binding.receiveInfoLL.visibility = View.GONE
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return when (menuItem.itemId) {
-                        R.id.copyDataMenu -> {
-                            val clip =
-                                ClipData.newPlainText(
-                                    AppConstants.receiveDataClipLabel,
-                                    receiveData!!.recipient
-                                )
-                            AppContainer.clipboard.setPrimaryClip(clip)
-                            Toast.makeText(
-                                    activity,
-                                    getString(R.string.clipboard_filled),
-                                    Toast.LENGTH_LONG
-                                )
-                                .show()
-                            true
-                        }
-                        android.R.id.home -> {
-                            mActivity.onBackPressed()
-                            true
-                        }
-                        else -> true
-                    }
-                }
-            },
-            viewLifecycleOwner,
-            Lifecycle.State.RESUMED
-        )
+        binding.receiveCopyBtn.setOnClickListener {
+            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.recipient)
+        }
 
         viewModel.recipient.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.data != null) {
                     receiveData = response.data
-                    binding.receiveDataTV.text = response.data.recipient
-                    val bitmap =
-                        AppUtils.getQRCodeBitmap(response.data.recipient, mActivity.windowManager)
-                    binding.receiveQRCodeImg.setImageBitmap(bitmap)
-                    showQRCode()
+                    showReceiveData(response.data)
                     enableUI()
                 } else {
                     handleError(response.error!!) {
@@ -91,22 +44,28 @@ class ReceiveAssetFragment :
         }
     }
 
-    override fun onPause() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         if (viewModel.viewingAsset == null) viewModel.refreshAssets()
         else viewModel.refreshAssetDetail(viewModel.viewingAsset!!)
-        super.onPause()
     }
 
     override fun enableUI() {
         super.enableUI()
-        isLoading = false
-        requireActivity().invalidateOptionsMenu()
+        binding.receiveCopyBtn.isEnabled = true
+        binding.receiveCopyBtn.visibility = View.VISIBLE
     }
 
-    private fun showQRCode() {
+    private fun showReceiveData(receiveData: Receiver) {
+        val labelString = if (receiveData.bitcoin) R.string.address else R.string.blinded_utxo_cap
+        binding.receiveLabelTV.text = getString(labelString)
+        binding.receiveDataTV.text = receiveData.recipient
+        val bitmap = AppUtils.getQRCodeBitmap(receiveData.recipient, mActivity.windowManager)
+        binding.receiveQRCodeImg.setImageBitmap(bitmap)
         binding.receiveLoader.visibility = View.GONE
         binding.receiveQRCodeImg.visibility = View.VISIBLE
-        if (receiveData!!.expiration_time != null) binding.receiveExpiryTV.visibility = View.VISIBLE
-        else binding.receiveExpiryTV.visibility = View.INVISIBLE
+        binding.receiveInfoLL.visibility = View.VISIBLE
+        binding.receiveExpiryTV.visibility =
+            if (receiveData.expirationSeconds == null) View.GONE else View.VISIBLE
     }
 }

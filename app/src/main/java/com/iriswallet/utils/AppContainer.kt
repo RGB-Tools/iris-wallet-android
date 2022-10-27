@@ -3,11 +3,12 @@ package com.iriswallet.utils
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.room.Room
-import java.io.File
 import com.iriswallet.BuildConfig
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.db.AppDatabase
 import com.iriswallet.utils.AppUtils.Companion.getRgbDir
+import java.io.File
 import org.rgbtools.Keys
 import org.rgbtools.generateKeys
 import org.rgbtools.restoreKeys
@@ -24,6 +25,7 @@ object AppContainer {
         when (BuildConfig.FLAVOR) {
             "bitcoinSignet" -> BitcoinNetwork.SIGNET
             "bitcoinTestnet" -> BitcoinNetwork.TESTNET
+            "bitcoinMainnet" -> BitcoinNetwork.MAINNET
             else -> throw RuntimeException("Unknown product flavor")
         }
 
@@ -51,44 +53,103 @@ object AppContainer {
         Room.databaseBuilder(appContext, AppDatabase::class.java, AppConstants.appDBName).build()
     }
 
-    val confirmationsExplorerURL: String by lazy {
+    val btcHelpFaucetURLS: List<String> by lazy {
         when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> AppConstants.signetConfirmationsExplorerURL
-            BitcoinNetwork.TESTNET -> AppConstants.testnetConfirmationsExplorerURL
+            BitcoinNetwork.SIGNET -> AppConstants.signetHelpFaucets
+            BitcoinNetwork.TESTNET -> AppConstants.testnetHelpFaucets
+            BitcoinNetwork.MAINNET -> listOf()
         }
     }
 
-    val electrumURL: String by lazy {
+    val btcFaucetURLS: String? by lazy {
         when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> AppConstants.signetElectrumURL
-            BitcoinNetwork.TESTNET -> AppConstants.testnetElectrumURL
+            BitcoinNetwork.SIGNET -> null
+            BitcoinNetwork.TESTNET -> AppConstants.btcTestnetFaucetURL
+            BitcoinNetwork.MAINNET -> null
         }
     }
+
+    val electrumURL: String by lazy { SharedPreferencesManager.electrumURL }
 
     val explorerURL: String by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.signetExplorerURL
             BitcoinNetwork.TESTNET -> AppConstants.testnetExplorerURL
+            BitcoinNetwork.MAINNET -> AppConstants.mainnetExplorerURL
         }
     }
+
+    val electrumURLDefault: String by lazy {
+        when (bitcoinNetwork) {
+            BitcoinNetwork.SIGNET -> AppConstants.signetElectrumURL
+            BitcoinNetwork.TESTNET -> AppConstants.testnetElectrumURL
+            BitcoinNetwork.MAINNET -> AppConstants.mainnetElectrumURL
+        }
+    }
+
+    val rgbFaucetURLS: List<String> by lazy {
+        when (bitcoinNetwork) {
+            BitcoinNetwork.SIGNET -> listOf()
+            BitcoinNetwork.TESTNET -> AppConstants.rgbTestnetFaucetURLs
+            BitcoinNetwork.MAINNET -> AppConstants.rgbMainnetFaucetURLs
+        }
+    }
+
+    val proxyURL: String by lazy { SharedPreferencesManager.proxyURL }
+
+    val proxyURLDefault: String by lazy { AppConstants.proxyURL }
 
     val bitcoinAssetTicker: String by lazy {
         val prefix =
             when (bitcoinNetwork) {
                 BitcoinNetwork.SIGNET -> "s"
                 BitcoinNetwork.TESTNET -> "t"
+                BitcoinNetwork.MAINNET -> ""
             }
         prefix + AppConstants.bitcoinAssetID
     }
 
     val bitcoinAssetName: String by lazy {
-        "${AppConstants.bitcoinAssetName} (${bitcoinNetwork.toString().lowercase()})"
+        val network =
+            when (bitcoinNetwork) {
+                BitcoinNetwork.SIGNET,
+                BitcoinNetwork.TESTNET ->
+                    " (${bitcoinNetwork.toString()
+                .lowercase()})"
+                BitcoinNetwork.MAINNET -> ""
+            }
+        "${AppConstants.bitcoinAssetName}$network"
+    }
+
+    val bitcoinDerivationPathCoinType: Int by lazy {
+        when (bitcoinNetwork) {
+            BitcoinNetwork.SIGNET -> 1
+            BitcoinNetwork.TESTNET -> 1
+            BitcoinNetwork.MAINNET -> 0
+        }
     }
 
     val bitcoinLogoID: Int by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> R.drawable.bitcoin_signet
             BitcoinNetwork.TESTNET -> R.drawable.bitcoin_testnet
+            BitcoinNetwork.MAINNET -> R.drawable.bitcoin_mainnet
+        }
+    }
+
+    val termsAndConditionsID: Int by lazy {
+        when (bitcoinNetwork) {
+            BitcoinNetwork.SIGNET -> R.raw.terms_of_service_testnet
+            BitcoinNetwork.TESTNET -> R.raw.terms_of_service_testnet
+            BitcoinNetwork.MAINNET -> R.raw.terms_of_service_mainnet
+        }
+    }
+
+    val termsAndConditionsURL: String by lazy {
+        when (bitcoinNetwork) {
+            BitcoinNetwork.SIGNET -> AppConstants.testnetTermsOfServiceURL
+            BitcoinNetwork.TESTNET -> AppConstants.testnetTermsOfServiceURL
+            BitcoinNetwork.MAINNET -> AppConstants.mainnetTermsOfServiceURL
         }
     }
 }

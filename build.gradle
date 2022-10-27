@@ -3,6 +3,7 @@ buildscript {
   ext {
     androidx_lifecycle_version = '2.5.1'
     androidx_navigation_version = '2.5.2'
+    retrofit_version = '2.9.0'
     room_version = '2.4.3'
   }
   dependencies {
@@ -12,7 +13,7 @@ buildscript {
 }
 
 plugins {
-  id 'com.android.application' version '7.3.0' apply false
+  id 'com.android.application' version '7.3.1' apply false
   id 'com.diffplug.spotless' version '6.10.0'
   id 'com.google.devtools.ksp' version '1.7.0-1.0.6' apply false
   id 'idea'

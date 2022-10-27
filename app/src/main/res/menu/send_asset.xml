@@ -3,6 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/scanMenu"
         app:showAsAction="always"
-        android:icon="@drawable/ic_qrcode_selector"
+        android:icon="@drawable/ic_scan"
         android:title="@string/open_scanner" />
 </menu>

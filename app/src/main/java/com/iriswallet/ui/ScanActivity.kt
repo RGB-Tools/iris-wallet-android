@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.iriswallet.databinding.ActivityScanBinding
 import com.journeyapps.barcodescanner.CaptureManager
 import java.lang.reflect.Field
-import com.iriswallet.databinding.ActivityScanBinding
 
 const val ABORT = 101
 
@@ -87,6 +87,7 @@ class ScanActivity : AppCompatActivity() {
         )
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         setResult(ABORT)
         finish()

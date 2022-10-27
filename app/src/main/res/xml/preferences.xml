@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
         app:key="pin_actions_configured"
-        app:title="Ask authentication for important operations"
-        app:summary="Enable android authentication for spending operations"
+        app:title="@string/pref_pin_actions_title"
+        app:summary="@string/pref_pin_actions_summary"
         app:singleLineTitle="false"/>
 
     <SwitchPreferenceCompat
         app:key="pin_login_configured"
-        app:title="Ask authentication for logging in to the app"
-        app:summary="Enable android authentication for logging in to the app"
+        app:title="@string/pref_pin_login_title"
+        app:summary="@string/pref_pin_login_summary"
         app:singleLineTitle="false"/>
+
+    <EditTextPreference
+        app:key="electrum_url_pref"
+        app:persistent="true"
+        app:title="@string/pref_electrum_url_title"
+        app:summary="@string/pref_electrum_url_summary"
+        app:dialogTitle="@string/pref_electrum_url_dialog_title"
+        app:dialogMessage="@string/pref_electrum_url_dialog_summary"/>
+
+    <EditTextPreference
+        app:key="proxy_url_pref"
+        app:persistent="true"
+        app:title="@string/pref_proxy_url_title"
+        app:summary="@string/pref_proxy_url_summary"
+        app:dialogTitle="@string/pref_proxy_url_dialog_title"
+        app:dialogMessage="@string/pref_proxy_url_dialog_summary"/>
 
 </PreferenceScreen>

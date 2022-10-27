@@ -7,66 +7,91 @@
     android:paddingTop="@dimen/very_small_size"
     android:paddingBottom="@dimen/very_small_size">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
+        app:cardBackgroundColor="@color/white_op10"
+        app:cardCornerRadius="5dp"
+        android:minHeight="@dimen/extra_size"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:padding="@dimen/small_size">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/transferItemDateTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/sample_date"
-            android:textColor="@color/color_list_fg_1"
-            android:textSize="@dimen/text_view"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_marginHorizontal="@dimen/medium_size"
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/transferItemTimeTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sample_time"
-            android:textColor="@color/color_list_fg_2"
-            android:textSize="@dimen/text_small"
-            app:layout_constraintStart_toStartOf="@+id/transferItemDateTV"
-            app:layout_constraintTop_toBottomOf="@+id/transferItemDateTV" />
+            <LinearLayout
+                android:id="@+id/transferItemDateLL"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:weightSum="2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/transferAmountLL">
 
-        <TextView
-            android:id="@+id/transferItemAmountTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/sample_amount"
-            android:textColor="@color/color_gray"
-            android:textSize="@dimen/text_view"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/transferItemDateTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="@string/sample_date"
+                    android:textColor="@color/manatee"
+                    android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/transferAutoTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/automatic"
-            android:textColor="@color/color_list_fg_2"
-            android:textSize="@dimen/text_very_small"
-            android:textStyle="bold"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+                <TextView
+                    android:id="@+id/transferItemTimeTV"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sample_time"
+                    android:textColor="@color/granite_grey"
+                    android:textSize="15sp" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/unit_size"
-        android:background="@color/color_divider" />
+            <LinearLayout
+                android:id="@+id/transferAmountLL"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:weightSum="2"
+                android:gravity="right|center_vertical"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/transferItemDateLL"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/transferItemAmountTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/sample_amount"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/color_gray"
+                    android:textSize="@dimen/text_big"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/transferAutoTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/internal"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/color_list_fg_2"
+                    android:textSize="@dimen/text_very_small"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

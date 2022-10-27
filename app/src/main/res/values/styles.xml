@@ -1,17 +1,25 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents">
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/black</item>
-        <item name="colorAccent">@color/color_accent</item>
-        <item name="android:windowBackground">@color/white</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="android:windowBackground">@color/background_blue</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!-- Active thumb color & Active track color(30% transparency) -->
+        <item name="colorControlActivated">@color/primary_green</item>
+        <!-- Inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@color/color_gray</item>
+        <!-- Inactive track color(30% transparency) -->
+        <item name="android:colorForeground">@color/primary_green</item>
+        <item name="android:textColorSecondary">@color/silver_metallic</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="preferenceTheme">@style/AppTheme.PreferenceThemeOverlay</item>
     </style>
 
     <style name="AppTheme.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="windowSplashScreenBackground">@color/background_blue</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
@@ -21,7 +29,151 @@
 
     <style name="AppTheme.AppBarLayout" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
+    <style name="NavigationTheme" parent="AppTheme">
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
     <style name="AppTheme.PreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorSecondary">@color/silver_metallic</item>
         <item name="android:layout">@layout/fragment_settings</item>
+    </style>
+
+    <style name="horizontal_ll">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="green_button">
+        <item name="cornerRadius">5dp</item>
+        <item name="backgroundTint">@color/btn_main_selector</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <style name="main_button" parent="green_button">
+        <item name="android:layout_margin">@dimen/big_size</item>
+    </style>
+
+    <style name="detail_button">
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="backgroundTint">@color/btn_detail_background</item>
+        <item name="android:textColor">@color/btn_detail_text</item>
+        <item name="android:textSize">@dimen/text_very_small</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+    </style>
+
+    <style name="help_title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_very_big</item>
+    </style>
+    <style name="help_text">
+        <item name="android:textColor">@color/silver_metallic</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColorLink">@color/caribbean_green</item>
+        <item name="android:layout_marginBottom">@dimen/medium_xl_size</item>
+    </style>
+
+    <style name="link">
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textColor">@color/caribbean_green</item>
+        <item name="android:textColorLink">@color/caribbean_green</item>
+        <item name="android:layout_marginBottom">@dimen/medium_size</item>
+    </style>
+
+    <style name="et_label">
+        <item name="android:textColor">@color/color_label</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginBottom">@dimen/small_size</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="et_text">
+        <item name="android:textColor">@color/granite_grey</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:ems">20</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_marginBottom">@dimen/medium_xl_size</item>
+        <item name="android:background">@drawable/rounded_edittext</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="minHeight">48dp</item>
+    </style>
+
+    <style name="unspent_amount_sat">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/roman_silver</item>
+        <item name="android:text">@string/sample_sat_amount</item>
+    </style>
+
+    <style name="unspent_amount_rgb" parent="unspent_amount_sat">
+        <item name="android:textColor">@color/roman_silver_op6</item>
+        <item name="android:text">@string/sample_rgb_amount</item>
+    </style>
+
+    <style name="unspent_asset_id" parent="unspent_amount_rgb">
+        <item name="android:text">@string/sample_asset_id</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginEnd">50dp</item>
+    </style>
+
+    <style name="detail_label">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginBottom">@dimen/small_size</item>
+    </style>
+    <style name="detail_text">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/silver_metallic</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_marginBottom">@dimen/medium_size</item>
+    </style>
+
+    <style name="fake_progress_bar">
+        <item name="android:layout_height">@dimen/progress_bar_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginBottom">@dimen/medium_size</item>
+    </style>
+
+    <style name="progress_bar" parent="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal">
+        <item name="android:layout_height">@dimen/progress_bar_height</item>
+        <item name="android:layout_marginBottom">@dimen/medium_size</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:visibility">invisible</item>
+        <item name="android:indeterminate">true</item>
+    </style>
+
+    <style name="light_label">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/silver_metallic_op50</item>
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+
+    <style name="balance_tv">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_very_very_big</item>
+        <!-- disable in case android studio design preview doesn't work -->
+        <item name="fontFamily">@font/inter_semibold</item>
     </style>
 </resources>

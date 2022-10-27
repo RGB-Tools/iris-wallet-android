@@ -4,27 +4,43 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iriswallet.data.*
+import com.iriswallet.data.retrofit.RgbAsset
+import com.iriswallet.utils.*
+import com.iriswallet.utils.AppConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import com.iriswallet.data.*
-import com.iriswallet.utils.*
-import com.iriswallet.utils.AppConstants
 
 class MainViewModel : ViewModel() {
 
-    var cachedAssets = listOf<AppAsset>()
+    val cachedFungibles
+        get() = AppRepository.getCachedFungibles()
+    val cachedCollectibles
+        get() = AppRepository.getCachedCollectibles()
 
     var viewingAsset: AppAsset? = null
-    var viewingTransfer: Transfer? = null
+    var viewingTransfer: AppTransfer? = null
 
     var refreshingAsset: Boolean = false
-    var refreshingAssets: Boolean = false
+    var refreshingAssets: Boolean = true
 
-    private val _assets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
-    val assets: LiveData<Event<AppResponse<List<AppAsset>>>>
-        get() = _assets
+    private val _refreshedAssets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
+    val refreshedAssets: LiveData<Event<AppResponse<List<AppAsset>>>>
+        get() = _refreshedAssets
+
+    private val _refreshedFungibles = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
+    val refreshedFungibles: LiveData<Event<AppResponse<List<AppAsset>>>>
+        get() = _refreshedFungibles
+
+    private val _refreshedCollectibles = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
+    val refreshedCollectibles: LiveData<Event<AppResponse<List<AppAsset>>>>
+        get() = _refreshedCollectibles
+
+    private val _offlineAssets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
+    val offlineAssets: LiveData<Event<AppResponse<List<AppAsset>>>>
+        get() = _offlineAssets
 
     private val _asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
     val asset: LiveData<Event<AppResponse<AppAsset>>>
@@ -45,6 +61,14 @@ class MainViewModel : ViewModel() {
     private val _unspents = MutableLiveData<Event<AppResponse<List<UTXO>>>>()
     val unspents: LiveData<Event<AppResponse<List<UTXO>>>>
         get() = _unspents
+
+    private val _rgbFaucets = MutableLiveData<Event<AppResponse<List<RgbFaucet>>>>()
+    val rgbFaucets: LiveData<Event<AppResponse<List<RgbFaucet>>>>
+        get() = _rgbFaucets
+
+    private val _rgbAsset = MutableLiveData<Event<AppResponse<RgbAsset>>>()
+    val rgbAsset: LiveData<Event<AppResponse<RgbAsset>>>
+        get() = _rgbAsset
 
     private inline fun callWithTimeout(
         timeout: Long,
@@ -87,14 +111,37 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun initNewApp() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (AppContainer.btcFaucetURLS != null)
+                runCatching { AppRepository.receiveFromBitcoinFaucet() }
+            getOfflineAssets()
+        }
+    }
+
+    private fun postAssets() {
+        _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
+        _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
+    }
+
+    fun getOfflineAssets() {
+        tryCallWithTimeout(
+            AppConstants.longTimeout,
+            _offlineAssets,
+            successCallback = { postAssets() },
+        ) {
+            AppRepository.getAssets()
+        }
+    }
+
     fun refreshAssets(allowFailures: Boolean = false) {
         refreshingAssets = true
         tryCallWithTimeout(
-            AppConstants.longTimeout,
-            _assets,
+            AppConstants.veryLongTimeout,
+            _refreshedAssets,
             successCallback = {
                 refreshingAssets = false
-                cachedAssets = it
+                postAssets()
             },
             failureCallback = { refreshingAssets = false },
         ) {
@@ -105,7 +152,7 @@ class MainViewModel : ViewModel() {
     fun refreshAssetDetail(asset: AppAsset, allowFailures: Boolean = false) {
         refreshingAsset = true
         tryCallWithTimeout(
-            AppConstants.shortTimeout,
+            AppConstants.veryLongTimeout,
             _asset,
             successCallback = { refreshingAsset = false },
             failureCallback = { refreshingAsset = false },
@@ -132,9 +179,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun issueAsset(ticker: String, name: String, amount: String) {
+    fun issueAsset(ticker: String, name: String, amounts: List<String>) {
         tryCallWithTimeout(AppConstants.longTimeout, _issuedAsset) {
-            AppRepository.issueRGBAsset(ticker, name, amount.toULong())
+            AppRepository.issueRGBAsset(ticker, name, amounts.map { it.toULong() })
         }
     }
 
@@ -148,5 +195,17 @@ class MainViewModel : ViewModel() {
 
     fun checkCache() {
         viewModelScope.launch(Dispatchers.IO) { if (AppRepository.isCacheDirty) refreshAssets() }
+    }
+
+    fun getFaucetAssetGroups() {
+        tryCallWithTimeout(AppConstants.longTimeout, _rgbFaucets) {
+            AppRepository.getRgbFaucetAssetGroups()
+        }
+    }
+
+    fun receiveFromRgbFaucet(url: String, group: String) {
+        tryCallWithTimeout(AppConstants.veryLongTimeout, _rgbAsset) {
+            AppRepository.receiveFromRgbFaucet(url, group)
+        }
     }
 }

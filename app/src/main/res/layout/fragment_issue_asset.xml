@@ -1,54 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.IssueAssetFragment">
+
+    <ProgressBar
+        android:id="@+id/issuePB"
+        style="@style/progress_bar"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
-            android:id="@+id/issuePB"
-            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:fillViewport="true"
-            app:layout_constraintBottom_toTopOf="@+id/issueBtn"
-            app:layout_constraintTop_toBottomOf="@id/issuePB">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginHorizontal="@dimen/big_size"
+                android:layout_marginTop="@dimen/big_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/tickerLabelTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/big_size"
                     android:text="@string/asset_ticker"
-                    android:textColor="@color/color_label"
-                    android:textSize="@dimen/text_label"
-                    app:layout_constraintStart_toStartOf="@+id/tickerInputET"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    style="@style/et_label" />
 
                 <EditText
                     android:id="@+id/tickerInputET"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:digits="@string/uppercase_letters"
-                    android:ems="10"
                     android:hint="@string/short_identifier"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
@@ -56,27 +43,16 @@
                     android:maxLength="8"
                     android:maxLines="1"
                     android:singleLine="true"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tickerLabelTV" />
+                    style="@style/et_text" />
 
                 <TextView
                     android:id="@+id/nameLabelTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/big_size"
                     android:text="@string/asset_name"
-                    android:textColor="@color/color_label"
-                    android:textSize="@dimen/text_label"
-                    app:layout_constraintStart_toStartOf="@+id/nameInputET"
-                    app:layout_constraintTop_toBottomOf="@+id/tickerInputET" />
+                    style="@style/et_label" />
 
                 <EditText
                     android:id="@+id/nameInputET"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:digits="@string/letters_digits_space_and_dash"
-                    android:ems="10"
                     android:hint="@string/name_of_the_asset"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
@@ -84,52 +60,34 @@
                     android:maxLength="32"
                     android:maxLines="1"
                     android:singleLine="true"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/nameLabelTV" />
+                    style="@style/et_text" />
 
                 <TextView
                     android:id="@+id/amountLabelTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/big_size"
                     android:text="@string/total_supply"
-                    android:textColor="@color/color_label"
-                    android:textSize="@dimen/text_label"
-                    app:layout_constraintStart_toStartOf="@+id/amountInputET"
-                    app:layout_constraintTop_toBottomOf="@+id/nameInputET" />
+                    style="@style/et_label"/>
 
                 <EditText
                     android:id="@+id/amountInputET"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:digits="0123456789"
-                    android:ems="10"
                     android:hint="@string/amount_to_issue"
                     android:imeOptions="actionDone"
                     android:inputType="number"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/amountLabelTV"
-                    android:importantForAutofill="no" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:importantForAutofill="no"
+                    style="@style/et_text" />
+            </LinearLayout>
 
         </ScrollView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/issueBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/big_size"
-            android:layout_marginEnd="@dimen/big_size"
-            android:layout_marginBottom="@dimen/big_size"
-            android:background="@drawable/btn_filled_selector"
             android:enabled="false"
             android:text="@string/issue_button"
-            android:textColor="@color/white"
+            style="@style/main_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+
+</LinearLayout>

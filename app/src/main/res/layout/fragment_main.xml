@@ -11,19 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/mainSubtitleTV"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/mainTabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/highlight_gradient"
-            android:elevation="@dimen/elevation_size"
-            android:gravity="center"
-            android:paddingBottom="@dimen/small_size"
-            android:text="@string/main_subtitle"
-            android:textColor="@color/color_title_fg_1"
-            android:textSize="@dimen/text_title_standard"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:tabTextColor="@color/white"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabMode="fixed" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/mainCooL"
@@ -32,7 +27,7 @@
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/mainSubtitleTV">
+            app:layout_constraintTop_toBottomOf="@id/mainTabLayout">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/mainCardView"
@@ -61,22 +56,14 @@
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/mainSwipeRefresh"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/mainViewPager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/small_size"
-            app:layout_constraintTop_toBottomOf="@+id/mainCooL"
-            app:layout_constraintBottom_toTopOf="@+id/mainDivider">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/assetRV"
-                tools:listitem="@layout/asset_list_item"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            app:layout_constraintBottom_toTopOf="@id/mainDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mainCooL" />
 
         <View
             android:id="@+id/mainDivider"
@@ -88,14 +75,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/mainReceiveBtn"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mainReceiveBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/medium_xl_size"
-            android:background="@drawable/btn_filled_selector"
             android:text="@string/main_receive_button"
-            android:textColor="@color/white"
+            style="@style/main_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

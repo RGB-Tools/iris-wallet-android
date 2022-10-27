@@ -7,15 +7,14 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.TAG
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import com.iriswallet.utils.AppConstants
-import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.TAG
 
 class ConnectivityService : Service() {
 
@@ -25,8 +24,7 @@ class ConnectivityService : Service() {
     private val serviceURLs: List<String> by lazy {
         listOf(
             AppContainer.electrumURL,
-            AppConstants.consignmentProxyURL,
-            AppContainer.confirmationsExplorerURL
+            AppContainer.proxyURL,
         )
     }
 
@@ -56,6 +54,7 @@ class ConnectivityService : Service() {
         scheduleExecutor.cancel(true)
         Log.d(TAG, "Stopped connectivity check service")
         super.onDestroy()
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     private fun checkConnectivity() {

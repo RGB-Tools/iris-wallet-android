@@ -1,5 +1,7 @@
 package com.iriswallet.ui
 
+import android.content.ClipData
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,12 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceFragmentCompat
 import androidx.viewbinding.ViewBinding
-import java.lang.NumberFormatException
-import java.math.BigDecimal
 import com.iriswallet.R
-import com.iriswallet.utils.AppError
-import com.iriswallet.utils.AppErrorType
-import com.iriswallet.utils.TAG
+import com.iriswallet.utils.*
+import java.math.BigDecimal
 
 private fun getErrMsg(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null): String {
     var errMsg = fragment.getString(baseMsgID)
@@ -34,7 +33,7 @@ private fun getErrMsg(fragment: Fragment, baseMsgID: Int, extraMsg: String? = nu
 private fun toastError(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null) {
     val errMsg = getErrMsg(fragment, baseMsgID, extraMsg)
     Log.d(fragment.TAG, errMsg)
-    Toast.makeText(fragment.requireContext(), errMsg, Toast.LENGTH_LONG).show()
+    Toast.makeText(fragment.activity, errMsg, Toast.LENGTH_LONG).show()
 }
 
 abstract class PreferenceBaseFragment : PreferenceFragmentCompat() {
@@ -58,7 +57,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
 
     protected val viewModel: MainViewModel by activityViewModels()
 
-    protected lateinit var mActivity: MainActivity
+    internal lateinit var mActivity: MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,17 +89,37 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
 
     fun toastError(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
 
+    internal fun showExitDialog(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.exit)) { _, _ ->
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }
+            .setCancelable(false)
+            .create()
+            .show()
+    }
+
+    fun clearAndShowExitDialog(message: String) {
+        AppUtils.deleteAppData()
+        showExitDialog(message)
+    }
+
     fun handleError(error: AppError, callback: () -> Unit) {
-        if (error.type == AppErrorType.TIMEOUT_EXCEPTION) {
+        if (error.type == AppErrorType.TIMEOUT_EXCEPTION)
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.err_timeout))
-                .setPositiveButton(getString(R.string.exit)) { _, _ -> mActivity.finish() }
+                .setPositiveButton(getString(R.string.exit)) { _, _ ->
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                }
+                .setNegativeButton(getString(R.string.keep_waiting)) {
+                    dialogInterface: DialogInterface,
+                    i: Int ->
+                }
                 .setCancelable(false)
                 .create()
                 .show()
-        } else {
-            callback()
-        }
+        else callback()
     }
 
     open fun enableUI() {
@@ -115,12 +134,14 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
         return allFilled
     }
 
-    fun fixETInteger(editText: EditText, intString: String) {
-        if (intString.isNotEmpty()) {
-            var fixed = intString
+    fun fixETAmount(editText: EditText, amountString: String, maxAmount: ULong) {
+        if (amountString.isNotEmpty()) {
+            var fixed = amountString
             // remove leading zero
             if (fixed.length > 1 && fixed.startsWith("0")) fixed = fixed.drop(1)
-            if (fixed != intString) {
+            runCatching { if (fixed.toULong() > maxAmount) fixed = maxAmount.toString() }
+                .onFailure { fixed = maxAmount.toString() }
+            if (fixed != amountString) {
                 editText.setText(fixed)
                 editText.setSelection(editText.text.length)
             }
@@ -139,5 +160,11 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
                 }
         }
         return enable
+    }
+
+    fun toClipboard(label: String, text: String) {
+        val clip = ClipData.newPlainText(label, text)
+        AppContainer.clipboard.setPrimaryClip(clip)
+        Toast.makeText(activity, getString(R.string.clipboard_filled), Toast.LENGTH_SHORT).show()
     }
 }

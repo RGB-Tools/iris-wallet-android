@@ -9,25 +9,24 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
-import java.text.SimpleDateFormat
-import java.util.*
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentTransferDetailBinding
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.Transfer
+import com.iriswallet.utils.AppTransfer
 import com.iriswallet.utils.UTXO
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TransferDetailFragment :
     MainBaseFragment<FragmentTransferDetailBinding>(FragmentTransferDetailBinding::inflate) {
 
-    private lateinit var transfer: Transfer
+    private lateinit var transfer: AppTransfer
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -72,16 +71,17 @@ class TransferDetailFragment :
 
         transfer = viewModel.viewingTransfer!!
 
-        if (transfer.automatic) {
-            binding.transferInfo.visibility = View.VISIBLE
-            binding.transferInfo.setOnClickListener {
-                AlertDialog.Builder(requireContext())
-                    .setMessage(getString(R.string.auto_text_utxo))
-                    .setPositiveButton(getString(R.string.OK)) { _, _ -> }
-                    .create()
-                    .show()
-            }
-        }
+        binding.transferInternalTV.visibility =
+            if (transfer.automatic) {
+                binding.transferInternalTV.setOnClickListener {
+                    AlertDialog.Builder(requireContext())
+                        .setMessage(getString(R.string.auto_text_utxo))
+                        .setPositiveButton(getString(R.string.OK)) { _, _ -> }
+                        .create()
+                        .show()
+                }
+                View.VISIBLE
+            } else View.GONE
 
         if (transfer.deletable())
             viewModel.asset.observe(viewLifecycleOwner) {
@@ -120,8 +120,6 @@ class TransferDetailFragment :
         } else {
             binding.transferTXIDLabelTV.visibility = View.GONE
             binding.transferTXIDTV.visibility = View.GONE
-            val params = binding.transferTXIDLabelTV.layoutParams as ConstraintLayout.LayoutParams
-            params.topToBottom = binding.transferAmountTV.id
         }
 
         binding.transferDateTV.text =

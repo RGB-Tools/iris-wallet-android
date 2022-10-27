@@ -6,6 +6,12 @@ plugins {
   id 'androidx.navigation.safeargs.kotlin'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+  keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
   compileSdk 33
 
@@ -13,17 +19,29 @@ android {
     applicationId 'com.iriswallet'
     minSdk 26
     targetSdk 33
-    versionCode 1
-    versionName '0.1.0'
+    versionCode 18
+    versionName '0.1.1'
     ndk {
       abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
     }
     testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
   }
 
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
+  }
+
   signingConfigs {
     debug {
       storeFile file('debug.keystore')
+    }
+    release {
+      storeFile file("${System.properties['user.home']}/android-keystores/iriswallet.jks")
+      storePassword keystoreProperties['storePassword']
+      keyAlias 'upload'
+      keyPassword keystoreProperties['keyPassword']
     }
   }
 
@@ -41,20 +59,26 @@ android {
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       shrinkResources true
+      signingConfig signingConfigs.release
     }
   }
 
   flavorDimensions += 'bitcoinNetwork'
   productFlavors {
+    bitcoinSignet {
+      applicationIdSuffix '.signet'
+      manifestPlaceholders = [appName: '@string/app_name_signet']
+      versionNameSuffix '-signet'
+    }
     bitcoinTestnet {
       applicationIdSuffix '.testnet'
       manifestPlaceholders = [appName: '@string/app_name_testnet']
       versionNameSuffix '-testnet'
     }
-    bitcoinSignet {
-      applicationIdSuffix '.signet'
-      manifestPlaceholders = [appName: '@string/app_name_signet']
-      versionNameSuffix '-signet'
+    bitcoinMainnet {
+      applicationIdSuffix '.mainnet'
+      manifestPlaceholders = [appName: '@string/app_name_mainnet']
+      versionNameSuffix '-mainnet'
     }
   }
 
@@ -100,7 +124,7 @@ dependencies {
   // AndroidX
   implementation 'androidx.appcompat:appcompat:1.5.1'
 
-  implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha04'
+  implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha05'
 
   implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
@@ -109,7 +133,7 @@ dependencies {
   implementation 'androidx.core:core-ktx:1.9.0'
   implementation 'androidx.core:core-splashscreen:1.0.0'
 
-  implementation 'androidx.fragment:fragment-ktx:1.5.2'
+  implementation 'androidx.fragment:fragment-ktx:1.5.3'
 
   implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
@@ -133,14 +157,25 @@ dependencies {
   // Bitcoindevkit
   implementation 'org.bitcoindevkit:bdk-android:0.9.0'
 
+  // Github
+  implementation 'com.github.lelloman:android-identicons:v11'
+
   // Google
   implementation 'com.google.android.gms:play-services-auth:20.3.0'
 
-  implementation 'com.google.android.material:material:1.6.1'
+  implementation 'com.google.android.material:material:1.7.0'
+
+  implementation 'com.google.code.gson:gson:2.9.0'
 
   // Journeyapps
   implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
   // RGB-Tools
-  implementation 'org.rgbtools:rgb-lib-android:0.1.1'
+  implementation 'org.rgbtools:rgb-lib-android:0.1.2'
+
+  // Squareup
+  implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+
+  implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+  implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 }

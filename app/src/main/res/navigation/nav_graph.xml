@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/routingFragment">
-
     <fragment
         android:id="@+id/routingFragment"
         android:name="com.iriswallet.ui.RoutingFragment"
@@ -26,13 +25,22 @@
         android:name="com.iriswallet.ui.FirstRunFragment"
         tools:layout="@layout/fragment_first_run">
         <action
-            android:id="@+id/action_firstRunFragment_to_mainFragment"
+            android:id="@+id/action_firstRunFragment_to_termsAndConditionsFragment"
+            app:destination="@id/termsAndConditionsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/termsAndConditionsFragment"
+        android:name="com.iriswallet.ui.TermsAndConditionsFragment"
+        android:label="@string/terms_and_conditions"
+        tools:layout="@layout/fragment_terms_and_conditions">
+        <action
+            android:id="@+id/action_termsAndConditionsFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.iriswallet.ui.MainFragment"
-        android:label=""
+        android:label="@string/main_title"
         tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_assetDetailFragment"
@@ -50,6 +58,12 @@
             android:id="@+id/action_mainFragment_to_helpPageFragment"
             app:destination="@id/helpPageFragment" />
         <action
+            android:id="@+id/action_mainFragment_to_aboutPageFragment"
+            app:destination="@id/aboutPageFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_faucetFragment"
+            app:destination="@id/faucetFragment" />
+        <action
             android:id="@+id/action_mainFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
     </fragment>
@@ -58,6 +72,12 @@
         android:name="com.iriswallet.ui.HelpPageFragment"
         android:label="@string/help_title"
         tools:layout="@layout/fragment_help_page">
+    </fragment>
+    <fragment
+        android:id="@+id/aboutPageFragment"
+        android:name="com.iriswallet.ui.AboutPageFragment"
+        android:label="@string/about_title"
+        tools:layout="@layout/fragment_about_page">
     </fragment>
     <fragment
         android:id="@+id/assetDetailFragment"
@@ -109,6 +129,12 @@
         android:name="com.iriswallet.ui.BitcoinUnspentFragment"
         android:label="@string/unspent_list_title"
         tools:layout="@layout/fragment_bitcoin_unspent">
+    </fragment>
+    <fragment
+        android:id="@+id/faucetFragment"
+        android:name="com.iriswallet.ui.FaucetFragment"
+        android:label="@string/faucet_title"
+        tools:layout="@layout/fragment_faucet">
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

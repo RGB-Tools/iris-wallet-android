@@ -2,23 +2,31 @@
 <resources>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
-    <color name="color_accent_light">#FF64AF46</color>
     <color name="color_accent_dark">#FF437B05</color>
     <color name="color_accent">@color/color_accent_dark</color>
-    <color name="color_gradient_start">@color/color_accent_light</color>
-    <color name="color_gradient_end">@color/color_accent_dark</color>
-    <color name="color_title_fg_1">@color/white</color>
-    <color name="color_disabled">#FFAAAAAA</color>
-    <color name="color_border_list">#FFDFE3E8</color>
-    <color name="color_list_fg_1">#FF444444</color>
     <color name="color_list_fg_2">#FFA1B0BE</color>
-    <color name="color_label">@color/black</color>
-    <color name="color_divider">#FFD8D8D8</color>
+    <color name="color_label">@color/roman_silver</color>
     <color name="color_green">#FF00AA00</color>
     <color name="color_red">#FFAA0000</color>
-    <color name="color_link">#FF0645AD</color>
     <color name="color_gray">#FF747679</color>
 
-    <color name="info_blue">#FF2196f3</color>
-    <color name="rgb_dark_blue">#FF02071C</color>
+    <color name="dark_dark_blue">#030B25</color>
+    <color name="dark_blue">#242C46</color>
+    <color name="white_op10">#1AFFFFFF</color>
+    <color name="background_blue">#080113</color>
+    <color name="primary_green">#01A781</color>
+    <color name="primary_green_op40">#6601A781</color>
+    <color name="silver_metallic">#B3B6C3</color>
+    <color name="silver_metallic_op50">#80B3B6C3</color>
+    <color name="caribbean_green">#03CA9B</color>
+    <color name="granite_grey">#666C81</color>
+    <color name="roman_silver">#798094</color>
+    <color name="roman_silver_op6">#99798094</color>
+    <color name="manatee">#959BAE</color>
+    <color name="light_gray">#D0D3DD</color>
+    <color name="blue_ryb">#2A56EA</color>
+    <color name="blue_ryb_op40">#662A56EA</color>
+    <color name="stone">#586871</color>
+    <color name="ghost_white">#F5F7FE</color>
+    <color name="ghost_white_op40">#66F5F7FE</color>
 </resources>

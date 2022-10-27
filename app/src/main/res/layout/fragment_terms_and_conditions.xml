@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    tools:context=".ui.TermsAndConditionsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/tacScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@+id/tacAcceptBtn"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="@dimen/big_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tacTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@string/terms_and_conditions"
+                    android:textColorLink="@color/caribbean_green"
+                    android:justificationMode="inter_word"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/silver_metallic"
+                    android:textSize="@dimen/text_very_small" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tacAcceptBtn"
+            android:text="@string/accept"
+            android:enabled="false"
+            android:layout_marginVertical="@dimen/big_size"
+            android:layout_marginHorizontal="@dimen/big_size"
+            style="@style/green_button"
+            app:layout_constraintTop_toBottomOf="@id/tacScrollView"
+            app:layout_constraintBottom_toTopOf="@id/tacDoNotAcceptBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tacDoNotAcceptBtn"
+            android:text="@string/do_not_accept"
+            android:layout_marginBottom="@dimen/big_size"
+            android:layout_marginHorizontal="@dimen/big_size"
+            style="@style/green_button"
+            app:layout_constraintTop_toBottomOf="@id/tacAcceptBtn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <TextView
+        android:id="@+id/detailBalanceLabelTV"
+        android:text="@string/your_balance"
+        style="@style/light_label" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/detailBalanceTV"
+            android:layout_marginEnd="@dimen/small_size"
+            android:text="@string/sample_amount"
+            style="@style/balance_tv"/>
+
+        <TextView
+            android:id="@+id/detailTickerTV"
+            android:text="@string/sample_asset_ticker"
+            android:textColor="@color/silver_metallic"
+            style="@style/balance_tv" />
+
+    </LinearLayout>
+
+</LinearLayout>

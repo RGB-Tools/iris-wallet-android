@@ -15,13 +15,13 @@ import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.zxing.client.android.Intents
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanIntentResult
-import com.journeyapps.barcodescanner.ScanOptions
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentSendAssetBinding
 import com.iriswallet.utils.*
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 
 class SendAssetFragment :
     MainBaseFragment<FragmentSendAssetBinding>(FragmentSendAssetBinding::inflate),
@@ -57,7 +57,7 @@ class SendAssetFragment :
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.scanMenu -> {
-                            disableUI()
+                            disableUI(false)
                             val options = ScanOptions()
                             options.captureActivity = ScanActivity::class.java
                             options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
@@ -98,7 +98,7 @@ class SendAssetFragment :
                     override fun afterTextChanged(editable: Editable) {
                         val editType = editText.inputType
                         if (numberTypes.contains(editType))
-                            fixETInteger(editText, editable.toString())
+                            fixETAmount(editText, editable.toString(), asset.settledBalance)
                         binding.sendSendBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.sendAmountTV)
                     }
@@ -137,16 +137,16 @@ class SendAssetFragment :
         enableUI()
         val enable = allETsFilled(editableFields)
         binding.sendSendBtn.isEnabled = enable && isETPositive(binding.sendAmountTV)
-        binding.sendBalanceTV.text = asset.totalBalance.toString()
+        binding.sendBalanceLL.detailBalanceTV.text = asset.totalBalance.toString()
         if (asset.bitcoin()) {
-            binding.sendBalanceTickerTV.text = getString(R.string.bitcoin_unit)
+            binding.sendBalanceLL.detailTickerTV.text = getString(R.string.bitcoin_unit)
             binding.sendPayToTV.hint = getString(R.string.address).lowercase()
             binding.sendAmountTV.inputType =
                 InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
         } else {
             // decimals not yet supported for RGB amounts
             binding.sendAmountTV.hint = "0"
-            binding.sendBalanceTickerTV.text = asset.ticker
+            binding.sendBalanceLL.detailTickerTV.text = asset.ticker
         }
     }
 
@@ -158,10 +158,10 @@ class SendAssetFragment :
         binding.sendSendBtn.isEnabled = true
     }
 
-    private fun disableUI() {
+    private fun disableUI(showProgress: Boolean = true) {
         binding.sendSendBtn.isEnabled = false
         mActivity.backEnabled = false
-        binding.sendPB.visibility = View.VISIBLE
+        if (showProgress) binding.sendPB.visibility = View.VISIBLE
         isLoading = true
         requireActivity().invalidateOptionsMenu()
     }

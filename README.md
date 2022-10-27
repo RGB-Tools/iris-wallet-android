@@ -12,12 +12,14 @@ Bitcoin functionality is provided by [bdk-kotlin].
 
 The project has Signet and Testnet variants.
 
-Together with the Debug and Release targets, this produces 4 possible versions
+Together with the Debug and Release targets, this produces 6 possible versions
 of the app:
 - bitcoinSignetDebug
 - bitcoinSignetRelease
 - bitcoinTestnetDebug
 - bitcoinTestnetRelease
+- bitcoinMainnetDebug
+- bitcoinMainnetRelease
 
 
 ### Supported architectures
@@ -41,7 +43,37 @@ and then commit the changes.
 
 ## Build
 
-## APKs
+### Secrets
+
+The app requires an API key for the faucet service. To provide the API key you need to
+add a file `app/src/main/cpp/secrets.cpp` with the following content:
+
+```cpp
+#include <jni.h>
+#include <string>
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_Keys_btcFaucetApiKey(JNIEnv *env, jobject thiz) {
+    std::string api_key = "<put_here_your_secret_api_key>";
+    return env->NewStringUTF(api_key.c_str());
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_Keys_rgbFaucetApiKey(JNIEnv *env, jobject thiz) {
+    std::string api_key = "<put_here_your_secret_api_key>";
+    return env->NewStringUTF(api_key.c_str());
+}
+```
+
+Building in release mode also requires the passwords for the keystore to be
+set. This needs to be done in the `keystore.properties` file, in the project's
+root directory, where the password are set like:
+```
+storePassword=<pass>
+keyPassword=<pass>
+```
+
+### APKs
 
 Open the project in Android Studio to manually build APKs or use the
 `build_apk.sh` script for automated builds.
@@ -63,7 +95,7 @@ Upon invocation, code will be linted and checked with spotless to make sure
 there are no outstanding issues and it's well formatted. The build process gets
 aborted if anything is out of order.
 
-## Bundles
+### Bundles
 
 As a first step, lint and format the code:
 ```bash

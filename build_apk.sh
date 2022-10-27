@@ -2,7 +2,7 @@
 #
 # build debug or (signed) release apk and open it in default file manager
 
-VARIANTS=("bitcoinSignet" "bitcoinTestnet")
+VARIANTS=("bitcoinSignet" "bitcoinTestnet" "bitcoinMainnet")
 OUT_BASE="app/build/outputs/apk"
 RELEASE_PATH="app/release"
 

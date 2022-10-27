@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/rgb_dark_blue"
+    android:keepScreenOn="true"
     tools:context=".ui.FirstRunFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,49 +14,54 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/medium_size"
             android:fillViewport="true"
-            app:layout_constraintBottom_toTopOf="@+id/firstRunCreateBtn"
+            app:layout_constraintBottom_toTopOf="@+id/firstRunPB"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/firstRunTV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:justificationMode="inter_word"
-                android:keepScreenOn="true"
+            <LinearLayout
+                android:orientation="vertical"
                 android:padding="@dimen/big_size"
-                android:scrollbars="vertical"
-                android:text="@string/first_run_disclaimer"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_view" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="vertical"
+                    android:text="@string/welcome"
+                    android:textColor="@color/white"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/firstRunTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:justificationMode="inter_word"
+                    android:layout_marginVertical="@dimen/medium_xl_size"
+                    android:scrollbars="vertical"
+                    android:text="@string/first_run_disclaimer"
+                    android:textColor="@color/silver_metallic"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
         </ScrollView>
 
-    <ProgressBar
+        <ProgressBar
             android:id="@+id/firstRunPB"
-            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:indeterminate="true"
-            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/firstRunCreateBtn" />
+            app:layout_constraintBottom_toTopOf="@+id/firstRunCreateBtn"
+            android:layout_marginBottom="@dimen/medium_size"
+            style="@style/progress_bar" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/firstRunCreateBtn"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="@dimen/medium_size"
-            android:background="@drawable/btn_filled_selector"
-            android:enabled="true"
             android:text="@string/first_run_create"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            style="@style/main_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

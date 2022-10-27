@@ -1,7 +1,6 @@
 package com.iriswallet.ui
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricPrompt
 import androidx.navigation.fragment.findNavController
@@ -27,11 +26,6 @@ class RoutingFragment :
             findNavController().navigate(R.id.action_routingFragment_to_firstRunFragment)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        mActivity.supportActionBar!!.hide()
-    }
-
     override fun onResume() {
         super.onResume()
         if (!mActivity.loggedIn && !mActivity.loggingIn) {
@@ -46,14 +40,9 @@ class RoutingFragment :
 
     override fun authenticated(requestCode: String) {
         mActivity.loggedIn = true
-        viewModel.refreshAssets(allowFailures = true)
         if (SharedPreferencesManager.pinLoginConfigured && !AppContainer.canUseBiometric)
             mActivity.hideSplashScreen = true
-        viewModel.assets.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let {
-                findNavController().navigate(R.id.action_routingFragment_to_mainFragment)
-            }
-        }
+        findNavController().navigate(R.id.action_routingFragment_to_mainFragment)
     }
 
     override fun handleAuthError(requestCode: String, errorExtraInfo: String?, errCode: Int?) {

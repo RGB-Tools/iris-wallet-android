@@ -4,88 +4,77 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_margin="@dimen/small_size"
     android:paddingTop="@dimen/very_small_size"
     android:paddingBottom="@dimen/very_small_size">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
+        app:cardBackgroundColor="@color/white_op10"
+        app:cardCornerRadius="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:padding="@dimen/small_size">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/unspentOutpointTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="middle"
-            android:singleLine="true"
-            android:text="@string/sample_utxo"
-            android:textColor="@color/color_list_fg_2"
-            android:textSize="@dimen/text_small"
-            app:layout_constraintEnd_toEndOf="@+id/unspentAmountsBoxCL"
-            app:layout_constraintStart_toStartOf="@+id/unspentAmountsBoxCL"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/unspentAmountsBoxCL"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_margin="@dimen/medium_size"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/unspentOutpointTV">
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/unspentWalletImg"
+                android:layout_gravity="center"
                 android:contentDescription="@string/wallet_icon_description"
+                android:src="@drawable/bitcoin_mainnet"
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/small_size"
-                android:text="@string/bitcoin_unit"
-                android:textColor="@color/color_list_fg_2"
-                android:textSize="@dimen/text_small"
-                app:layout_constraintBottom_toBottomOf="@+id/unspentBTCAmountTV"
-                app:layout_constraintEnd_toStartOf="@+id/unspentBTCAmountTV"
-                app:layout_constraintTop_toTopOf="@+id/unspentBTCAmountTV" />
-
-            <TextView
-                android:id="@+id/unspentBTCAmountTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/sample_btc_amount"
-                android:textSize="@dimen/text_view"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/unspentRGBCL"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/medium_size"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/unspentWalletImg"
-                app:layout_constraintTop_toBottomOf="@+id/unspentBTCAmountTV">
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <!-- contents dynamically handled by BitcoinUnspentAdapter.kt -->
+                <TextView
+                    android:id="@+id/unspentOutpointTV"
+                    android:layout_width="170dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:text="@string/sample_utxo"
+                    android:textColor="@color/color_list_fg_2"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/unspentBTCAmountTV"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/unspentsRGBLL"
+                    style="@style/unspent_amount_sat" />
+
+                <LinearLayout
+                    android:id="@+id/unspentsRGBLL"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/unspentBTCAmountTV">
+
+                    <!-- contents dynamically handled by BitcoinUnspentAdapter.kt -->
+                    <!--
+                    <include layout="@layout/unspent_rgb"/>
+                    -->
+
+                </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/unit_size"
-        android:background="@color/color_divider" />
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

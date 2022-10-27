@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".ui.HelpPageFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,70 +17,80 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_margin="@dimen/big_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/helpFaucetLabelTV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/big_size"
-                    android:layout_marginTop="@dimen/big_size"
-                    android:layout_marginEnd="@dimen/big_size"
-                    android:text="@string/help_faucet_label"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/text_label"
-                    android:textStyle="bold"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/helpFaucetTV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/big_size"
-                    android:layout_marginTop="@dimen/small_size"
-                    android:layout_marginEnd="@dimen/big_size"
-                    android:text="@string/help_faucet_text"
-                    android:textColor="@color/color_gray"
-                    android:textSize="@dimen/text_medium"
-                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetLabelTV" />
-
-                <LinearLayout
-                    android:id="@+id/helpFaucetLL"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/big_size"
-                    android:layout_marginEnd="@dimen/big_size"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetTV" />
 
                 <TextView
                     android:id="@+id/helpInternalLabelTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/big_size"
-                    android:layout_marginTop="@dimen/big_size"
-                    android:layout_marginEnd="@dimen/big_size"
                     android:text="@string/help_internal_label"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/text_label"
-                    android:textStyle="bold"
-                    app:layout_constraintTop_toBottomOf="@+id/helpFaucetLL" />
+                    style="@style/help_title" />
 
                 <TextView
                     android:id="@+id/helpInternalTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/big_size"
-                    android:layout_marginTop="@dimen/small_size"
-                    android:layout_marginEnd="@dimen/big_size"
                     android:text="@string/help_internal_text"
-                    android:textColor="@color/color_gray"
-                    android:textSize="@dimen/text_medium"
-                    app:layout_constraintTop_toBottomOf="@+id/helpInternalLabelTV" />
+                    style="@style/help_text" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/helpMinBalanceLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_min_balance_label"
+                    style="@style/help_title" />
+
+                <TextView
+                    android:id="@+id/helpMinBalanceTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_min_balance_text"
+                    style="@style/help_text" />
+
+                <TextView
+                    android:id="@+id/helpFeedbackLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_feedback_label"
+                    style="@style/help_title" />
+
+                <TextView
+                    android:id="@+id/helpFeedbackTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_feedback_text"
+                    style="@style/help_text" />
+
+                <TextView
+                    android:id="@+id/helpFaucetLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_faucet_label"
+                    style="@style/help_title" />
+
+                <TextView
+                    android:id="@+id/helpFaucetTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_faucet_text"
+                    android:layout_marginBottom="@dimen/small_size"
+                    style="@style/help_text"/>
+
+                <LinearLayout
+                    android:id="@+id/helpFaucetLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/big_size"/>
+
+            </LinearLayout>
 
         </ScrollView>
 

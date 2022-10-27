@@ -7,17 +7,25 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.ActivityMainBinding
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.BitcoinNetwork
 import com.iriswallet.utils.Event
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         get() = _binding!!
 
     private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private var inMainFragment = true
 
     var backEnabled = true
 
@@ -71,28 +81,54 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.appTitle.visibility =
-                if (destination.id == R.id.mainFragment) View.VISIBLE else View.GONE
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.mainFragment), binding.drawerLayout)
+
+        binding.navView.menu.findItem(R.id.faucetFragment).isVisible =
+            AppContainer.rgbFaucetURLS.isNotEmpty()
+        binding.navView.menu.findItem(R.id.issueAssetFragment).isVisible =
+            AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
+        binding.navView.setNavigationItemSelectedListener { menuItem ->
+            menuItem.isChecked = true
+            binding.drawerLayout.close()
+            menuItem.onNavDestinationSelected(navController)
         }
-        setupActionBarWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            binding.navView.visibility = View.VISIBLE
+            inMainFragment = destination.id == R.id.mainFragment
+        }
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
         val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         manager.cancelAll()
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!backEnabled) return else navController.navigateUp(appBarConfiguration)
+                }
+            }
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        return if (backEnabled)
+            navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        else false
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home && inMainFragment)
+            binding.drawerLayout.openDrawer(Gravity.LEFT)
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroy() {
         if (mBound) unbindService(connection)
         mBound = false
-    }
-
-    override fun onBackPressed() {
-        if (backEnabled) super.onBackPressed()
+        super.onDestroy()
     }
 
     private fun setupSplashScreen() {

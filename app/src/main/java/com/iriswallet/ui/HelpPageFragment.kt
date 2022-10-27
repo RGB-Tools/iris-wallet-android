@@ -4,42 +4,39 @@ import android.content.Intent
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
-import android.util.TypedValue
+import android.text.util.Linkify
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentHelpPageBinding
-import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.BitcoinNetwork
 
 class HelpPageFragment :
     MainBaseFragment<FragmentHelpPageBinding>(FragmentHelpPageBinding::inflate) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Linkify.addLinks(binding.helpFeedbackTV, Linkify.WEB_URLS)
+
         binding.helpFaucetLabelTV.text =
             getString(R.string.help_faucet_label, AppContainer.bitcoinNetwork)
-        val faucets =
-            when (AppContainer.bitcoinNetwork) {
-                BitcoinNetwork.SIGNET -> AppConstants.signetFaucets
-                BitcoinNetwork.TESTNET -> AppConstants.testnetFaucets
-            }
-        faucets.forEach { faucet ->
-            val textView = TextView(view.context)
-            textView.text = faucet
-            textView.setTextSize(
-                TypedValue.COMPLEX_UNIT_PX,
-                resources.getDimension(R.dimen.text_medium)
-            )
-            textView.setTextColor(view.context.getColor(R.color.color_link))
-            textView.paintFlags = textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-            textView.setOnClickListener {
+        if (AppContainer.btcHelpFaucetURLS.isEmpty()) {
+            binding.helpFaucetLabelTV.visibility = View.GONE
+            binding.helpFaucetTV.visibility = View.GONE
+        }
+        AppContainer.btcHelpFaucetURLS.forEach { faucet ->
+            val linkTV: TextView =
+                LayoutInflater.from(context)
+                    .inflate(R.layout.help_link, binding.helpFaucetLL, false) as TextView
+            linkTV.text = faucet
+            linkTV.paintFlags = linkTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            linkTV.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse(faucet)
                 startActivity(intent)
             }
-            binding.helpFaucetLL.addView(textView)
+            binding.helpFaucetLL.addView(linkTV)
         }
     }
 }

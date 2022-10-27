@@ -1,129 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.SendAssetFragment">
 
+    <ProgressBar
+        android:id="@+id/sendPB"
+        style="@style/progress_bar" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="@dimen/big_size">
 
-        <ProgressBar
-            android:id="@+id/sendPB"
-            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
-            android:layout_width="0dp"
+        <include layout="@layout/balance"
+            android:id="@+id/sendBalanceLL"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:fillViewport="true"
+            android:layout_marginTop="@dimen/medium_xl_size"
+            app:layout_constraintTop_toBottomOf="@id/sendBalanceLL">
 
-        <TextView
-            android:id="@+id/sendBalanceLabelTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/big_size"
-            android:layout_marginTop="@dimen/big_size"
-            android:text="@string/balance"
-            android:textColor="@color/color_label"
-            android:textSize="@dimen/text_label"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sendPB" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/big_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/sendBalanceTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/medium_size"
-            android:text="@string/sample_amount"
-            android:textColor="@color/color_label"
-            android:textSize="@dimen/text_view"
-            app:layout_constraintEnd_toStartOf="@+id/sendBalanceTickerTV"
-            app:layout_constraintTop_toTopOf="@+id/sendBalanceLabelTV" />
+                <TextView
+                    android:id="@+id/sendPayToLabelTV"
+                    style="@style/et_label"
+                    android:text="@string/pay_to" />
 
-        <TextView
-            android:id="@+id/sendBalanceTickerTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/big_size"
-            android:text="@string/sample_asset_ticker"
-            android:textColor="@color/color_label"
-            android:textSize="@dimen/text_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/sendBalanceTV" />
+                <EditText
+                    android:id="@+id/sendPayToTV"
+                    style="@style/et_text"
+                    android:digits="@string/letters_and_digits"
+                    android:hint="@string/blinded_utxo"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="textFilter|textNoSuggestions"
+                    android:maxLines="1"
+                    android:singleLine="true" />
 
-        <TextView
-            android:id="@+id/sendPayToLabelTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/extra_size"
-            android:layout_marginTop="@dimen/extra_size"
-            android:text="@string/pay_to"
-            android:textColor="@color/color_label"
-            android:textSize="@dimen/text_label"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sendBalanceLabelTV" />
+                <TextView
+                    android:id="@+id/sendAmountLabelTV"
+                    android:text="@string/amount_to_pay"
+                    style="@style/et_label" />
 
-        <EditText
-            android:id="@+id/sendPayToTV"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/medium_size"
-            android:ems="10"
-            android:hint="@string/blinded_utxo"
-            android:digits="@string/letters_and_digits"
-            android:singleLine="true"
-            android:maxLines="1"
-            android:imeOptions="actionNext"
-            android:inputType="textFilter|textNoSuggestions"
-            app:layout_constraintStart_toStartOf="@+id/sendPayToLabelTV"
-            app:layout_constraintTop_toBottomOf="@+id/sendPayToLabelTV"
-            android:importantForAutofill="no" />
+                <EditText
+                    android:id="@+id/sendAmountTV"
+                    android:hint="@string/sample_amount"
+                    android:inputType="number"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    style="@style/et_text" />
 
-        <TextView
-            android:id="@+id/sendAmountLabelTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/big_size"
-            android:text="@string/amount_to_pay"
-            android:textColor="@color/color_label"
-            android:textSize="@dimen/text_label"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/sendPayToTV"
-            app:layout_constraintTop_toBottomOf="@+id/sendPayToTV" />
+            </LinearLayout>
 
-        <EditText
-            android:id="@+id/sendAmountTV"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/sample_amount"
-            android:inputType="number"
-            android:imeOptions="actionDone"
-            app:layout_constraintEnd_toEndOf="@+id/sendAmountLabelTV"
-            app:layout_constraintStart_toStartOf="@+id/sendAmountLabelTV"
-            app:layout_constraintTop_toBottomOf="@+id/sendAmountLabelTV"
-            android:importantForAutofill="no" />
+        </ScrollView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/sendSendBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/big_size"
-            android:layout_marginEnd="@dimen/big_size"
-            android:layout_marginBottom="@dimen/big_size"
-            android:background="@drawable/btn_filled_selector"
             android:enabled="false"
             android:text="@string/send"
-            android:textColor="@color/white"
+            style="@style/main_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+</LinearLayout>

@@ -6,16 +6,16 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import java.text.SimpleDateFormat
-import java.util.*
 import com.iriswallet.R
 import com.iriswallet.databinding.TransferListItemBinding
 import com.iriswallet.utils.AppConstants
-import com.iriswallet.utils.Transfer
+import com.iriswallet.utils.AppTransfer
+import java.text.SimpleDateFormat
+import java.util.*
 import org.rgbtools.TransferStatus
 
 class TransferListAdapter(
-    private val dataSet: ArrayList<Transfer>,
+    private val dataSet: ArrayList<AppTransfer>,
     private val viewModel: MainViewModel,
     private val fragment: AssetDetailFragment
 ) : RecyclerView.Adapter<TransferListAdapter.ViewHolder>() {
@@ -37,7 +37,7 @@ class TransferListAdapter(
         val transaction = dataSet[position]
 
         if (transaction.automatic) viewHolder.binding.transferAutoTV.visibility = View.VISIBLE
-        else viewHolder.binding.transferAutoTV.visibility = View.INVISIBLE
+        else viewHolder.binding.transferAutoTV.visibility = View.GONE
 
         var amount = transaction.amount!!.toString()
         if (transaction.incoming) {
@@ -85,7 +85,7 @@ class TransferListAdapter(
 
     override fun getItemCount() = dataSet.size
 
-    fun updateData(updatedData: ArrayList<Transfer>) {
+    fun updateData(updatedData: ArrayList<AppTransfer>) {
         dataSet.clear()
         dataSet.addAll(updatedData)
         notifyDataSetChanged()
@@ -93,7 +93,7 @@ class TransferListAdapter(
 
     private fun handleIncompleteTransfer(
         viewHolder: ViewHolder,
-        transfer: Transfer,
+        transfer: AppTransfer,
     ) {
         viewHolder.binding.transferItemAmountTV.setTextColor(
             ContextCompat.getColor(

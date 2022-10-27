@@ -4,15 +4,16 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager.PREFS_ELECTRUM_URL
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_ACTIONS_CONFIGURED
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_LOGIN_CONFIGURED
-import com.iriswallet.utils.AppAuthenticationService
-import com.iriswallet.utils.AppAuthenticationServiceListener
-import com.iriswallet.utils.TAG
+import com.iriswallet.data.SharedPreferencesManager.PREFS_PROXY_URL
+import com.iriswallet.utils.*
 
 class SettingsFragment :
     PreferenceBaseFragment(),
@@ -33,6 +34,12 @@ class SettingsFragment :
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+
+        // set EditTexts to shared pref values (otherwise a new wallet would see an empty ET)
+        val electrumET = findPreference<EditTextPreference>(PREFS_ELECTRUM_URL)
+        electrumET!!.text = AppContainer.electrumURL
+        val proxyET = findPreference<EditTextPreference>(PREFS_PROXY_URL)
+        proxyET!!.text = AppContainer.proxyURL
     }
 
     override fun onResume() {
@@ -46,11 +53,22 @@ class SettingsFragment :
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        when (findPreference<Preference>(key.toString())) {
+        when (val preference = findPreference<Preference>(key.toString())) {
             is SwitchPreferenceCompat -> {
                 if (key in listOf(PREFS_PIN_ACTIONS_CONFIGURED, PREFS_PIN_LOGIN_CONFIGURED)) {
                     if (handlingPinError) handlingPinError = false
                     else appAuthenticationService.auth(key!!)
+                }
+            }
+            is EditTextPreference -> {
+                when (key) {
+                    PREFS_ELECTRUM_URL -> {
+                        preference.text =
+                            preference.text!!.ifBlank { AppContainer.electrumURLDefault }
+                    }
+                    PREFS_PROXY_URL -> {
+                        preference.text = preference.text!!.ifBlank { AppContainer.proxyURLDefault }
+                    }
                 }
             }
         }
@@ -75,7 +93,7 @@ class SettingsFragment :
                         as SwitchPreferenceCompat
                 otherPref.isChecked = false
                 handlingPinError = false
-                Toast.makeText(context, R.string.no_auth_available, Toast.LENGTH_LONG).show()
+                Toast.makeText(activity, R.string.no_auth_available, Toast.LENGTH_LONG).show()
             }
             AppAuthenticationService.FAILED_AUTH -> handlingPinError = false
             else -> {
