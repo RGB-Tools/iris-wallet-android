@@ -7,6 +7,7 @@
     <fragment
         android:id="@+id/routingFragment"
         android:name="com.iriswallet.ui.RoutingFragment"
+        android:label=""
         app:defaultNavHost="true"
         tools:layout="@layout/fragment_routing">
         <action

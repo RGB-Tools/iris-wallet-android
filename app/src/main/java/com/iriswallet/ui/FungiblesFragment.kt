@@ -10,10 +10,10 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentFungiblesBinding
 import com.iriswallet.utils.AppAsset
-import com.iriswallet.utils.AppAssetType
 import com.iriswallet.utils.TAG
 
 class FungiblesFragment :
@@ -51,18 +51,19 @@ class FungiblesFragment :
         binding.fungiblesRV.layoutManager = LinearLayoutManager(activity)
 
         binding.fungiblesSwipeRefresh.setOnRefreshListener {
-            disableUI()
+            disableUI(swipeRefreshHandledAutomatically = true)
             viewModel.refreshAssets()
         }
         viewModel.refreshedFungibles.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
+                enableUI()
                 if (!response.data.isNullOrEmpty()) refreshListAdapter(response.data)
             }
-            if (!viewModel.refreshingAssets) enableUI()
         }
         viewModel.refreshedAssets.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.error != null || response.data.isNullOrEmpty()) {
+                    enableUI()
                     handleError(response.error!!) {
                         toastError(R.string.err_refreshing_assets, response.error.message)
                     }
@@ -78,33 +79,29 @@ class FungiblesFragment :
 
     override fun onPause() {
         super.onPause()
-        runCatching { setLoader(false) }
+        runCatching { binding.fungiblesSwipeRefresh.isRefreshing = false }
     }
 
     override fun enableUI() {
         super.enableUI()
         binding.fungiblesSwipeRefresh.isEnabled = true
-        setLoader(false)
+        binding.fungiblesSwipeRefresh.isRefreshing = false
     }
 
-    private fun disableUI(showProgress: Boolean = true) {
+    private fun disableUI(swipeRefreshHandledAutomatically: Boolean = false) {
         mActivity.backEnabled = false
-        binding.fungiblesSwipeRefresh.isEnabled = false
-        if (showProgress) setLoader(true)
+        if (!swipeRefreshHandledAutomatically) {
+            binding.fungiblesSwipeRefresh.isEnabled = false
+            binding.fungiblesSwipeRefresh.isRefreshing = true
+        }
     }
 
     private fun refreshListAdapter(assets: List<AppAsset>) {
-        val fungibles =
-            assets.filter { listOf(AppAssetType.BITCOIN, AppAssetType.RGB20).contains(it.type) }
-        Log.d(TAG, "Refreshing fungibles view with ${fungibles.size} assets...")
-        adapter = FungiblesAdapter(fungibles, viewModel, this)
+        Log.d(TAG, "Refreshing fungibles view with ${assets.size} assets...")
+        adapter = FungiblesAdapter(assets, viewModel, this)
+        adapter.stateRestorationPolicy =
+            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.fungiblesRV.adapter = adapter
         adapter.notifyDataSetChanged()
-    }
-
-    private fun setLoader(state: Boolean) {
-        binding.fungiblesSwipeRefresh.post {
-            runCatching { binding.fungiblesSwipeRefresh.isRefreshing = state }
-        }
     }
 }

@@ -2,7 +2,7 @@
 buildscript {
   ext {
     androidx_lifecycle_version = '2.5.1'
-    androidx_navigation_version = '2.5.2'
+    androidx_navigation_version = '2.5.3'
     retrofit_version = '2.9.0'
     room_version = '2.4.3'
   }

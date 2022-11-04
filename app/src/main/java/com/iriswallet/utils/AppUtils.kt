@@ -5,6 +5,7 @@ import android.graphics.Point
 import android.media.ThumbnailUtils
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.util.Size
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -40,6 +41,7 @@ class AppUtils {
         }
 
         fun deleteAppData() {
+            Log.i(TAG, "Deleting app data...")
             AppContainer.bdkDir.deleteRecursively()
             AppContainer.rgbDir.deleteRecursively()
             AppContainer.dbPath.delete()

@@ -26,9 +26,9 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getOfflineAssets()
 
         mActivity.startConnectivityService()
+
         appAuthenticationService = AppAuthenticationService(this)
 
         mActivity.onBackPressedDispatcher.addCallback(
@@ -59,7 +59,6 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         mActivity.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         val tabLayout = binding.mainTabLayout
@@ -73,18 +72,7 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
             }
             .attach()
 
-        viewModel.offlineAssets.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { response ->
-                if (response.data.isNullOrEmpty())
-                    handleError(response.error!!) {
-                        showExitDialog(getString(R.string.err_getting_offline_assets))
-                    }
-                else {
-                    mActivity.hideSplashScreen = true
-                    viewModel.refreshAssets()
-                }
-            }
-        }
+        viewModel.offlineAssets.observe(viewLifecycleOwner) { mActivity.hideSplashScreen = true }
 
         binding.mainReceiveBtn.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_receiveAssetFragment)

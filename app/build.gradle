@@ -4,6 +4,7 @@ plugins {
   id 'com.google.devtools.ksp'
   id 'com.diffplug.spotless'
   id 'androidx.navigation.safeargs.kotlin'
+  id 'kotlin-parcelize'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties");
@@ -133,7 +134,7 @@ dependencies {
   implementation 'androidx.core:core-ktx:1.9.0'
   implementation 'androidx.core:core-splashscreen:1.0.0'
 
-  implementation 'androidx.fragment:fragment-ktx:1.5.3'
+  implementation 'androidx.fragment:fragment-ktx:1.5.4'
 
   implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
@@ -144,6 +145,8 @@ dependencies {
   implementation "androidx.navigation:navigation-ui-ktx:$androidx_navigation_version"
 
   implementation 'androidx.preference:preference-ktx:1.2.0'
+
+  implementation "androidx.recyclerview:recyclerview:1.3.0-rc01"
 
   implementation "androidx.room:room-runtime:$room_version"
   annotationProcessor "androidx.room:room-compiler:$room_version"

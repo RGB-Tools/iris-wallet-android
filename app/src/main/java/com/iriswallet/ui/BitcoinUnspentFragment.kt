@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentBitcoinUnspentBinding
 
@@ -26,6 +27,8 @@ class BitcoinUnspentFragment :
             viewModel.getBitcoinUnspents()
         }
         if (!::adapter.isInitialized) adapter = BitcoinUnspentAdapter(listOf())
+        adapter.stateRestorationPolicy =
+            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.unspentRV.adapter = adapter
 
         viewModel.unspents.observe(viewLifecycleOwner) {

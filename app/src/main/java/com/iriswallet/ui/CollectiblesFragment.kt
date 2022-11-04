@@ -10,10 +10,10 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentCollectiblesBinding
 import com.iriswallet.utils.AppAsset
-import com.iriswallet.utils.AppAssetType
 import com.iriswallet.utils.TAG
 
 class CollectiblesFragment :
@@ -51,18 +51,19 @@ class CollectiblesFragment :
         binding.collectiblesRV.layoutManager = GridLayoutManager(activity, 2)
 
         binding.collectiblesSwipeRefresh.setOnRefreshListener {
-            disableUI()
+            disableUI(swipeRefreshHandledAutomatically = true)
             viewModel.refreshAssets()
         }
         viewModel.refreshedCollectibles.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
+                enableUI()
                 if (response.data != null) refreshListAdapter(response.data)
             }
-            if (!viewModel.refreshingAssets) enableUI()
         }
         viewModel.refreshedAssets.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.error != null || response.data.isNullOrEmpty()) {
+                    enableUI()
                     handleError(response.error!!) {
                         toastError(R.string.err_refreshing_assets, response.error.message)
                     }
@@ -78,32 +79,29 @@ class CollectiblesFragment :
 
     override fun onPause() {
         super.onPause()
-        runCatching { setLoader(false) }
+        runCatching { binding.collectiblesSwipeRefresh.isRefreshing = false }
     }
 
     override fun enableUI() {
         super.enableUI()
         binding.collectiblesSwipeRefresh.isEnabled = true
-        setLoader(false)
+        binding.collectiblesSwipeRefresh.isRefreshing = false
     }
 
-    private fun disableUI(showProgress: Boolean = true) {
+    private fun disableUI(swipeRefreshHandledAutomatically: Boolean = false) {
         mActivity.backEnabled = false
-        binding.collectiblesSwipeRefresh.isEnabled = false
-        if (showProgress) setLoader(true)
+        if (!swipeRefreshHandledAutomatically) {
+            binding.collectiblesSwipeRefresh.isEnabled = false
+            binding.collectiblesSwipeRefresh.isRefreshing = true
+        }
     }
 
     private fun refreshListAdapter(assets: List<AppAsset>) {
-        val collectibles = assets.filter { it.type == AppAssetType.RGB21 }
-        Log.d(TAG, "Refreshing collectibles view with ${collectibles.size} assets...")
-        adapter = CollectiblesAdapter(collectibles, viewModel, this)
+        Log.d(TAG, "Refreshing collectibles view with ${assets.size} assets...")
+        adapter = CollectiblesAdapter(assets, viewModel, this)
+        adapter.stateRestorationPolicy =
+            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.collectiblesRV.adapter = adapter
         adapter.notifyDataSetChanged()
-    }
-
-    private fun setLoader(state: Boolean) {
-        binding.collectiblesSwipeRefresh.post {
-            runCatching { binding.collectiblesSwipeRefresh.isRefreshing = state }
-        }
     }
 }

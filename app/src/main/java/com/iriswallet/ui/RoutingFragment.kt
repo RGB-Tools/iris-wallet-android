@@ -1,6 +1,7 @@
 package com.iriswallet.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricPrompt
 import androidx.navigation.fragment.findNavController
@@ -21,9 +22,13 @@ class RoutingFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appAuthenticationService = AppAuthenticationService(this)
-        AppContainer.storedMnemonic = SharedPreferencesManager.mnemonic
         if (AppContainer.storedMnemonic.isBlank())
             findNavController().navigate(R.id.action_routingFragment_to_firstRunFragment)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mActivity.supportActionBar!!.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onResume() {
@@ -42,7 +47,20 @@ class RoutingFragment :
         mActivity.loggedIn = true
         if (SharedPreferencesManager.pinLoginConfigured && !AppContainer.canUseBiometric)
             mActivity.hideSplashScreen = true
-        findNavController().navigate(R.id.action_routingFragment_to_mainFragment)
+        viewModel.getOfflineAssets()
+        viewModel.offlineAssets.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { response ->
+                if (response.data.isNullOrEmpty()) {
+                    mActivity.hideSplashScreen = true
+                    handleError(response.error!!) {
+                        showExitDialog(getString(R.string.err_getting_offline_assets))
+                    }
+                } else {
+                    viewModel.refreshAssets()
+                    findNavController().navigate(R.id.action_routingFragment_to_mainFragment)
+                }
+            }
+        }
     }
 
     override fun handleAuthError(requestCode: String, errorExtraInfo: String?, errCode: Int?) {

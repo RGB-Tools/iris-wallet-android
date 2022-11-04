@@ -39,7 +39,7 @@ class BitcoinUnspentAdapter(private val dataSet: List<UTXO>) :
 
         viewHolder.itemView.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
-            val link = AppContainer.explorerURL + unspent.outpointStr()
+            val link = AppContainer.explorerURL + unspent.outpoint().outpointStr()
             intent.data = Uri.parse(link)
             viewHolder.itemView.context.startActivity(intent)
         }
@@ -48,7 +48,7 @@ class BitcoinUnspentAdapter(private val dataSet: List<UTXO>) :
             viewHolder.binding.unspentWalletImg.setImageDrawable(viewHolder.bitcoinLogo)
         else viewHolder.binding.unspentWalletImg.setImageDrawable(viewHolder.rgbLogo)
 
-        viewHolder.binding.unspentOutpointTV.text = unspent.outpointStr()
+        viewHolder.binding.unspentOutpointTV.text = unspent.outpoint().outpointStr()
         viewHolder.binding.unspentBTCAmountTV.text =
             viewHolder.itemView.context.getString(R.string.sat_amount, unspent.satAmount.toString())
 

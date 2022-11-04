@@ -27,5 +27,6 @@ class IrisWallet : Application() {
             ),
             PreferenceManager.getDefaultSharedPreferences(this)
         )
+        AppContainer.storedMnemonic = SharedPreferencesManager.mnemonic
     }
 }

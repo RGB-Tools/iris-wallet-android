@@ -1,30 +1,63 @@
 package com.iriswallet.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.iriswallet.data.*
+import androidx.lifecycle.*
+import com.iriswallet.data.AppRepository
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
-import com.iriswallet.utils.AppConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    val cachedFungibles
-        get() = AppRepository.getCachedFungibles()
-    val cachedCollectibles
-        get() = AppRepository.getCachedCollectibles()
+    var cachedFungibles: List<AppAsset> = listOf()
+        get() {
+            if (savedStateHandle.contains(AppConstants.BUNDLE_FUNGIBLES)) {
+                val cached = savedStateHandle.get<List<AppAsset>>(AppConstants.BUNDLE_FUNGIBLES)!!
+                savedStateHandle.remove<List<AppAsset>>(AppConstants.BUNDLE_FUNGIBLES)
+                field = cached
+                return cached
+            }
+            return field
+        }
+
+    var cachedCollectibles: List<AppAsset> = listOf()
+        get() {
+            if (savedStateHandle.contains(AppConstants.BUNDLE_COLLECTIBLES)) {
+                val cached =
+                    savedStateHandle.get<List<AppAsset>>(AppConstants.BUNDLE_COLLECTIBLES)!!
+                field = cached
+                savedStateHandle.remove<List<AppAsset>>(AppConstants.BUNDLE_COLLECTIBLES)
+                return cached
+            }
+            return field
+        }
 
     var viewingAsset: AppAsset? = null
+        get() {
+            if (savedStateHandle.contains(AppConstants.BUNDLE_ASSET)) {
+                val cached = savedStateHandle.get<AppAsset>(AppConstants.BUNDLE_ASSET)
+                field = cached
+                savedStateHandle.remove<AppAsset>(AppConstants.BUNDLE_ASSET)
+                return cached
+            }
+            return field
+        }
+
     var viewingTransfer: AppTransfer? = null
+        get() {
+            if (savedStateHandle.contains(AppConstants.BUNDLE_TRANSFER)) {
+                val cached = savedStateHandle.get<AppTransfer>(AppConstants.BUNDLE_TRANSFER)
+                field = cached
+                savedStateHandle.remove<AppTransfer>(AppConstants.BUNDLE_TRANSFER)
+                return cached
+            }
+            return field
+        }
 
     var refreshingAsset: Boolean = false
-    var refreshingAssets: Boolean = true
+    var refreshingAssets: Boolean = false
 
     private val _refreshedAssets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
     val refreshedAssets: LiveData<Event<AppResponse<List<AppAsset>>>>
@@ -69,6 +102,14 @@ class MainViewModel : ViewModel() {
     private val _rgbAsset = MutableLiveData<Event<AppResponse<RgbAsset>>>()
     val rgbAsset: LiveData<Event<AppResponse<RgbAsset>>>
         get() = _rgbAsset
+
+    internal fun saveState() {
+        savedStateHandle[AppConstants.BUNDLE_FUNGIBLES] = cachedFungibles
+        savedStateHandle[AppConstants.BUNDLE_COLLECTIBLES] = cachedCollectibles
+        if (viewingAsset != null) savedStateHandle[AppConstants.BUNDLE_ASSET] = viewingAsset
+        if (viewingTransfer != null)
+            savedStateHandle[AppConstants.BUNDLE_TRANSFER] = viewingTransfer
+    }
 
     private inline fun callWithTimeout(
         timeout: Long,
@@ -119,16 +160,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun postAssets() {
-        _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
-        _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
+    private fun cacheAssets(postLiveData: Boolean = false) {
+        cachedFungibles = AppRepository.getCachedFungibles()
+        cachedCollectibles = AppRepository.getCachedCollectibles()
+        if (postLiveData) {
+            _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
+            _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
+        }
     }
 
     fun getOfflineAssets() {
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _offlineAssets,
-            successCallback = { postAssets() },
+            successCallback = { cacheAssets() },
         ) {
             AppRepository.getAssets()
         }
@@ -141,7 +186,7 @@ class MainViewModel : ViewModel() {
             _refreshedAssets,
             successCallback = {
                 refreshingAssets = false
-                postAssets()
+                cacheAssets(postLiveData = true)
             },
             failureCallback = { refreshingAssets = false },
         ) {
@@ -180,7 +225,11 @@ class MainViewModel : ViewModel() {
     }
 
     fun issueAsset(ticker: String, name: String, amounts: List<String>) {
-        tryCallWithTimeout(AppConstants.longTimeout, _issuedAsset) {
+        tryCallWithTimeout(
+            AppConstants.longTimeout,
+            _issuedAsset,
+            successCallback = { cacheAssets() },
+        ) {
             AppRepository.issueRGBAsset(ticker, name, amounts.map { it.toULong() })
         }
     }

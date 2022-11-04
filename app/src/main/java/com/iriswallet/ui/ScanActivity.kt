@@ -86,10 +86,9 @@ class ScanActivity : AppCompatActivity() {
             PackageManager.FEATURE_CAMERA_FLASH
         )
     }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
+    override fun onSupportNavigateUp(): Boolean {
         setResult(ABORT)
         finish()
+        return true
     }
 }

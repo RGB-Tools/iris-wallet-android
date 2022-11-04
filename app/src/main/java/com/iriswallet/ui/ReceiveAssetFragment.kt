@@ -16,6 +16,7 @@ class ReceiveAssetFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        disableUI()
         viewModel.genReceiveData(viewModel.viewingAsset)
     }
 
@@ -54,6 +55,10 @@ class ReceiveAssetFragment :
         super.enableUI()
         binding.receiveCopyBtn.isEnabled = true
         binding.receiveCopyBtn.visibility = View.VISIBLE
+    }
+
+    private fun disableUI() {
+        mActivity.backEnabled = false
     }
 
     private fun showReceiveData(receiveData: Receiver) {

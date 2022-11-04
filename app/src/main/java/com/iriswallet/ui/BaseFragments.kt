@@ -112,9 +112,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
                 .setPositiveButton(getString(R.string.exit)) { _, _ ->
                     android.os.Process.killProcess(android.os.Process.myPid())
                 }
-                .setNegativeButton(getString(R.string.keep_waiting)) {
-                    dialogInterface: DialogInterface,
-                    i: Int ->
+                .setNegativeButton(getString(R.string.keep_waiting)) { _: DialogInterface, _: Int ->
                 }
                 .setCancelable(false)
                 .create()

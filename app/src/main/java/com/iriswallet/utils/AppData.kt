@@ -1,16 +1,19 @@
 package com.iriswallet.utils
 
+import android.os.Parcelable
 import android.util.Log
 import com.iriswallet.data.db.RgbPendingAsset
 import com.iriswallet.data.retrofit.FaucetConfig
 import com.iriswallet.data.retrofit.RgbAssetGroup
 import java.util.*
+import kotlinx.parcelize.Parcelize
 import org.bitcoindevkit.LocalUtxo
 import org.bitcoindevkit.Network
 import org.bitcoindevkit.TransactionDetails
 import org.rgbtools.*
 import org.rgbtools.BitcoinNetwork
 
+@Parcelize
 data class AppAsset(
     val type: AppAssetType,
     val id: String,
@@ -21,7 +24,7 @@ data class AppAsset(
     var settledBalance: ULong = 0UL,
     var totalBalance: ULong = 0UL,
     var transfers: List<AppTransfer> = listOf(),
-) {
+) : Parcelable {
     constructor(
         rgbAsset: AssetRgb20
     ) : this(
@@ -96,10 +99,11 @@ data class AppError(
 
 class AppException(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
+@Parcelize
 data class AppMedia(
     val filePath: String,
     val mime: MimeType,
-) {
+) : Parcelable {
     constructor(
         media: Media
     ) : this(
@@ -209,6 +213,16 @@ data class RgbUnspent(
     )
 }
 
+@Parcelize
+data class AppOutpoint(val txid: String, val vout: UInt) : Parcelable {
+    constructor(outpoint: Outpoint) : this(outpoint.txid, outpoint.vout)
+
+    fun outpointStr(): String {
+        return "$txid:$vout"
+    }
+}
+
+@Parcelize
 data class AppTransfer(
     val date: Date,
     val status: TransferStatus,
@@ -216,10 +230,10 @@ data class AppTransfer(
     val recipient: String? = null,
     val amount: ULong? = null,
     val txid: String? = null,
-    val unblindedUTXO: Outpoint? = null,
-    val changeUTXO: Outpoint? = null,
+    val unblindedUTXO: AppOutpoint? = null,
+    val changeUTXO: AppOutpoint? = null,
     var automatic: Boolean = false,
-) {
+) : Parcelable {
     constructor(
         bdkTransfer: TransactionDetails
     ) : this(
@@ -241,8 +255,8 @@ data class AppTransfer(
         recipient = transfer.blindedUtxo,
         amount = transfer.amount,
         txid = transfer.txid,
-        unblindedUTXO = transfer.unblindedUtxo,
-        changeUTXO = transfer.changeUtxo,
+        unblindedUTXO = transfer.unblindedUtxo?.let { AppOutpoint(it) },
+        changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
     )
 
     fun deletable(): Boolean {
@@ -279,7 +293,7 @@ data class UTXO(
     )
 
     constructor(
-        outpoint: Outpoint
+        outpoint: AppOutpoint
     ) : this(
         outpoint.txid,
         outpoint.vout,
@@ -288,7 +302,7 @@ data class UTXO(
         listOf(),
     )
 
-    fun outpointStr(): String {
-        return "$txid:$vout"
+    fun outpoint(): AppOutpoint {
+        return AppOutpoint(txid, vout)
     }
 }

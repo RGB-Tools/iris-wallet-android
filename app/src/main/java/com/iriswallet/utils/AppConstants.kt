@@ -77,4 +77,9 @@ object AppConstants {
     const val veryLongTimeout = 120000L
     const val longTimeout = 40000L
     const val shortTimeout = 20000L
+
+    const val BUNDLE_FUNGIBLES = "fungibles"
+    const val BUNDLE_COLLECTIBLES = "collectibles"
+    const val BUNDLE_ASSET = "asset"
+    const val BUNDLE_TRANSFER = "transfer"
 }

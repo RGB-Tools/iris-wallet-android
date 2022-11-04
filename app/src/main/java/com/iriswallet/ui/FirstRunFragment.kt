@@ -38,10 +38,9 @@ class FirstRunFragment :
                             getErrMsg(R.string.err_creating_wallet, response.error.message)
                         )
                     }
-                else {
+                else
                     findNavController()
                         .navigate(R.id.action_firstRunFragment_to_termsAndConditionsFragment)
-                }
             }
         }
     }

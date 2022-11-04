@@ -19,7 +19,6 @@ import com.iriswallet.databinding.FragmentTransferDetailBinding
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppTransfer
-import com.iriswallet.utils.UTXO
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,10 +46,7 @@ class TransferDetailFragment :
                                 .setMessage(getString(R.string.confirm_delete_transfer))
                                 .setPositiveButton(getString(R.string.delete)) { _, _ ->
                                     disableUI()
-                                    viewModel.deleteTransfer(
-                                        viewModel.viewingAsset!!,
-                                        transfer
-                                    )
+                                    viewModel.deleteTransfer(viewModel.viewingAsset!!, transfer)
                                 }
                                 .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
                                 .create()
@@ -58,7 +54,7 @@ class TransferDetailFragment :
                             true
                         }
                         android.R.id.home -> {
-                            mActivity.onBackPressed()
+                            mActivity.onSupportNavigateUp()
                             true
                         }
                         else -> true
@@ -137,7 +133,7 @@ class TransferDetailFragment :
             binding.transferUnblindedUTXOLabelTV.visibility = View.GONE
             binding.transferUnblindedUTXOTV.visibility = View.GONE
         } else {
-            val outpoint = UTXO(unblindedOutpoint!!).outpointStr()
+            val outpoint = unblindedOutpoint!!.outpointStr()
             binding.transferUnblindedUTXOTV.text = outpoint
             binding.transferUnblindedUTXOTV.paintFlags =
                 binding.transferUnblindedUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
@@ -156,7 +152,7 @@ class TransferDetailFragment :
             binding.transferChangeUTXOLabelTV.visibility = View.GONE
             binding.transferChangeUTXOTV.visibility = View.GONE
         } else {
-            val outpoint = UTXO(transfer.changeUTXO!!).outpointStr()
+            val outpoint = transfer.changeUTXO!!.outpointStr()
             binding.transferChangeUTXOTV.text = outpoint
             binding.transferChangeUTXOTV.paintFlags =
                 binding.transferChangeUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG

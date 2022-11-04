@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.LiveData
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     val binding
         get() = _binding!!
+
+    private val viewModel: MainViewModel by viewModels()
 
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -71,6 +74,20 @@ class MainActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // see https://issuetracker.google.com/issues/36907463
+        if (
+            !isTaskRoot &&
+                intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
+                intent.action != null &&
+                intent.action.equals(Intent.ACTION_MAIN)
+        ) {
+            finish()
+            return
+        }
+
+        if (savedInstanceState != null) hideSplashScreen = true
+
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setupSplashScreen()
@@ -111,6 +128,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
+
+        viewModel.refreshedFungibles.observe(this) {
+            if (!inMainFragment) it.getContentIfNotHandled()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.saveState()
+        super.onSaveInstanceState(outState)
     }
 
     override fun onSupportNavigateUp(): Boolean {

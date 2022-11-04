@@ -27,15 +27,13 @@ class SendAssetFragment :
     MainBaseFragment<FragmentSendAssetBinding>(FragmentSendAssetBinding::inflate),
     AppAuthenticationServiceListener {
 
+    lateinit var asset: AppAsset
+
     private var isLoading = false
 
     private lateinit var appAuthenticationService: AppAuthenticationService
 
     private lateinit var editableFields: Array<EditText>
-
-    private var _asset: AppAsset? = null
-    val asset
-        get() = _asset!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +42,7 @@ class SendAssetFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        asset = viewModel.viewingAsset!!
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(
@@ -68,7 +67,7 @@ class SendAssetFragment :
                             true
                         }
                         android.R.id.home -> {
-                            mActivity.onBackPressed()
+                            mActivity.onSupportNavigateUp()
                             true
                         }
                         else -> true
@@ -133,7 +132,6 @@ class SendAssetFragment :
 
     override fun onResume() {
         super.onResume()
-        _asset = viewModel.viewingAsset!!
         enableUI()
         val enable = allETsFilled(editableFields)
         binding.sendSendBtn.isEnabled = enable && isETPositive(binding.sendAmountTV)
