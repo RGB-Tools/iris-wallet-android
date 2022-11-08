@@ -69,6 +69,7 @@
     <string name="menu_help_page">Help</string>
     <string name="menu_about_page">About</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_backup">Backup</string>
     <string name="err_configuring_app_auth">Error configuring authentication</string>
     <string name="auth_failed">Authentication failed</string>
     <string name="no_auth_available">Cannot find authentication, enable it in Android
@@ -114,6 +115,7 @@
     <string name="unspent_list_title">Unspent list</string>
     <string name="faucet_title">Faucets</string>
     <string name="settings_title">Settings</string>
+    <string name="backup_title">Backup</string>
     <string name="issue_button">Issue asset</string>
     <string name="main_receive_button">Receive assets</string>
     <string name="main_title">My assets</string>
@@ -185,8 +187,10 @@
     <string name="terms_not_accepted">You cannot proceed without agreeing to the Terms of Use for
         the Iris Wallet. Wallet data will be erased.</string>
     <string name="terms_of_service_link">Terms Of Service</string>
-    <string name="privacy_policy_link" >Privacy Policy</string>
+    <string name="privacy_policy_link">Privacy Policy</string>
     <string name="app_version">App version: %s</string>
     <string name="pending_asset_faucet">Pending asset from faucet. Please wait, it should arrive in
         a few minutes</string>
+    <string name="show_mnemonic">Show mnemonic</string>
+    <string name="hide_mnemonic">Hide mnemonic</string>
 </resources>

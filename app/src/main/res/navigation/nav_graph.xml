@@ -67,6 +67,9 @@
         <action
             android:id="@+id/action_mainFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_backupFragment"
+            app:destination="@id/backupFragment" />
     </fragment>
     <fragment
         android:id="@+id/helpPageFragment"
@@ -142,5 +145,11 @@
         android:name="com.iriswallet.ui.SettingsFragment"
         android:label="@string/settings_title"
         tools:layout="@layout/fragment_settings">
+    </fragment>
+    <fragment
+        android:id="@+id/backupFragment"
+        android:name="com.iriswallet.ui.BackupFragment"
+        android:label="@string/backup_title"
+        tools:layout="@layout/fragment_backup">
     </fragment>
 </navigation>

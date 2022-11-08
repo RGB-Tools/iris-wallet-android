@@ -12,6 +12,9 @@
     <item android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"
         android:title="@string/menu_settings" />
+    <item android:id="@+id/backupFragment"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_backup" />
     <item android:id="@+id/helpPageFragment"
         android:icon="@drawable/ic_help"
         android:title="@string/menu_help_page" />
