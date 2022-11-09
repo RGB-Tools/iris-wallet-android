@@ -15,7 +15,7 @@ object BdkRepository {
     private val keys: DescriptorSecretKey by lazy {
         DescriptorSecretKey(
             AppContainer.bitcoinNetwork.toBdkNetwork(),
-            AppContainer.bitcoinKeys.mnemonic,
+            Mnemonic.fromString(AppContainer.bitcoinKeys.mnemonic),
             AppContainer.mnemonicPassword,
         )
     }
@@ -80,7 +80,11 @@ object BdkRepository {
 
     fun sendToAddress(address: String, amount: ULong): String {
         try {
-            val psbt = TxBuilder().addRecipient(address, amount).finish(vanillaWallet)
+            val psbt =
+                TxBuilder()
+                    .addRecipient(Address(address).scriptPubkey(), amount)
+                    .finish(vanillaWallet)
+                    .psbt
             vanillaWallet.sign(psbt)
             blockchain.broadcast(psbt)
             return psbt.txid()
