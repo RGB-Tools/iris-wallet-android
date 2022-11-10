@@ -60,7 +60,6 @@ _prepare() {
         mkdir -vp "$release_out"
         mkdir -vp "$RELEASE_PATH"
         _log "$removing"
-        rm -vf "$release_out/$APK_NAME-unsigned.apk"
         rm -vf "$release_out/$APK_NAME-aligned.apk"
         rm -vf "$RELEASE_PATH/$APK_NAME.apk"
     fi
@@ -75,7 +74,7 @@ _align_and_sign() {
     local release_out="$OUT_BASE/$variant/release"
     local apk="$release_out/$APK_NAME"
     _log "aligning $APK_NAME APK..."
-    zipalign -v -p 4 "$apk-unsigned.apk" "$apk-aligned.apk"
+    zipalign -v -p 4 "$apk.apk" "$apk-aligned.apk"
 
     _log "signing $APK_NAME APK..."
     apksigner sign --ks "$KEYSTORE" \
@@ -94,7 +93,11 @@ _output_info() {
 
 # target selection
 [ "${1,,}" = release ] && TARGET="Release"
-KEYSTORE="$2"
+if [ "$TARGET" = "Release" ]; then
+    KEYSTORE=$(grep -A10 'signingConfigs {' app/build.gradle \
+        |grep -A5 'release {' |grep 'storeFile' |awk -F'"' '{print $2}' \
+        |sed "s#\${System.properties\['user.home'\]}#$HOME#")
+fi
 
 # preliminary checks
 _tit "running preliminary checks..."
