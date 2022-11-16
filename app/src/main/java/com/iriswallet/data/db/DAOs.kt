@@ -12,6 +12,16 @@ interface AutomaticTransactionDao {
 }
 
 @Dao
+interface HiddenAssetDao {
+    @Insert fun insertHiddenAsset(hiddenAsset: HiddenAsset)
+
+    @Transaction @Query("SELECT * FROM HiddenAsset") fun getHiddenAssets(): List<HiddenAsset>
+
+    @Query("DELETE FROM HiddenAsset WHERE id = :hiddenAssetID")
+    fun deleteHiddenAsset(hiddenAssetID: String)
+}
+
+@Dao
 interface RgbPendingAssetDao {
     @Insert fun insertRgbPendingAsset(rgbPendingAsset: RgbPendingAsset)
 

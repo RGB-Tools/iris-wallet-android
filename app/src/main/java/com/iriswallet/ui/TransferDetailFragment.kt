@@ -16,16 +16,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentTransferDetailBinding
-import com.iriswallet.utils.AppConstants
-import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.*
 import java.text.SimpleDateFormat
 import java.util.*
+import org.rgbtools.Invoice
+import org.rgbtools.InvoiceData
+import org.rgbtools.TransferStatus
 
 class TransferDetailFragment :
     MainBaseFragment<FragmentTransferDetailBinding>(FragmentTransferDetailBinding::inflate) {
 
     private lateinit var transfer: AppTransfer
+    lateinit var asset: AppAsset
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,7 +48,7 @@ class TransferDetailFragment :
                                 .setMessage(getString(R.string.confirm_delete_transfer))
                                 .setPositiveButton(getString(R.string.delete)) { _, _ ->
                                     disableUI()
-                                    viewModel.deleteTransfer(viewModel.viewingAsset!!, transfer)
+                                    viewModel.deleteTransfer(asset, transfer)
                                 }
                                 .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
                                 .create()
@@ -64,9 +66,31 @@ class TransferDetailFragment :
             viewLifecycleOwner,
             Lifecycle.State.RESUMED
         )
+    }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        asset = viewModel.viewingAsset!!
         transfer = viewModel.viewingTransfer!!
+        drawTransferDetails()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.viewingTransfer = null
+    }
+
+    override fun enableUI() {
+        super.enableUI()
+        binding.transferPB.visibility = View.INVISIBLE
+    }
+
+    private fun disableUI() {
+        mActivity.backEnabled = false
+        binding.transferPB.visibility = View.VISIBLE
+    }
+
+    private fun drawTransferDetails() {
         binding.transferInternalTV.visibility =
             if (transfer.automatic) {
                 binding.transferInternalTV.setOnClickListener {
@@ -81,9 +105,16 @@ class TransferDetailFragment :
 
         if (transfer.deletable())
             viewModel.asset.observe(viewLifecycleOwner) {
-                it.getContentIfNotHandled()?.let {
+                it.getContentIfNotHandled()?.let { response ->
+                    if (response.requestID != asset.id) return@let
                     enableUI()
-                    findNavController().popBackStack()
+                    if (response.data != null) {
+                        findNavController().popBackStack()
+                    } else {
+                        handleError(response.error!!) {
+                            toastError(R.string.err_deleting_transfer, response.error.message)
+                        }
+                    }
                 }
             }
 
@@ -93,12 +124,12 @@ class TransferDetailFragment :
         binding.transferAmountTV.text = amountStr
         if (transfer.incoming) {
             binding.transferAmountTV.setTextColor(
-                ContextCompat.getColor(view.context, R.color.color_green)
+                ContextCompat.getColor(requireContext(), R.color.color_green)
             )
             binding.transferAmountTV.text = getString(R.string.positive_amount, amountStr)
         } else {
             binding.transferAmountTV.setTextColor(
-                ContextCompat.getColor(view.context, R.color.color_red)
+                ContextCompat.getColor(requireContext(), R.color.color_red)
             )
             binding.transferAmountTV.text = getString(R.string.negative_amount, amountStr)
         }
@@ -121,11 +152,28 @@ class TransferDetailFragment :
         binding.transferDateTV.text =
             SimpleDateFormat(AppConstants.transferFullDateFmt, Locale.US).format(transfer.date)
 
-        if (viewModel.viewingAsset!!.bitcoin() || transfer.recipient.isNullOrBlank()) {
-            binding.transferRecipientLabelTV.visibility = View.GONE
-            binding.transferRecipientTV.visibility = View.GONE
+        binding.transferInvoiceLabelTV.visibility = View.GONE
+        binding.transferInvoiceTV.visibility = View.GONE
+
+        if (asset.bitcoin() || transfer.blindedUTXO.isNullOrBlank()) {
+            binding.transferBlindedUtxoLabelTV.visibility = View.GONE
+            binding.transferBlindedUtxoTV.visibility = View.GONE
+        } else {
+            binding.transferBlindedUtxoTV.text = transfer.blindedUTXO
+            if (transfer.status == TransferStatus.WAITING_COUNTERPARTY && transfer.incoming) {
+                val invoiceData =
+                    InvoiceData(
+                        transfer.blindedUTXO!!,
+                        amount = null,
+                        assetId = asset.id,
+                        expirationTimestamp = transfer.expiration
+                    )
+                val invoice = Invoice.fromInvoiceData(invoiceData)
+                binding.transferInvoiceTV.text = invoice.bech32Invoice()
+                binding.transferInvoiceLabelTV.visibility = View.VISIBLE
+                binding.transferInvoiceTV.visibility = View.VISIBLE
+            }
         }
-        binding.transferRecipientTV.text = transfer.recipient
 
         // unblinded UTXO
         val unblindedOutpoint = transfer.unblindedUTXO
@@ -163,15 +211,5 @@ class TransferDetailFragment :
                 startActivity(intent)
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.viewingTransfer = null
-    }
-
-    private fun disableUI() {
-        mActivity.backEnabled = false
-        binding.transferPB.visibility = View.VISIBLE
     }
 }

@@ -40,7 +40,11 @@ class IssueAssetFragment :
 
                     override fun afterTextChanged(editable: Editable) {
                         if (editText.inputType == InputType.TYPE_CLASS_NUMBER)
-                            fixETAmount(editText, editable.toString(), AppConstants.issueMaxAmount)
+                            fixETAmount(
+                                editText,
+                                editable.toString(),
+                                maxAmount = AppConstants.issueMaxAmount
+                            )
                         binding.issueBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.amountInputET)
                     }

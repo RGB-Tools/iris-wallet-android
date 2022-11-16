@@ -1,5 +1,6 @@
 package com.iriswallet.ui
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.iriswallet.data.AppRepository
 import com.iriswallet.data.retrofit.RgbAsset
@@ -10,54 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
-
-    var cachedFungibles: List<AppAsset> = listOf()
-        get() {
-            if (savedStateHandle.contains(AppConstants.BUNDLE_FUNGIBLES)) {
-                val cached = savedStateHandle.get<List<AppAsset>>(AppConstants.BUNDLE_FUNGIBLES)!!
-                savedStateHandle.remove<List<AppAsset>>(AppConstants.BUNDLE_FUNGIBLES)
-                field = cached
-                return cached
-            }
-            return field
-        }
-
-    var cachedCollectibles: List<AppAsset> = listOf()
-        get() {
-            if (savedStateHandle.contains(AppConstants.BUNDLE_COLLECTIBLES)) {
-                val cached =
-                    savedStateHandle.get<List<AppAsset>>(AppConstants.BUNDLE_COLLECTIBLES)!!
-                field = cached
-                savedStateHandle.remove<List<AppAsset>>(AppConstants.BUNDLE_COLLECTIBLES)
-                return cached
-            }
-            return field
-        }
-
-    var viewingAsset: AppAsset? = null
-        get() {
-            if (savedStateHandle.contains(AppConstants.BUNDLE_ASSET)) {
-                val cached = savedStateHandle.get<AppAsset>(AppConstants.BUNDLE_ASSET)
-                field = cached
-                savedStateHandle.remove<AppAsset>(AppConstants.BUNDLE_ASSET)
-                return cached
-            }
-            return field
-        }
-
-    var viewingTransfer: AppTransfer? = null
-        get() {
-            if (savedStateHandle.contains(AppConstants.BUNDLE_TRANSFER)) {
-                val cached = savedStateHandle.get<AppTransfer>(AppConstants.BUNDLE_TRANSFER)
-                field = cached
-                savedStateHandle.remove<AppTransfer>(AppConstants.BUNDLE_TRANSFER)
-                return cached
-            }
-            return field
-        }
-
-    var refreshingAsset: Boolean = false
-    var refreshingAssets: Boolean = false
 
     private val _refreshedAssets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
     val refreshedAssets: LiveData<Event<AppResponse<List<AppAsset>>>>
@@ -78,6 +31,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private val _asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
     val asset: LiveData<Event<AppResponse<AppAsset>>>
         get() = _asset
+
+    private val _metadata = MutableLiveData<Event<AppResponse<org.rgbtools.Metadata>>>()
+    val metadata: LiveData<Event<AppResponse<org.rgbtools.Metadata>>>
+        get() = _metadata
 
     private val _recipient = MutableLiveData<Event<AppResponse<Receiver>>>()
     val recipient: LiveData<Event<AppResponse<Receiver>>>
@@ -103,12 +60,50 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val rgbAsset: LiveData<Event<AppResponse<RgbAsset>>>
         get() = _rgbAsset
 
+    private val _hidden = MutableLiveData<Event<AppResponse<Boolean>>>()
+    val hidden: LiveData<Event<AppResponse<Boolean>>>
+        get() = _hidden
+
+    lateinit var cachedFungibles: List<AppAsset>
+
+    lateinit var cachedCollectibles: List<AppAsset>
+
+    var viewingAsset: AppAsset? = null
+
+    var viewingTransfer: AppTransfer? = null
+
+    var refreshingAsset: Boolean = false
+    var refreshingAssets: Boolean = false
+
     internal fun saveState() {
-        savedStateHandle[AppConstants.BUNDLE_FUNGIBLES] = cachedFungibles
-        savedStateHandle[AppConstants.BUNDLE_COLLECTIBLES] = cachedCollectibles
-        if (viewingAsset != null) savedStateHandle[AppConstants.BUNDLE_ASSET] = viewingAsset
+        Log.d(TAG, "Saving state...")
+        savedStateHandle[AppConstants.BUNDLE_APP_ASSETS] = AppRepository.appAssets
+        if (viewingAsset != null) savedStateHandle[AppConstants.BUNDLE_ASSET_ID] = viewingAsset!!.id
         if (viewingTransfer != null)
-            savedStateHandle[AppConstants.BUNDLE_TRANSFER] = viewingTransfer
+            savedStateHandle[AppConstants.BUNDLE_TRANSFER_ID] =
+                viewingAsset!!.transfers.indexOf(viewingTransfer)
+    }
+
+    internal fun restoreState() {
+        if (savedStateHandle.contains(AppConstants.BUNDLE_APP_ASSETS)) {
+            Log.d(TAG, "Recovering assets from saved state...")
+            AppRepository.appAssets =
+                savedStateHandle.get<MutableList<AppAsset>>(AppConstants.BUNDLE_APP_ASSETS)!!
+            savedStateHandle.remove<MutableList<AppAsset>>(AppConstants.BUNDLE_APP_ASSETS)
+            cacheAssets()
+        }
+        if (savedStateHandle.contains(AppConstants.BUNDLE_ASSET_ID)) {
+            Log.d(TAG, "Recovering asset from saved state...")
+            val cachedAssetId = savedStateHandle.get<String>(AppConstants.BUNDLE_ASSET_ID)!!
+            viewingAsset = AppRepository.getCachedAsset(cachedAssetId)
+            savedStateHandle.remove<String>(AppConstants.BUNDLE_ASSET_ID)
+        }
+        if (savedStateHandle.contains(AppConstants.BUNDLE_TRANSFER_ID)) {
+            Log.d(TAG, "Recovering transfer from state...")
+            val cachedTransferId = savedStateHandle.get<Int>(AppConstants.BUNDLE_TRANSFER_ID)!!
+            viewingTransfer = viewingAsset!!.transfers[cachedTransferId]
+            savedStateHandle.remove<Int>(AppConstants.BUNDLE_TRANSFER_ID)
+        }
     }
 
     private inline fun callWithTimeout(
@@ -129,6 +124,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private inline fun <T> tryCallWithTimeout(
         timeout: Long,
         liveData: MutableLiveData<Event<AppResponse<T>>>,
+        requestID: String? = null,
         noinline successCallback: ((data: T) -> Unit)? = null,
         noinline failureCallback: (() -> Unit)? = null,
         crossinline callback: suspend () -> T
@@ -137,16 +133,21 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             timeout,
             timeoutCallback = {
                 liveData.postValue(
-                    Event(AppResponse(error = AppError(type = AppErrorType.TIMEOUT_EXCEPTION)))
+                    Event(
+                        AppResponse(
+                            requestID = requestID,
+                            error = AppError(type = AppErrorType.TIMEOUT_EXCEPTION)
+                        )
+                    )
                 )
             }
         ) {
             try {
                 val data = callback()
-                liveData.postValue(Event(AppResponse(data = data)))
+                liveData.postValue(Event(AppResponse(requestID = requestID, data = data)))
                 successCallback?.let { it(data) }
             } catch (e: Exception) {
-                liveData.postValue(Event(AppResponse(error = AppError(e))))
+                liveData.postValue(Event(AppResponse(requestID = requestID, error = AppError(e))))
                 failureCallback?.let { it() }
             }
         }
@@ -163,6 +164,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private fun cacheAssets(postLiveData: Boolean = false) {
         cachedFungibles = AppRepository.getCachedFungibles()
         cachedCollectibles = AppRepository.getCachedCollectibles()
+
         if (postLiveData) {
             _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
             _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
@@ -179,7 +181,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun refreshAssets(allowFailures: Boolean = false) {
+    fun refreshAssets() {
         refreshingAssets = true
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
@@ -190,19 +192,29 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             },
             failureCallback = { refreshingAssets = false },
         ) {
-            AppRepository.getRefreshedAssets(allowFailures)
+            AppRepository.getRefreshedAssets()
         }
     }
 
-    fun refreshAssetDetail(asset: AppAsset, allowFailures: Boolean = false) {
+    fun refreshAssetDetail(asset: AppAsset) {
         refreshingAsset = true
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
             _asset,
+            requestID = asset.id,
             successCallback = { refreshingAsset = false },
             failureCallback = { refreshingAsset = false },
         ) {
-            AppRepository.refreshAssetDetail(asset, allowFailures)
+            AppRepository.refreshAssetDetail(asset)
+        }
+    }
+
+    fun getAssetMetadata(asset: AppAsset) {
+        tryCallWithTimeout(
+            AppConstants.shortTimeout,
+            _metadata,
+        ) {
+            AppRepository.getAssetMetadata(asset)
         }
     }
 
@@ -213,13 +225,21 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun genReceiveData(asset: AppAsset?) {
-        tryCallWithTimeout(AppConstants.shortTimeout, _recipient) {
+        tryCallWithTimeout(
+            AppConstants.shortTimeout,
+            _recipient,
+            successCallback = { cacheAssets() },
+        ) {
             AppRepository.genReceiveData(asset)
         }
     }
 
     fun sendAsset(asset: AppAsset, recipient: String, amount: String) {
-        tryCallWithTimeout(AppConstants.longTimeout, _sent) {
+        tryCallWithTimeout(
+            AppConstants.longTimeout,
+            _sent,
+            successCallback = { cacheAssets() },
+        ) {
             AppRepository.sendAsset(asset, recipient, amount.toULong())
         }
     }
@@ -235,10 +255,23 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun deleteTransfer(asset: AppAsset, transfer: AppTransfer) {
-        viewModelScope.launch(Dispatchers.IO) {
-            AppRepository.deleteRGBTransfer(transfer)
-            refreshAssetDetail(asset, allowFailures = true)
-            AppRepository.allowedFailure = null
+        tryCallWithTimeout(
+            AppConstants.shortTimeout,
+            _asset,
+            requestID = asset.id,
+            successCallback = { cacheAssets() },
+        ) {
+            AppRepository.deleteRGBTransfer(asset, transfer)
+        }
+    }
+
+    fun handleAssetVisibility(asset: AppAsset) {
+        tryCallWithTimeout(
+            AppConstants.shortTimeout,
+            _hidden,
+            successCallback = { cacheAssets() },
+        ) {
+            AppRepository.handleAssetVisibility(asset)
         }
     }
 
@@ -253,7 +286,11 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun receiveFromRgbFaucet(url: String, group: String) {
-        tryCallWithTimeout(AppConstants.veryLongTimeout, _rgbAsset) {
+        tryCallWithTimeout(
+            AppConstants.veryLongTimeout,
+            _rgbAsset,
+            successCallback = { cacheAssets() },
+        ) {
             AppRepository.receiveFromRgbFaucet(url, group)
         }
     }

@@ -59,6 +59,13 @@
         <item name="android:layout_margin">@dimen/big_size</item>
     </style>
 
+    <style name="empty_button" parent="main_button">
+        <item name="strokeColor">@color/btn_empty_stroke</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">@color/btn_empty_text</item>
+    </style>
+
     <style name="detail_button">
         <item name="android:singleLine">true</item>
         <item name="android:layout_height">wrap_content</item>
@@ -112,24 +119,36 @@
     </style>
 
     <style name="unspent_amount_sat">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/text_small</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">@color/roman_silver</item>
         <item name="android:text">@string/sample_sat_amount</item>
+        <item name="android:lines">1</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="unspent_amount_rgb" parent="unspent_amount_sat">
-        <item name="android:textColor">@color/roman_silver_op6</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">0.1</item>
+        <item name="android:textColor">@color/roman_silver</item>
         <item name="android:text">@string/sample_rgb_amount</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">@dimen/text_very_very_small</item>
+        <item name="android:autoSizeMaxTextSize">@dimen/text_very_very_big</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="layout_constrainedWidth">true</item>
     </style>
 
-    <style name="unspent_asset_id" parent="unspent_amount_rgb">
+    <style name="unspent_asset_id" parent="unspent_amount_sat">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">0.9</item>
+        <item name="android:textColor">@color/roman_silver</item>
         <item name="android:text">@string/sample_asset_id</item>
         <item name="android:ellipsize">middle</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:layout_marginEnd">50dp</item>
+        <item name="android:layout_marginEnd">@dimen/medium_size</item>
+        <item name="android:layout_alignParentStart">true</item>
     </style>
 
     <style name="detail_label">
@@ -168,7 +187,15 @@
         <item name="android:textSize">@dimen/text_small</item>
     </style>
 
-    <style name="balance_tv">
+    <style name="auto_size_text">
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">@dimen/text_very_very_small</item>
+        <item name="android:autoSizeMaxTextSize">@dimen/text_very_very_big</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:lines">1</item>
+    </style>
+
+    <style name="balance_tv" parent="auto_size_text">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">@color/white</item>

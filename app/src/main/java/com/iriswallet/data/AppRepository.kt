@@ -3,6 +3,7 @@ package com.iriswallet.data
 import android.util.Log
 import com.iriswallet.R
 import com.iriswallet.data.db.AutomaticTransaction
+import com.iriswallet.data.db.HiddenAsset
 import com.iriswallet.data.db.RgbPendingAsset
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
@@ -13,17 +14,8 @@ object AppRepository {
 
     internal var isCacheDirty: Boolean = false
 
-    var allowedFailure: Throwable? = null
+    lateinit var appAssets: MutableList<AppAsset>
 
-    private val bitcoinAsset: AppAsset by lazy {
-        AppAsset(
-            AppAssetType.BITCOIN,
-            AppConstants.bitcoinAssetID,
-            AppContainer.bitcoinAssetName,
-            ticker = AppContainer.bitcoinAssetTicker,
-        )
-    }
-    private val appAssets: MutableList<AppAsset> by lazy { mutableListOf(bitcoinAsset) }
     private var rgbPendingAssetIDs: MutableList<String> = mutableListOf()
 
     fun getCachedFungibles(): List<AppAsset> {
@@ -33,21 +25,29 @@ object AppRepository {
     }
 
     fun getCachedCollectibles(): List<AppAsset> {
-        return appAssets.filter { it.type == AppAssetType.RGB21 }
+        return appAssets.filter { it.type == AppAssetType.RGB121 }
     }
 
-    private fun handleFailure(throwable: Throwable, allowFailures: Boolean) {
-        if (allowFailures) {
-            if (allowedFailure == null) allowedFailure = throwable
-        } else throw throwable
+    internal fun getCachedAsset(assetID: String): AppAsset? {
+        return appAssets.find { it.id == assetID }
     }
 
-    private fun updateBitcoinAsset(allowFailures: Boolean = false, refresh: Boolean = true) {
+    private fun updateBitcoinAsset(refresh: Boolean = true) {
         Log.d(TAG, "Updating bitcoin asset...")
 
-        if (refresh)
-            runCatching { BdkRepository.syncWithBlockchain() }
-                .onFailure { handleFailure(it, allowFailures) }
+        if (appAssets.isEmpty()) {
+            appAssets.add(
+                AppAsset(
+                    AppAssetType.BITCOIN,
+                    AppConstants.bitcoinAssetID,
+                    AppContainer.bitcoinAssetName,
+                    ticker = AppContainer.bitcoinAssetTicker,
+                )
+            )
+        }
+        val bitcoinAsset = appAssets[0]
+
+        if (refresh) BdkRepository.syncWithBlockchain()
 
         val transfers = BdkRepository.listTransfers().toMutableList()
         val autoTXs = AppContainer.db.automaticTransactionDao().getAutomaticTransactions()
@@ -57,49 +57,69 @@ object AppRepository {
         bitcoinAsset.transfers = transfers
 
         val balance = BdkRepository.getBalance()
+        bitcoinAsset.spendableBalance = balance.total
         bitcoinAsset.settledBalance = balance.total
         bitcoinAsset.totalBalance = balance.total
     }
 
     private fun updateRGBAsset(
         asset: AppAsset,
-        allowFailures: Boolean = false,
-        refresh: Boolean = true
+        refresh: Boolean = true,
+        updateTransfers: Boolean = true,
+        updateTransfersFilter: String? = null,
     ) {
         Log.d(TAG, "Updating RGB asset (${asset.id})...")
 
         if (refresh)
-            runCatching { RgbRepository.refresh(asset) }
+            runCatching {
+                    RgbRepository.refresh(asset)
+                    val balance = RgbRepository.getBalance(asset.id)
+                    asset.spendableBalance = balance.spendable
+                    asset.settledBalance = balance.settled
+                    asset.totalBalance = balance.future
+                }
                 .onFailure {
                     if (rgbPendingAssetIDs.contains(asset.id)) {
                         return
                     }
-                    handleFailure(it, allowFailures)
+                    throw it
                 }
 
-        asset.transfers = RgbRepository.listTransfers(asset)
-
-        val balance = RgbRepository.getBalance(asset.id)
-        asset.settledBalance = balance.settled
-        asset.totalBalance = balance.future
+        if (updateTransfers) {
+            if (updateTransfersFilter == asset.id || updateTransfersFilter == null)
+                asset.transfers = RgbRepository.listTransfers(asset)
+        }
     }
 
-    private fun updateRGBAssets(allowFailures: Boolean = false, refresh: Boolean = true) {
+    private fun updateRGBAssets(
+        refresh: Boolean = true,
+        updateTransfers: Boolean = true,
+        updateTransfersFilter: String? = null,
+    ) {
         Log.d(TAG, "Updating RGB assets...")
         if (refresh) RgbRepository.refresh()
         val rgbAssets = RgbRepository.listAssets()
         for (rgbAsset in rgbAssets) {
-            var assetToUpdate = appAssets.find { it.id == rgbAsset.id }
+            var assetToUpdate = getCachedAsset(rgbAsset.id)
             if (assetToUpdate == null) {
                 assetToUpdate = rgbAsset
-                appAssets.add(assetToUpdate)
+                appAssets.add(rgbAsset)
             } else if (rgbPendingAssetIDs.contains(assetToUpdate.id)) {
                 appAssets.remove(assetToUpdate)
                 removeRgbPendingAsset(assetToUpdate.id)
                 assetToUpdate = rgbAsset
-                appAssets.add(assetToUpdate)
+                appAssets.add(rgbAsset)
+            } else {
+                assetToUpdate.spendableBalance = rgbAsset.spendableBalance
+                assetToUpdate.settledBalance = rgbAsset.settledBalance
+                assetToUpdate.totalBalance = rgbAsset.totalBalance
             }
-            updateRGBAsset(assetToUpdate, allowFailures, refresh = false)
+            updateRGBAsset(
+                assetToUpdate,
+                refresh = false,
+                updateTransfers = updateTransfers,
+                updateTransfersFilter = updateTransfersFilter
+            )
         }
     }
 
@@ -115,13 +135,22 @@ object AppRepository {
 
     private fun createUTXOs(e: Exception) {
         Log.d(TAG, "Creating UTXOs because: ${e.message}")
-        if (e is RgbLibException.InsufficientFunds) {
+        if (e is RgbLibException.InsufficientBitcoins) {
             Log.d(TAG, "Sending funds to RGB wallet...")
-            val txid =
-                BdkRepository.sendToAddress(RgbRepository.getAddress(), AppConstants.satsForRgb)
-            AppContainer.db
-                .automaticTransactionDao()
-                .insertAutomaticTransactions(AutomaticTransaction(txid))
+            try {
+                val txid =
+                    BdkRepository.sendToAddress(RgbRepository.getAddress(), AppConstants.satsForRgb)
+                AppContainer.db
+                    .automaticTransactionDao()
+                    .insertAutomaticTransactions(AutomaticTransaction(txid))
+            } catch (e: AppException) {
+                throw AppException(
+                    AppContainer.appContext.getString(
+                        R.string.insufficient_bitcoins_for_rgb,
+                        AppConstants.satsForRgb.toString()
+                    )
+                )
+            }
         }
         var attempts = 3
         var newUTXOs: UByte = 0u
@@ -129,7 +158,7 @@ object AppRepository {
             try {
                 Log.d(TAG, "Calling create UTXOs...")
                 newUTXOs = RgbRepository.createUTXOs()
-            } catch (_: RgbLibException.InsufficientFunds) {}
+            } catch (_: RgbLibException.InsufficientBitcoins) {}
             attempts--
         }
     }
@@ -139,7 +168,7 @@ object AppRepository {
             callback()
         } catch (e: RgbLibException) {
             when (e) {
-                is RgbLibException.InsufficientFunds,
+                is RgbLibException.InsufficientBitcoins,
                 is RgbLibException.InsufficientAllocationSlots -> {
                     createUTXOs(e)
                     updateBitcoinAsset()
@@ -159,40 +188,79 @@ object AppRepository {
     }
 
     private fun startRGBReceiving(asset: AppAsset?): Receiver {
-        if (asset == null) checkMaxAssets()
+        var updateTransfers = true
+        if (asset == null) {
+            checkMaxAssets()
+            updateTransfers = false
+        }
         val blindedData = RgbRepository.getBlindedUTXO(asset?.id, AppConstants.rgbBlindDuration)
-        if (asset != null) runCatching { updateRGBAsset(asset) }.onFailure { isCacheDirty = true }
-        return Receiver(blindedData.blindedUtxo, AppConstants.rgbBlindDuration, false)
+        runCatching {
+                updateRGBAssets(
+                    refresh = false,
+                    updateTransfers = updateTransfers,
+                    updateTransfersFilter = asset?.id
+                )
+            }
+            .onFailure { isCacheDirty = true }
+        return Receiver(blindedData.invoice, AppConstants.rgbBlindDuration, false)
     }
 
     private fun initiateRgbTransfer(asset: AppAsset, blindedUTXO: String, amount: ULong): String {
         Log.d(TAG, "Initiating transfer for blinded UTXO: $blindedUTXO")
         val txid = RgbRepository.send(asset, blindedUTXO, amount)
-        runCatching { updateRGBAsset(asset) }.onFailure { isCacheDirty = true }
+        runCatching {
+                updateRGBAssets(
+                    refresh = false,
+                    updateTransfers = true,
+                    updateTransfersFilter = asset.id
+                )
+            }
+            .onFailure { isCacheDirty = true }
         return txid
     }
 
     fun issueRGBAsset(ticker: String, name: String, amounts: List<ULong>): AppAsset {
         checkMaxAssets()
         val contract = handleMissingFunds { RgbRepository.issueAssetRgb20(ticker, name, amounts) }
-        val balance = amounts.sum()
         val asset =
             AppAsset(
                 AppAssetType.RGB20,
                 contract.assetId,
                 name,
                 ticker = ticker,
-                settledBalance = balance,
-                totalBalance = balance,
             )
         appAssets.add(asset)
         updateRGBAsset(asset)
         return asset
     }
 
-    fun deleteRGBTransfer(transfer: AppTransfer) {
+    fun deleteRGBTransfer(asset: AppAsset, transfer: AppTransfer): AppAsset {
         Log.d(TAG, "Removing transfer '$transfer'")
         RgbRepository.deleteTransfer(transfer)
+        runCatching {
+                updateRGBAssets(
+                    refresh = false,
+                    updateTransfers = true,
+                    updateTransfersFilter = asset.id
+                )
+            }
+            .onFailure { isCacheDirty = true }
+        return asset
+    }
+
+    fun handleAssetVisibility(asset: AppAsset): Boolean {
+        if (asset.hidden) {
+            AppContainer.db.hiddenAssetDao().deleteHiddenAsset(asset.id)
+            asset.hidden = false
+        } else {
+            AppContainer.db.hiddenAssetDao().insertHiddenAsset(HiddenAsset(id = asset.id))
+            asset.hidden = true
+        }
+        return asset.hidden
+    }
+
+    fun getAssetMetadata(asset: AppAsset): org.rgbtools.Metadata {
+        return RgbRepository.getMetadata(asset.id)
     }
 
     fun genReceiveData(asset: AppAsset?): Receiver {
@@ -207,12 +275,14 @@ object AppRepository {
     }
 
     fun getAssets(): List<AppAsset> {
+        appAssets = mutableListOf()
         updateBitcoinAsset(refresh = false)
         updateRGBAssets(refresh = false)
+
         val pendingAssets = AppContainer.db.rgbPendingAssetDao().getRgbPendingAssets()
         rgbPendingAssetIDs = pendingAssets.map { it.assetID }.toMutableList()
         for (rgbPendingAsset in pendingAssets) {
-            val updatedAsset = appAssets.find { it.id == rgbPendingAsset.assetID }
+            val updatedAsset = getCachedAsset(rgbPendingAsset.assetID)
             if (
                 updatedAsset != null ||
                     rgbPendingAsset.timestamp + TimeUnit.DAYS.toMillis(1) <
@@ -221,21 +291,24 @@ object AppRepository {
                 removeRgbPendingAsset(rgbPendingAsset.assetID)
             else appAssets.add(AppAsset(rgbPendingAsset))
         }
+
+        val hiddenAssetsIds = AppContainer.db.hiddenAssetDao().getHiddenAssets().map { it.id }
+        appAssets.filter { hiddenAssetsIds.contains(it.id) }.forEach { it.hidden = true }
+
         Log.d(TAG, "Offline APP assets: $appAssets")
         return appAssets
     }
 
-    fun getRefreshedAssets(allowFailures: Boolean = false): List<AppAsset> {
-        updateBitcoinAsset(allowFailures)
-        updateRGBAssets(allowFailures)
+    fun getRefreshedAssets(): List<AppAsset> {
+        updateBitcoinAsset()
+        updateRGBAssets()
         Log.d(TAG, "Updated APP assets: ${appAssets.map{it.id}}")
         return appAssets
     }
 
-    fun refreshAssetDetail(asset: AppAsset, allowFailures: Boolean = false): AppAsset {
-        if (asset.bitcoin()) updateBitcoinAsset(allowFailures)
-        else updateRGBAsset(asset, allowFailures)
-        return appAssets.find { it.id == asset.id }!!
+    fun refreshAssetDetail(asset: AppAsset): AppAsset {
+        if (asset.bitcoin()) updateBitcoinAsset() else updateRGBAsset(asset)
+        return asset
     }
 
     fun getBitcoinUnspents(): List<UTXO> {
@@ -275,7 +348,7 @@ object AppRepository {
                 group
             )
         Log.d(TAG, "Will receive an RGB asset with ID '${asset.assetID}'")
-        val existingAsset = appAssets.find { it.id == asset.assetID }
+        val existingAsset = getCachedAsset(asset.assetID)
         if (existingAsset == null) {
             val rgbPendingAsset = RgbPendingAsset(asset)
             AppContainer.db.rgbPendingAssetDao().insertRgbPendingAsset(rgbPendingAsset)

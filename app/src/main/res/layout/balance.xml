@@ -9,11 +9,12 @@
 
     <TextView
         android:id="@+id/detailBalanceLabelTV"
-        android:text="@string/your_balance"
+        android:text="@string/total_balance"
         style="@style/light_label" />
 
     <LinearLayout
         android:orientation="horizontal"
+        android:weightSum="2"
         android:gravity="center"
         android:layout_gravity="center"
         android:layout_width="match_parent"
@@ -23,12 +24,18 @@
             android:id="@+id/detailBalanceTV"
             android:layout_marginEnd="@dimen/small_size"
             android:text="@string/sample_amount"
+            android:gravity="right|center_vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             style="@style/balance_tv"/>
 
         <TextView
             android:id="@+id/detailTickerTV"
             android:text="@string/sample_asset_ticker"
             android:textColor="@color/silver_metallic"
+            android:gravity="left|center_vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             style="@style/balance_tv" />
 
     </LinearLayout>

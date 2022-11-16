@@ -24,13 +24,13 @@ object RgbRepository {
     }
 
     fun createUTXOs(): UByte {
-        return coloredWallet.createUtxos(online, false, null)
+        return coloredWallet.createUtxos(online, false, null, null)
     }
 
     fun deleteTransfer(transfer: AppTransfer) {
         if (transfer.status != TransferStatus.FAILED)
-            coloredWallet.failTransfers(online, transfer.recipient, null)
-        coloredWallet.deleteTransfers(transfer.recipient, null)
+            coloredWallet.failTransfers(online, transfer.blindedUTXO, null)
+        coloredWallet.deleteTransfers(transfer.blindedUTXO, null)
     }
 
     fun getAddress(): String {
@@ -42,7 +42,11 @@ object RgbRepository {
     }
 
     fun getBlindedUTXO(assetID: String? = null, expirationSeconds: UInt): BlindData {
-        return coloredWallet.blind(assetID, expirationSeconds)
+        return coloredWallet.blind(assetID, null, expirationSeconds)
+    }
+
+    fun getMetadata(assetID: String): Metadata {
+        return coloredWallet.getAssetMetadata(online, assetID)
     }
 
     fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetRgb20 {
@@ -59,9 +63,9 @@ object RgbRepository {
         val assets = coloredWallet.listAssets(listOf())
         val assetsRgb20 = assets.rgb20!!.toList()
         Log.d(TAG, "RGB 20 assets: $assetsRgb20")
-        val assetsRgb21 = assets.rgb21!!.toList()
-        Log.d(TAG, "RGB 21 assets: $assetsRgb21")
-        return assetsRgb20.map { AppAsset(it) } + assetsRgb21.map { AppAsset(it) }
+        val assetsRgb121 = assets.rgb121!!.toList()
+        Log.d(TAG, "RGB 121 assets: $assetsRgb121")
+        return assetsRgb20.map { AppAsset(it) } + assetsRgb121.map { AppAsset(it) }
     }
 
     fun listTransfers(asset: AppAsset): List<AppTransfer> {

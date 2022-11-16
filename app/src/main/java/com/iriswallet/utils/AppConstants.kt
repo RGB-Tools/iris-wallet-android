@@ -5,6 +5,7 @@ object AppConstants {
     const val appDBName = "iris_wallet_db"
     const val bdkDirName = ".bdk"
     const val rgbDirName = ".rgb"
+    const val rgbDownloadLogsFileName = "iris-logs-%s-%s.txt"
     const val sharedPreferencesName = "shared_prefs"
     const val encryptedSharedPreferencesName = "secret_shared_prefs"
 
@@ -12,7 +13,8 @@ object AppConstants {
     const val satsForRgb = 9000UL
     const val rgbBlindDuration = 86400U
     const val rgbDefaultPrecision: UByte = 0U
-    const val issueMaxAmount: ULong = 18446744073709551615UL
+    const val uLongMaxAmount: ULong = 18446744073709551615UL
+    const val issueMaxAmount = uLongMaxAmount
 
     const val coloredWallet = "colored"
     const val vanillaWallet = "vanilla"
@@ -78,8 +80,10 @@ object AppConstants {
     const val longTimeout = 40000L
     const val shortTimeout = 20000L
 
-    const val BUNDLE_FUNGIBLES = "fungibles"
-    const val BUNDLE_COLLECTIBLES = "collectibles"
-    const val BUNDLE_ASSET = "asset"
-    const val BUNDLE_TRANSFER = "transfer"
+    const val BUNDLE_APP_ASSETS = "app_assets"
+    const val BUNDLE_ASSET_ID = "asset_id"
+    const val BUNDLE_TRANSFER_ID = "transfer_id"
+
+    const val DOWNLOADS_NOTIFICATION_CHANNEL = "IrisWallet.downloads"
+    const val DOWNLOADS_NOTIFICATION_ID = 135
 }

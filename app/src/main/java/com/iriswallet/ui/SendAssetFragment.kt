@@ -1,5 +1,6 @@
 package com.iriswallet.ui
 
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -22,6 +23,12 @@ import com.iriswallet.utils.*
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import java.math.BigDecimal
+import org.bitcoindevkit.Address
+import org.bitcoindevkit.BdkException
+import org.rgbtools.BlindedUtxo
+import org.rgbtools.Invoice
+import org.rgbtools.RgbLibException
 
 class SendAssetFragment :
     MainBaseFragment<FragmentSendAssetBinding>(FragmentSendAssetBinding::inflate),
@@ -35,6 +42,8 @@ class SendAssetFragment :
 
     private lateinit var editableFields: Array<EditText>
 
+    private var insertedFromClipboard = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appAuthenticationService = AppAuthenticationService(this)
@@ -42,7 +51,9 @@ class SendAssetFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        asset = viewModel.viewingAsset!!
+
+        binding.sendBalanceSpendableLL.detailBalanceLabelTV.text =
+            getString(R.string.spendable_balance)
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(
@@ -78,32 +89,19 @@ class SendAssetFragment :
             Lifecycle.State.RESUMED
         )
 
-        editableFields = arrayOf(binding.sendPayToTV, binding.sendAmountTV)
-        for (editText in editableFields) {
-            editText.addTextChangedListener(
-                object : TextWatcher {
-                    override fun beforeTextChanged(
-                        charSequence: CharSequence,
-                        i: Int,
-                        i1: Int,
-                        i2: Int
-                    ) {}
-                    override fun onTextChanged(
-                        charSequence: CharSequence,
-                        i: Int,
-                        i1: Int,
-                        i2: Int
-                    ) {}
-                    override fun afterTextChanged(editable: Editable) {
-                        val editType = editText.inputType
-                        if (numberTypes.contains(editType))
-                            fixETAmount(editText, editable.toString(), asset.settledBalance)
-                        binding.sendSendBtn.isEnabled =
-                            allETsFilled(editableFields) && isETPositive(binding.sendAmountTV)
+        binding.sendPayToET.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus && !insertedFromClipboard) {
+                val clipboardData =
+                    AppContainer.clipboard.primaryClip?.getItemAt(0)?.text?.toString()
+                if (clipboardData?.isNotBlank() == true) {
+                    if (detectContent(clipboardData)) {
+                        insertedFromClipboard = true
+                        v.clearFocus()
                     }
                 }
-            )
+            }
         }
+
         binding.sendSendBtn.setOnClickListener {
             disableUI()
             if (SharedPreferencesManager.pinActionsConfigured) appAuthenticationService.auth()
@@ -130,21 +128,56 @@ class SendAssetFragment :
         }
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        asset = viewModel.viewingAsset!!
+    }
+
     override fun onResume() {
         super.onResume()
         enableUI()
-        val enable = allETsFilled(editableFields)
-        binding.sendSendBtn.isEnabled = enable && isETPositive(binding.sendAmountTV)
-        binding.sendBalanceLL.detailBalanceTV.text = asset.totalBalance.toString()
+
+        editableFields = arrayOf(binding.sendPayToET, binding.sendAmountET)
+        for (editText in editableFields) {
+            editText.addTextChangedListener(
+                object : TextWatcher {
+                    override fun beforeTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {}
+                    override fun onTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {}
+                    override fun afterTextChanged(editable: Editable) {
+                        val editType = editText.inputType
+                        if (numberTypes.contains(editType))
+                            fixETAmount(editText, editable.toString())
+                        binding.sendSendBtn.isEnabled = enableSendBtn()
+                    }
+                }
+            )
+        }
+
+        binding.sendSendBtn.isEnabled = enableSendBtn()
+        binding.sendBalanceTotalLL.detailBalanceTV.text = asset.totalBalance.toString()
+        binding.sendBalanceSpendableLL.detailBalanceTV.text = asset.spendableBalance.toString()
         if (asset.bitcoin()) {
-            binding.sendBalanceLL.detailTickerTV.text = getString(R.string.bitcoin_unit)
-            binding.sendPayToTV.hint = getString(R.string.address).lowercase()
-            binding.sendAmountTV.inputType =
+            val ticker = getString(R.string.bitcoin_unit)
+            binding.sendBalanceTotalLL.detailTickerTV.text = ticker
+            binding.sendBalanceSpendableLL.detailTickerTV.text = ticker
+            binding.sendPayToET.hint = getString(R.string.address).lowercase()
+            binding.sendAmountET.inputType =
                 InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
         } else {
             // decimals not yet supported for RGB amounts
-            binding.sendAmountTV.hint = "0"
-            binding.sendBalanceLL.detailTickerTV.text = asset.ticker
+            binding.sendAmountET.hint = "0"
+            binding.sendBalanceTotalLL.detailTickerTV.text = asset.ticker
+            binding.sendBalanceSpendableLL.detailTickerTV.text = asset.ticker
         }
     }
 
@@ -164,6 +197,73 @@ class SendAssetFragment :
         requireActivity().invalidateOptionsMenu()
     }
 
+    private fun enableSendBtn(): Boolean {
+        return allETsFilled(editableFields) &&
+            isETPositive(binding.sendAmountET) &&
+            binding.sendAmountET.text.toString().toULong() <= asset.spendableBalance
+    }
+
+    private fun detectContent(content: String, fromScanner: Boolean = false): Boolean {
+        val (payTo, amount) =
+            if (asset.bitcoin()) {
+                try {
+                    Address(content)
+                    Pair(content, null)
+                } catch (e: BdkException) {
+                    try {
+                        val bitcoinInvoice = Uri.parse(content)
+                        val address = bitcoinInvoice.schemeSpecificPart.split("?")[0]
+                        if (bitcoinInvoice.scheme == "bitcoin") {
+                            Address(address)
+                            val queryParams = bitcoinInvoice.query?.split("&")
+                            var amount: String? = null
+                            if (queryParams != null) {
+                                for (param in queryParams) {
+                                    val parts = param.split("=")
+                                    if (parts[0] == "amount") {
+                                        amount = BigDecimal(parts[1]).movePointRight(8).toString()
+                                        break
+                                    }
+                                }
+                            }
+                            Pair(address, amount)
+                        } else {
+                            throw RuntimeException("invalid bitcoin invoice")
+                        }
+                    } catch (e: Exception) {
+                        if (fromScanner) toastError(R.string.scanned_invalid_btc)
+                        return false
+                    }
+                }
+            } else {
+                try {
+                    val invoiceData = Invoice(content).invoiceData()
+                    if (invoiceData.assetId != null && invoiceData.assetId != asset.id) {
+                        if (fromScanner)
+                            toastError(
+                                getString(R.string.scanned_invalid_asset, invoiceData.assetId)
+                            )
+                        return false
+                    }
+                    val amount =
+                        if (invoiceData.amount != null) invoiceData.amount.toString() else null
+                    Pair(invoiceData.blindedUtxo, amount)
+                } catch (_: RgbLibException) {
+                    try {
+                        BlindedUtxo(content)
+                        Pair(content, null)
+                    } catch (_: RgbLibException) {
+                        if (fromScanner) toastError(R.string.scanned_invalid_rgb)
+                        return false
+                    }
+                }
+            }
+
+        binding.sendPayToET.setText(payTo)
+        if (amount != null) binding.sendAmountET.setText(amount)
+        return true
+    }
+
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
             if (result.contents == null) {
@@ -178,7 +278,7 @@ class SendAssetFragment :
                             Toast.LENGTH_LONG
                         )
                         .show()
-            } else binding.sendPayToTV.setText(result.contents)
+            } else detectContent(result.contents, fromScanner = true)
         }
 
     companion object {
@@ -193,8 +293,8 @@ class SendAssetFragment :
     override fun authenticated(requestCode: String) {
         viewModel.sendAsset(
             asset,
-            binding.sendPayToTV.text.toString(),
-            binding.sendAmountTV.text.toString()
+            binding.sendPayToET.text.toString(),
+            binding.sendAmountET.text.toString()
         )
     }
 

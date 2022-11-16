@@ -10,6 +10,8 @@ object SharedPreferencesManager {
     const val PREFS_PIN_LOGIN_CONFIGURED = "pin_login_configured"
     const val PREFS_ELECTRUM_URL = "electrum_url_pref"
     const val PREFS_PROXY_URL = "proxy_url_pref"
+    const val PREFS_SHOW_HIDDEN_ASSETS = "show_hidden_assets"
+    const val PREFS_HIDE_EXHAUSTED_ASSETS = "hide_exhausted_assets"
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var encryptedSharedPreferences: SharedPreferences
@@ -66,5 +68,20 @@ object SharedPreferencesManager {
         get() = settingsSharedPreferences.getString(PREFS_PROXY_URL, AppContainer.proxyURLDefault)!!
         set(value) {
             settingsSharedPreferences.edit()?.putString(PREFS_PROXY_URL, value)?.apply()
+        }
+
+    var showHiddenAssets: Boolean
+        get() = settingsSharedPreferences.getBoolean(PREFS_SHOW_HIDDEN_ASSETS, false)
+        set(value) {
+            settingsSharedPreferences.edit()?.putBoolean(PREFS_SHOW_HIDDEN_ASSETS, value)?.apply()
+        }
+
+    var hideExhaustedAssets: Boolean
+        get() = settingsSharedPreferences.getBoolean(PREFS_HIDE_EXHAUSTED_ASSETS, false)
+        set(value) {
+            settingsSharedPreferences
+                .edit()
+                ?.putBoolean(PREFS_HIDE_EXHAUSTED_ASSETS, value)
+                ?.apply()
         }
 }

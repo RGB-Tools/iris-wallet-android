@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentFungiblesBinding
 import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.TAG
@@ -46,8 +47,6 @@ class FungiblesFragment :
             Lifecycle.State.RESUMED
         )
 
-        refreshListAdapter(viewModel.cachedFungibles)
-
         binding.fungiblesRV.layoutManager = LinearLayoutManager(activity)
 
         binding.fungiblesSwipeRefresh.setOnRefreshListener {
@@ -70,6 +69,11 @@ class FungiblesFragment :
                 }
             }
         }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        refreshListAdapter(viewModel.cachedFungibles)
     }
 
     override fun onResume() {
@@ -97,8 +101,20 @@ class FungiblesFragment :
     }
 
     private fun refreshListAdapter(assets: List<AppAsset>) {
-        Log.d(TAG, "Refreshing fungibles view with ${assets.size} assets...")
-        adapter = FungiblesAdapter(assets, viewModel, this)
+        val visibleAssets =
+            if (!SharedPreferencesManager.showHiddenAssets) {
+                val assetsToShow = assets.filter { !it.hidden }
+                if (SharedPreferencesManager.hideExhaustedAssets) {
+                    assetsToShow.filter { it.totalBalance > 0UL || it.bitcoin() }
+                } else {
+                    assetsToShow
+                }
+            } else assets
+        Log.d(
+            TAG,
+            "Refreshing fungibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
+        )
+        adapter = FungiblesAdapter(visibleAssets, viewModel, this)
         adapter.stateRestorationPolicy =
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.fungiblesRV.adapter = adapter

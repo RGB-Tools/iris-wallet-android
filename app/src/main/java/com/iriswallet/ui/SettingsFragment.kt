@@ -10,9 +10,11 @@ import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager.PREFS_ELECTRUM_URL
+import com.iriswallet.data.SharedPreferencesManager.PREFS_HIDE_EXHAUSTED_ASSETS
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_ACTIONS_CONFIGURED
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_LOGIN_CONFIGURED
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PROXY_URL
+import com.iriswallet.data.SharedPreferencesManager.PREFS_SHOW_HIDDEN_ASSETS
 import com.iriswallet.utils.*
 
 class SettingsFragment :
@@ -40,6 +42,9 @@ class SettingsFragment :
         electrumET!!.text = AppContainer.electrumURL
         val proxyET = findPreference<EditTextPreference>(PREFS_PROXY_URL)
         proxyET!!.text = AppContainer.proxyURL
+
+        val showHiddenAssets = findPreference<SwitchPreferenceCompat>(PREFS_SHOW_HIDDEN_ASSETS)!!
+        setHideExhaustedAssets(showHiddenAssets)
     }
 
     override fun onResume() {
@@ -55,9 +60,13 @@ class SettingsFragment :
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (val preference = findPreference<Preference>(key.toString())) {
             is SwitchPreferenceCompat -> {
-                if (key in listOf(PREFS_PIN_ACTIONS_CONFIGURED, PREFS_PIN_LOGIN_CONFIGURED)) {
-                    if (handlingPinError) handlingPinError = false
-                    else appAuthenticationService.auth(key!!)
+                when (key) {
+                    PREFS_PIN_ACTIONS_CONFIGURED,
+                    PREFS_PIN_LOGIN_CONFIGURED -> {
+                        if (handlingPinError) handlingPinError = false
+                        else appAuthenticationService.auth(key)
+                    }
+                    PREFS_SHOW_HIDDEN_ASSETS -> setHideExhaustedAssets(preference)
                 }
             }
             is EditTextPreference -> {
@@ -101,5 +110,11 @@ class SettingsFragment :
                 preference.isChecked = !preference.isChecked
             }
         }
+    }
+
+    private fun setHideExhaustedAssets(showHiddenAssets: SwitchPreferenceCompat) {
+        val hideExhaustedAssets =
+            findPreference<Preference>(PREFS_HIDE_EXHAUSTED_ASSETS) as SwitchPreferenceCompat
+        hideExhaustedAssets.isEnabled = !showHiddenAssets.isChecked
     }
 }

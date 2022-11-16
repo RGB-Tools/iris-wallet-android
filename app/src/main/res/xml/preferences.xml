@@ -30,4 +30,16 @@
         app:dialogTitle="@string/pref_proxy_url_dialog_title"
         app:dialogMessage="@string/pref_proxy_url_dialog_summary"/>
 
+    <SwitchPreferenceCompat
+        app:key="show_hidden_assets"
+        app:title="@string/pref_show_hidden_assets_title"
+        app:summary="@string/pref_show_hidden_assets_summary"
+        android:singleLineTitle="false"/>
+
+    <SwitchPreferenceCompat
+        app:key="hide_exhausted_assets"
+        app:title="@string/pref_hide_exhausted_assets_title"
+        app:summary="@string/pref_hide_exhausted_assets_summary"
+        android:singleLineTitle="false"/>
+
 </PreferenceScreen>

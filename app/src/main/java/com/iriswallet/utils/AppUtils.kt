@@ -1,9 +1,12 @@
 package com.iriswallet.utils
 
+import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.media.ThumbnailUtils
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
@@ -16,6 +19,8 @@ import com.iriswallet.data.SharedPreferencesManager
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.lelloman.identicon.drawable.ClassicIdenticonDrawable
 import java.io.File
+import java.io.FileOutputStream
+import java.net.URL
 import java.util.*
 
 class AppUtils {
@@ -81,6 +86,37 @@ class AppUtils {
 
         fun getRgbDir(parentDir: File): File {
             return File(parentDir, AppConstants.rgbDirName)
+        }
+
+        fun saveFileToDownloads(context: Context, url: String, fileName: String) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val contentValues =
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    }
+                val resolver = context.contentResolver
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                if (uri != null) {
+                    URL(url).openStream().use { input ->
+                        resolver.openOutputStream(uri).use { output ->
+                            input.copyTo(output!!, DEFAULT_BUFFER_SIZE)
+                        }
+                    }
+                }
+            } else {
+                val target =
+                    File(
+                        Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS
+                        ),
+                        fileName
+                    )
+                URL(url).openStream().use { input ->
+                    FileOutputStream(target).use { output -> input.copyTo(output) }
+                }
+            }
         }
 
         fun uLongAbsDiff(first: ULong, second: ULong): ULong {

@@ -14,66 +14,65 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_margin="@dimen/medium_size"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/unspentWalletImg"
-                android:layout_gravity="center"
                 android:contentDescription="@string/wallet_icon_description"
                 android:src="@drawable/bitcoin_mainnet"
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintEnd_toStartOf="@id/unspentOutpointTV"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <TextView
+                android:id="@+id/unspentOutpointTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/medium_size"
-                android:layout_gravity="center_vertical"
+                android:lines="1"
+                android:ellipsize="middle"
+                android:text="@string/sample_utxo"
+                android:textColor="@color/color_list_fg_2"
+                android:textSize="@dimen/text_small"
+                app:layout_constraintStart_toEndOf="@id/unspentWalletImg"
+                app:layout_constraintEnd_toStartOf="@id/unspentBTCAmountTV"
+                app:layout_constraintBottom_toBottomOf="@id/unspentWalletImg"
+                app:layout_constraintTop_toTopOf="@id/unspentWalletImg" />
+
+            <TextView
+                android:id="@+id/unspentBTCAmountTV"
+                android:layout_marginStart="@dimen/medium_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/unspentWalletImg"
+                app:layout_constraintBottom_toBottomOf="@id/unspentWalletImg"
+                app:layout_constraintStart_toEndOf="@id/unspentOutpointTV"
+                style="@style/unspent_amount_sat" />
+
+            <LinearLayout
+                android:id="@+id/unspentsRGBLL"
+                android:layout_marginTop="@dimen/small_size"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/unspentWalletImg">
 
-                <TextView
-                    android:id="@+id/unspentOutpointTV"
-                    android:layout_width="170dp"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="middle"
-                    android:singleLine="true"
-                    android:text="@string/sample_utxo"
-                    android:textColor="@color/color_list_fg_2"
-                    android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <!-- contents dynamically handled by BitcoinUnspentAdapter.kt -->
+                <!--
+                <include layout="@layout/unspent_rgb"/>
+                -->
 
-                <TextView
-                    android:id="@+id/unspentBTCAmountTV"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/unspentsRGBLL"
-                    style="@style/unspent_amount_sat" />
+            </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/unspentsRGBLL"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/unspentBTCAmountTV">
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <!-- contents dynamically handled by BitcoinUnspentAdapter.kt -->
-                    <!--
-                    <include layout="@layout/unspent_rgb"/>
-                    -->
-
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 

@@ -13,11 +13,6 @@ class BitcoinUnspentFragment :
 
     private lateinit var adapter: BitcoinUnspentAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.getBitcoinUnspents()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLoader(true)
@@ -51,6 +46,11 @@ class BitcoinUnspentFragment :
             }
             setLoader(false)
         }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        viewModel.getBitcoinUnspents()
     }
 
     override fun enableUI() {

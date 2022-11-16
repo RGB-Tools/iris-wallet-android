@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentCollectiblesBinding
 import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.TAG
@@ -46,8 +47,6 @@ class CollectiblesFragment :
             Lifecycle.State.RESUMED
         )
 
-        refreshListAdapter(viewModel.cachedCollectibles)
-
         binding.collectiblesRV.layoutManager = GridLayoutManager(activity, 2)
 
         binding.collectiblesSwipeRefresh.setOnRefreshListener {
@@ -70,6 +69,11 @@ class CollectiblesFragment :
                 }
             }
         }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        refreshListAdapter(viewModel.cachedCollectibles)
     }
 
     override fun onResume() {
@@ -97,8 +101,20 @@ class CollectiblesFragment :
     }
 
     private fun refreshListAdapter(assets: List<AppAsset>) {
-        Log.d(TAG, "Refreshing collectibles view with ${assets.size} assets...")
-        adapter = CollectiblesAdapter(assets, viewModel, this)
+        val visibleAssets =
+            if (!SharedPreferencesManager.showHiddenAssets) {
+                val assetsToShow = assets.filter { !it.hidden }
+                if (SharedPreferencesManager.hideExhaustedAssets) {
+                    assetsToShow.filter { it.totalBalance > 0UL }
+                } else {
+                    assetsToShow
+                }
+            } else assets
+        Log.d(
+            TAG,
+            "Refreshing collectibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
+        )
+        adapter = CollectiblesAdapter(visibleAssets, viewModel, this)
         adapter.stateRestorationPolicy =
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.collectiblesRV.adapter = adapter

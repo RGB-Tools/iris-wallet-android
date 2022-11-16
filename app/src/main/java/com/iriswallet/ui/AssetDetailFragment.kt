@@ -6,16 +6,17 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Surface
-import android.view.TextureView
-import android.view.View
+import android.view.*
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentAssetDetailBinding
 import com.iriswallet.utils.*
-import org.rgbtools.TransferStatus
 
 class AssetDetailFragment :
     MainBaseFragment<FragmentAssetDetailBinding>(FragmentAssetDetailBinding::inflate),
@@ -32,30 +33,83 @@ class AssetDetailFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        asset = viewModel.viewingAsset!!
-        setHeader()
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.asset_detail, menu)
+
+                    val hideAssetMenuItem = menu.findItem(R.id.hideAssetMenu)
+                    val title = if (asset.hidden) R.string.unhide_asset else R.string.hide_asset
+                    hideAssetMenuItem.title = getString(title)
+
+                    if (asset.bitcoin()) menu.findItem(R.id.assetMetadataMenu).isVisible = false
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.refreshAssetMenu -> {
+                            refreshAsset()
+                            true
+                        }
+                        R.id.assetMetadataMenu -> {
+                            findNavController()
+                                .navigate(R.id.action_assetDetailFragment_to_assetMetadataFragment)
+                            true
+                        }
+                        R.id.hideAssetMenu -> {
+                            val msg =
+                                if (asset.hidden) R.string.confirm_unhide_asset
+                                else R.string.confirm_hide_asset
+                            val posBtn = if (asset.hidden) R.string.unhide else R.string.hide
+                            AlertDialog.Builder(requireContext())
+                                .setMessage(getString(msg))
+                                .setPositiveButton(getString(posBtn)) { _, _ ->
+                                    disableUI(disableBack = true)
+                                    viewModel.handleAssetVisibility(asset)
+                                }
+                                .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+                                .create()
+                                .show()
+                            true
+                        }
+                        android.R.id.home -> {
+                            mActivity.onSupportNavigateUp()
+                            true
+                        }
+                        else -> true
+                    }
+                }
+            },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED
+        )
+
+        binding.detailTransferRV.layoutManager = LinearLayoutManager(mActivity)
 
         binding.detailReceiveBtn.setOnClickListener {
             findNavController().navigate(R.id.action_assetDetailFragment_to_receiveAssetFragment)
         }
         binding.detailSendBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_assetDetailFragment_to_sendAssetFragment)
+            if (asset.spendableBalance == 0UL)
+                AlertDialog.Builder(requireContext())
+                    .setMessage(getString(R.string.no_spendable_balance))
+                    .setPositiveButton(getString(R.string.OK)) { _, _ -> }
+                    .create()
+                    .show()
+            else findNavController().navigate(R.id.action_assetDetailFragment_to_sendAssetFragment)
         }
 
         binding.detailCopyAssetIdBtn.setOnClickListener {
             toClipboard(AppConstants.assetIdClipLabel, asset.id)
         }
 
-        binding.detailTransferRV.layoutManager = LinearLayoutManager(mActivity)
-
-        adapter = TransferListAdapter(ArrayList(asset.transfers.reversed()), viewModel, this)
-        binding.detailTransferRV.adapter = adapter
-
         binding.detailSwipeRefresh.setOnRefreshListener { refreshAsset() }
 
         viewModel.asset.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
-                if (!refreshing) return@let
+                if (response.requestID != asset.id) return@let
                 if (response.data != null) {
                     asset = response.data
                     redrawAssetDetails()
@@ -68,14 +122,35 @@ class AssetDetailFragment :
                 enableUI()
             }
         }
+
+        viewModel.hidden.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { response ->
+                enableUI()
+                if (response.data != null) {
+                    if (response.data && !SharedPreferencesManager.showHiddenAssets)
+                        findNavController().popBackStack()
+                    else requireActivity().invalidateOptionsMenu()
+                } else {
+                    val msg =
+                        if (asset.hidden) R.string.err_unhiding_asset else R.string.err_hiding_asset
+                    handleError(response.error!!) { toastError(msg, response.error.message) }
+                }
+            }
+        }
+
         mActivity.services.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { if (!refreshing) enableUI() }
+            it.getContentIfNotHandled()?.let {
+                if (!refreshing) binding.detailSendBtn.isEnabled = enableSendBtn()
+            }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (refreshing) disableUI() else enableUI()
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        asset = viewModel.viewingAsset!!
+        adapter = TransferListAdapter(ArrayList(asset.transfers.reversed()), viewModel, this)
+        binding.detailTransferRV.adapter = adapter
+        setHeader()
         redrawAssetDetails()
     }
 
@@ -101,8 +176,11 @@ class AssetDetailFragment :
         binding.detailReceiveBtn.isEnabled = true
     }
 
-    private fun disableUI() {
+    private fun disableUI(disableBack: Boolean = false) {
+        if (disableBack) mActivity.backEnabled = false
         setLoader(true)
+        binding.detailReceiveBtn.isEnabled = false
+        binding.detailSendBtn.isEnabled = false
     }
 
     private fun refreshAsset() {
@@ -112,14 +190,6 @@ class AssetDetailFragment :
     }
 
     private fun enableSendBtn(): Boolean {
-        if (
-            asset.settledBalance == 0UL ||
-                (!asset.bitcoin() &&
-                    asset.transfers.size == 1 &&
-                    asset.transfers[0].status != TransferStatus.SETTLED)
-        ) {
-            return false
-        }
         if (mActivity.serviceMap != null) {
             val enable = mActivity.serviceMap!![AppContainer.electrumURL] == true
             if (enable && !asset.bitcoin())
@@ -130,20 +200,14 @@ class AssetDetailFragment :
     }
 
     private fun redrawAssetDetails() {
-        binding.detailSendBtn.isEnabled = enableSendBtn()
-
-        if (asset.bitcoin())
-            binding.detailBalanceLL.detailTickerTV.text = getString(R.string.bitcoin_unit)
-        else binding.detailBalanceLL.detailTickerTV.text = asset.ticker
         binding.detailBalanceLL.detailBalanceTV.text = asset.totalBalance.toString()
-
         adapter.updateData(ArrayList(asset.transfers.reversed()))
     }
 
     private fun setHeader() {
         val media = asset.media
         var showMedia = false
-        if (asset.type == AppAssetType.RGB21 && media != null) {
+        if (asset.type == AppAssetType.RGB121 && media != null) {
             showMedia = true
             when (media.mime) {
                 MimeType.IMAGE -> {
@@ -188,8 +252,10 @@ class AssetDetailFragment :
         if (asset.bitcoin()) {
             binding.detailAssetIdBox.visibility = View.GONE
             binding.detailIDTV.visibility = View.GONE
+            binding.detailBalanceLL.detailTickerTV.text = getString(R.string.bitcoin_unit)
         } else {
             binding.detailIDTV.text = asset.id
+            binding.detailBalanceLL.detailTickerTV.text = asset.ticker
         }
     }
 

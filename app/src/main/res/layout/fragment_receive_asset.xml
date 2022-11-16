@@ -1,127 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_margin="@dimen/medium_size"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/medium_size"
+    android:layout_marginHorizontal="@dimen/medium_size"
     tools:context=".ui.ReceiveAssetFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
+        android:id="@+id/receiveScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/receiveCopyBtn">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/receiveImageCL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <RelativeLayout
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="W,1:1"
-                android:layout_width="match_parent"
-                android:layout_height="0dp">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/detailCollectibleCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    app:cardCornerRadius="5dp"
-                    app:cardBackgroundColor="@android:color/transparent">
-
-                    <ImageView
-                        android:id="@+id/receiveQRCodeImg"
-                        android:contentDescription="@string/receive_qrcode_desc"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <ProgressBar
-                    android:id="@+id/receiveLoader"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_centerInParent="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:indeterminateTint="@color/color_accent"
-                    android:visibility="visible" />
-
-            </RelativeLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <LinearLayout
-            android:layout_marginTop="@dimen/big_size"
-            android:id="@+id/receiveInfoLL"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/receiveImageCL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/receiveLabelTV"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/receiveImageCL"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/small_size"
-                android:textColor="@color/manatee"
-                android:textStyle="bold"
-                android:text="@string/blinded_utxo_cap"
-                android:textSize="14sp" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.card.MaterialCardView
-                app:cardBackgroundColor="@android:color/transparent"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/stone"
-                app:contentPadding="@dimen/small_size"
+                <RelativeLayout
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="W,1:1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/detailCollectibleCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        app:cardCornerRadius="5dp"
+                        app:cardBackgroundColor="@android:color/transparent">
+
+                        <ImageView
+                            android:id="@+id/receiveQRCodeImg"
+                            android:contentDescription="@string/receive_qrcode_desc"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <ProgressBar
+                        android:id="@+id/receiveLoader"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_centerInParent="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:indeterminateTint="@color/color_accent"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/receiveInfoLL"
+                android:layout_marginTop="@dimen/big_size"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/receiveImageCL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/receiveDataTV"
-                    android:layout_width="match_parent"
+                    android:id="@+id/receiveLabelTV"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/small_size"
+                    android:textColor="@color/manatee"
+                    android:textStyle="bold"
+                    android:text="@string/invoice"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/stone"
+                    app:contentPadding="@dimen/small_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/receiveDataTV"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:ellipsize="end"
+                        android:lines="1"
+                        android:text="@string/sample_invoice"
+                        android:textSize="18sp" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/receiveExtraInfoTV"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/medium_size"
+                    android:gravity="center"
+                    android:elevation="@dimen/very_small_size"
+                    android:text="@string/blinded_utxo_expiry"
                     android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:text="@string/sample_blinded_utxo"
-                    android:textSize="18sp" />
+                    android:textColor="@color/manatee"
+                    android:textSize="@dimen/text_small"
+                    android:visibility="visible"/>
 
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/receiveExpiryTV"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/medium_size"
-                android:elevation="@dimen/very_small_size"
-                android:text="@string/blinded_utxo_expiry"
-                android:textAlignment="center"
-                android:textColor="@color/manatee"
-                android:textSize="@dimen/text_small"
-                android:visibility="visible"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </LinearLayout>
+    </ScrollView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/receiveCopyBtn"
-            android:visibility="gone"
-            android:enabled="false"
-            app:backgroundTint="@android:color/transparent"
-            app:strokeColor="@color/granite_grey"
-            app:strokeWidth="2dp"
-            android:text="@string/copy_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            style="@style/main_button" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/receiveCopyBtn"
+        android:visibility="gone"
+        android:text="@string/copy_text"
+        app:layout_constraintTop_toBottomOf="@id/receiveScrollView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/empty_button" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

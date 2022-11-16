@@ -30,31 +30,58 @@
     <string name="do_not_accept">Do not accept</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="hide">Hide</string>
+    <string name="unhide">Unhide</string>
     <string name="OK">OK</string>
     <string name="confirm_delete_transfer">Are you sure you want to delete this transfer?</string>
+    <string name="confirm_hide_asset">This will hide the asset from the main list. Once hidden, the
+        only way to see the asset again will be to enable the “Show hidden assets” setting. Once
+        shown, it will be possible to unhide it clicking the decicated icon.\n\nAre you sure you
+        want to proceed?</string>
+    <string name="confirm_unhide_asset">This will make the asset visible on the main list, even when
+        the “Show hidden assets” setting is disabled.\n\nDo you want to proceed?</string>
     <string name="address">Address</string>
     <string name="amount">Amount</string>
     <string name="amount_to_pay">Amount to pay</string>
-    <string name="your_balance">Your Balance</string>
+    <string name="total_balance">Total Balance</string>
+    <string name="spendable_balance">Spendable Balance</string>
     <string name="blinded_utxo">blinded UTXO</string>
     <string name="date">Date</string>
+    <string name="issuance_date">Issuance date</string>
     <string name="send">Send</string>
     <string name="transaction_id">Transaction ID</string>
+    <string name="asset_type">Asset type</string>
+    <string name="issued_supply">Issued supply</string>
+    <string name="asset_precision">Asset precision</string>
+    <string name="asset_description">Asset description</string>
+    <string name="asset_parent_id">Asset parent ID</string>
     <string name="err_refreshing_asset_details">Error refreshing asset details</string>
+    <string name="err_deleting_transfer">Error deleting transfer</string>
+    <string name="err_hiding_asset">Error hiding asset</string>
+    <string name="err_unhiding_asset">Error unhiding asset</string>
     <string name="err_issuing_asset">Error issuing asset</string>
     <string name="err_refreshing_assets">Error refreshing assets</string>
     <string name="err_listing_unspents">Error listing unspents</string>
+    <string name="err_showing_metadata">Error showing asset metadata</string>
     <string name="err_sending">Error sending</string>
     <string name="faucet_no_assets">There are no available assets</string>
     <string name="sent_txid">Sent %s</string>
     <string name="cancelled_scan_permissions">Cancelled scan due to missing camera
         permission</string>
     <string name="insufficient_bitcoins">insufficient bitcoins</string>
+    <string name="insufficient_bitcoins_for_rgb">insufficient bitcoins. %s SATs are needed in order
+        to operate on RGB with the Iris wallet.</string>
     <string name="invalid_blinded_utxo">Invalid blinded UTXO</string>
+    <string name="scanned_invalid_rgb">Scanned data is neither a blinded UTXO nor an RGB invoice</string>
+    <string name="scanned_invalid_btc">Scanned data is neither a bitcoin address nor invoice</string>
+    <string name="scanned_invalid_asset">Asset ID mismatch, the scanned invoice is for asset "%s"</string>
     <string name="blinded_utxo_already_used">Blinded UTXO already used</string>
     <string name="reached_max_assets">reached max assets</string>
     <string name="back_again_to_exit">Go back again to exit from app</string>
-    <string name="blinded_utxo_expiry">This blinded UTXO will expire in 24 hours after its creation</string>
+    <string name="back_disabled">Operation in progress, back is temporarily disabled</string>
+    <string name="blinded_utxo_expiry">The blinded UTXO in this invoice will expire in 24 hours
+        after its creation</string>
+    <string name="blinded_utxo_asset">%s and will be valid only for this asset</string>
     <string name="connection_err">Connection issues: some functions may not work</string>
     <string name="err_getting_offline_assets">Unexpected error while retrieving assets.
         Please try to restart the app.</string>
@@ -79,6 +106,7 @@
     <string name="err_receiving_from_faucet">Error receiving from faucet</string>
     <string name="authentication_prompt_title">Android authentication login</string>
     <string name="authentication_prompt_subtitle">Log in using your Android credential</string>
+    <string name="no_spendable_balance">You don\'t have spendable balance at the moment.</string>
 
     <!-- text field samples -->
     <string name="sample_amount">0</string>
@@ -88,6 +116,7 @@
     <string name="sample_asset_name">USD Tether</string>
     <string name="sample_asset_ticker">USDT</string>
     <string name="sample_blinded_utxo">utxob1ju6wce4d8p4mzp1pqu3mywmnu62uueru4sxj7vg2f8ak89m3rdfqy8djth</string>
+    <string name="sample_invoice">i1q93kqcru6xlkqn6qa455mg2u34v4t23ddg5443nmuuwdk0p0h9aaakwnclnyuetzvp3gqqq9sewm2p4m8y4rdmxarvewhr5nn4t6lwut8k96kamgmgp9radhhu8xs933gd2hyvx5es5y7p43qq8834eq</string>
     <string name="sample_date">1970–01–01</string>
     <string name="sample_datetime">1970–01–01 00:00:00</string>
     <string name="sample_faucet_name">RGB-Tools Faucet</string>
@@ -95,6 +124,10 @@
     <string name="sample_time">00:00:00</string>
     <string name="sample_utxo">6593e8d4e6974b26add99c7d75472a0994bb76145ace7b24353b4628fece8e12:0</string>
     <string name="sample_txid">ba5b5cf2206a6012414ec69a334749f002a7b30d603abbacf28db734264c06ea</string>
+    <string name="sample_asset_type">RGB20</string>
+    <string name="sample_issued_supply">18446744073709551615</string>
+    <string name="sample_precision">0</string>
+    <string name="sample_asset_description">A very cool asset</string>
 
     <!-- layout strings -->
     <string name="asset_id_label">Asset ID</string>
@@ -130,6 +163,7 @@
     <string name="amount_to_issue">amount to issue</string>
     <string name="pay_to">Pay to</string>
     <string name="blinded_utxo_cap">Blinded UTXO</string>
+    <string name="invoice">Invoice</string>
     <string name="change_utxo">Change UTXO</string>
     <string name="unblinded_utxo">Unblinded UTXO</string>
     <string name="help_faucet_label">Where can I get %s bitcoins?</string>
@@ -154,6 +188,10 @@
     <string name="menu_faucets">Faucets</string>
     <string name="menu_issue_asset">Issue new asset</string>
     <string name="delete_transfer">Delete transfer</string>
+    <string name="hide_asset">Hide asset</string>
+    <string name="unhide_asset">Unhide asset</string>
+    <string name="refresh_asset">Refresh asset</string>
+    <string name="view_asset_metadata">View asset metadata</string>
     <string name="copy_text">Copy</string>
     <string name="send_asset_title">Send</string>
     <string name="open_scanner">Open scanner</string>
@@ -179,6 +217,11 @@
     <string name="pref_proxy_url_dialog_summary">Insert a proxy server URL to use for RGB
         operations. Please note that after changing this option you need to close and re-open the
         app in order to the changes to have effect.</string>
+    <string name="pref_show_hidden_assets_title">Show hidden assets</string>
+    <string name="pref_show_hidden_assets_summary">View also hidden assets in the asset list</string>
+    <string name="pref_hide_exhausted_assets_title">Hide exhausted assets</string>
+    <string name="pref_hide_exhausted_assets_summary">Hide all RGB assets that have a total balance
+        equal to zero.</string>
     <string name="sat_amount">SAT %s</string>
     <string name="rgb_amount">%1$s %2$s</string>
     <string name="transactions">Transactions</string>
@@ -189,6 +232,12 @@
     <string name="terms_of_service_link">Terms Of Service</string>
     <string name="privacy_policy_link">Privacy Policy</string>
     <string name="app_version">App version: %s</string>
+    <string name="download_logs">Download debug logs</string>
+    <string name="downloaded_logs">Logs successfully downloaded</string>
+    <string name="download_logs_notification_title">File downloaded</string>
+    <string name="download_logs_notification_text">Iris logs file successfully downloaded</string>
+    <string name="download_logs_notification_channel_name">Download Service</string>
+    <string name="download_logs_notification_channel_description">Channel to download files</string>
     <string name="pending_asset_faucet">Pending asset from faucet. Please wait, it should arrive in
         a few minutes</string>
     <string name="show_mnemonic">Show mnemonic</string>

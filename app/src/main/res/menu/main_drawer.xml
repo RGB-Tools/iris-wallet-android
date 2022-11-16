@@ -4,7 +4,7 @@
         android:icon="@drawable/ic_issue"
         android:title="@string/menu_issue_asset" />
     <item android:id="@+id/faucetFragment"
-        android:icon="@drawable/ic_issue"
+        android:icon="@drawable/ic_faucets"
         android:title="@string/menu_faucets" />
     <item android:id="@+id/bitcoinUnspentFragment"
         android:icon="@drawable/ic_unspent_list"
@@ -13,12 +13,12 @@
         android:icon="@drawable/ic_settings"
         android:title="@string/menu_settings" />
     <item android:id="@+id/backupFragment"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/ic_backup"
         android:title="@string/menu_backup" />
     <item android:id="@+id/helpPageFragment"
         android:icon="@drawable/ic_help"
         android:title="@string/menu_help_page" />
     <item android:id="@+id/aboutPageFragment"
-        android:icon="@drawable/ic_help"
+        android:icon="@drawable/ic_about"
         android:title="@string/menu_about_page" />
 </menu>

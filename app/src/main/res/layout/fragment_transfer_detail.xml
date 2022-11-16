@@ -87,12 +87,23 @@
                         style="@style/detail_text" />
 
                     <TextView
-                        android:id="@+id/transferRecipientLabelTV"
+                        android:id="@+id/transferInvoiceLabelTV"
+                        android:text="@string/invoice"
+                        style="@style/detail_label"/>
+
+                    <TextView
+                        android:id="@+id/transferInvoiceTV"
+                        android:text="@string/sample_invoice"
+                        android:textIsSelectable="true"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/transferBlindedUtxoLabelTV"
                         android:text="@string/blinded_utxo_cap"
                         style="@style/detail_label"/>
 
                     <TextView
-                        android:id="@+id/transferRecipientTV"
+                        android:id="@+id/transferBlindedUtxoTV"
                         android:text="@string/sample_blinded_utxo"
                         android:textIsSelectable="true"
                         style="@style/detail_text" />

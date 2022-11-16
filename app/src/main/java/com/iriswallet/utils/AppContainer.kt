@@ -32,13 +32,18 @@ object AppContainer {
     var storedMnemonic = ""
     val mnemonicPassword = null
     val bitcoinKeys: Keys by lazy {
-        if (storedMnemonic.isBlank()) generateKeys(bitcoinNetwork.toRgbLibNetwork())
-        else restoreKeys(bitcoinNetwork.toRgbLibNetwork(), storedMnemonic)
+        if (storedMnemonic.isBlank()) {
+            val keys = generateKeys(bitcoinNetwork.toRgbLibNetwork())
+            storedMnemonic = keys.mnemonic
+            keys
+        } else restoreKeys(bitcoinNetwork.toRgbLibNetwork(), storedMnemonic)
     }
 
     var canUseBiometric = false
 
     val rgbDir: File by lazy { getRgbDir(appContext.filesDir) }
+    val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.xpubFingerprint) }
+    val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.appDBName)!! }
     val bdkDir: File by lazy { File(appContext.filesDir, AppConstants.bdkDirName) }
     val bdkDBVanillaPath: File by lazy {

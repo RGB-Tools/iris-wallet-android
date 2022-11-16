@@ -5,6 +5,7 @@ import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentReceiveAssetBinding
+import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.Receiver
@@ -12,12 +13,13 @@ import com.iriswallet.utils.Receiver
 class ReceiveAssetFragment :
     MainBaseFragment<FragmentReceiveAssetBinding>(FragmentReceiveAssetBinding::inflate) {
 
+    var asset: AppAsset? = null
+
     private var receiveData: Receiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         disableUI()
-        viewModel.genReceiveData(viewModel.viewingAsset)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -26,6 +28,10 @@ class ReceiveAssetFragment :
         binding.receiveInfoLL.visibility = View.GONE
 
         binding.receiveCopyBtn.setOnClickListener {
+            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.recipient)
+        }
+
+        binding.receiveDataTV.setOnClickListener {
             toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.recipient)
         }
 
@@ -45,16 +51,10 @@ class ReceiveAssetFragment :
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (viewModel.viewingAsset == null) viewModel.refreshAssets()
-        else viewModel.refreshAssetDetail(viewModel.viewingAsset!!)
-    }
-
-    override fun enableUI() {
-        super.enableUI()
-        binding.receiveCopyBtn.isEnabled = true
-        binding.receiveCopyBtn.visibility = View.VISIBLE
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        asset = viewModel.viewingAsset
+        viewModel.genReceiveData(asset)
     }
 
     private fun disableUI() {
@@ -62,15 +62,20 @@ class ReceiveAssetFragment :
     }
 
     private fun showReceiveData(receiveData: Receiver) {
-        val labelString = if (receiveData.bitcoin) R.string.address else R.string.blinded_utxo_cap
+        val labelString = if (receiveData.bitcoin) R.string.address else R.string.invoice
         binding.receiveLabelTV.text = getString(labelString)
         binding.receiveDataTV.text = receiveData.recipient
         val bitmap = AppUtils.getQRCodeBitmap(receiveData.recipient, mActivity.windowManager)
         binding.receiveQRCodeImg.setImageBitmap(bitmap)
+        if (asset != null)
+            binding.receiveExtraInfoTV.text =
+                getString(R.string.blinded_utxo_asset, getString(R.string.blinded_utxo_expiry))
+
         binding.receiveLoader.visibility = View.GONE
         binding.receiveQRCodeImg.visibility = View.VISIBLE
         binding.receiveInfoLL.visibility = View.VISIBLE
-        binding.receiveExpiryTV.visibility =
+        binding.receiveExtraInfoTV.visibility =
             if (receiveData.expirationSeconds == null) View.GONE else View.VISIBLE
+        binding.receiveCopyBtn.visibility = View.VISIBLE
     }
 }

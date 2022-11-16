@@ -16,9 +16,10 @@
         android:layout_height="match_parent">
 
         <ScrollView
+            android:id="@+id/issueScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/issueBtn"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
@@ -84,6 +85,7 @@
             android:enabled="false"
             android:text="@string/issue_button"
             style="@style/main_button"
+            app:layout_constraintTop_toBottomOf="@id/issueScrollView"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

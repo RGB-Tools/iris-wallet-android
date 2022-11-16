@@ -1,6 +1,7 @@
 package com.iriswallet.ui
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.databinding.UnspentListItemBinding
@@ -62,8 +64,6 @@ class BitcoinUnspentAdapter(private val dataSet: List<UTXO>) :
         viewHolder.binding.unspentsRGBLL.removeAllViews()
         val context = viewHolder.itemView.context
         for (unspent in unspents) {
-            if (!unspent.settled && unspent.amount > 0UL) continue
-
             val horizontalLL: LinearLayout =
                 LayoutInflater.from(context)
                     .inflate(R.layout.unspent_rgb, viewHolder.binding.unspentsRGBLL, false)
@@ -76,6 +76,13 @@ class BitcoinUnspentAdapter(private val dataSet: List<UTXO>) :
             val ticker = unspent.tickerOrName ?: viewHolder.notAvailable
             balanceTV.text = context.getString(R.string.rgb_amount, ticker, balance)
             viewHolder.binding.unspentsRGBLL.addView(horizontalLL)
+            if (!unspent.settled) {
+                val futureColor = ContextCompat.getColor(context, R.color.roman_silver_op6)
+                assetIDTV.setTextColor(futureColor)
+                balanceTV.setTextColor(futureColor)
+                assetIDTV.setTypeface(null, Typeface.ITALIC)
+                balanceTV.setTypeface(null, Typeface.ITALIC)
+            }
         }
     }
 }

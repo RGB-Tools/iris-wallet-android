@@ -10,6 +10,11 @@ data class AutomaticTransaction(
 )
 
 @Entity
+data class HiddenAsset(
+    @PrimaryKey val id: String,
+)
+
+@Entity
 data class RgbPendingAsset(
     @PrimaryKey val assetID: String,
     val schema: String,

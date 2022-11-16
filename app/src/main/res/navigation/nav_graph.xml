@@ -100,6 +100,9 @@
         <action
             android:id="@+id/action_assetDetailFragment_to_transferDetailFragment"
             app:destination="@id/transferDetailFragment" />
+        <action
+            android:id="@+id/action_assetDetailFragment_to_assetMetadataFragment"
+            app:destination="@id/assetMetadataFragment" />
     </fragment>
     <fragment
         android:id="@+id/receiveAssetFragment"
@@ -117,6 +120,11 @@
         android:id="@+id/transferDetailFragment"
         android:name="com.iriswallet.ui.TransferDetailFragment"
         tools:layout="@layout/fragment_transfer_detail">
+    </fragment>
+    <fragment
+        android:id="@+id/assetMetadataFragment"
+        android:name="com.iriswallet.ui.AssetMetadataFragment"
+        tools:layout="@layout/fragment_asset_metadata">
     </fragment>
     <fragment
         android:id="@+id/issueAssetFragment"

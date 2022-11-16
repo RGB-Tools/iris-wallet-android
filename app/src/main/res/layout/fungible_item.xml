@@ -22,24 +22,23 @@
                 android:padding="@dimen/small_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:elevation="12dp"
-                    app:cardCornerRadius="40dp">
+                    app:cardCornerRadius="25dp">
                     <ImageView
                         android:id="@+id/fungibleImg"
                         android:layout_height="match_parent"
                         android:layout_width="match_parent"
                         android:src="@drawable/rgb_logo_round"
                         android:scaleType="centerCrop"/>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_gravity="center"
-                android:layout_marginStart="@dimen/medium_size"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/small_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -47,29 +46,35 @@
                     android:id="@+id/assetNameTV"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/medium_size"
-                    android:layout_weight="1"
                     android:ellipsize="end"
-                    android:singleLine="true"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
                     android:text="@string/sample_asset_name"
                     android:textColor="@color/manatee"
                     android:textSize="@dimen/text_big"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintWidth_min="30dp"
+                    app:layout_constraintBottom_toTopOf="@id/assetIDTV"
                     app:layout_constraintEnd_toStartOf="@+id/assetBalanceTV"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/assetBalanceTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/small_size"
                     android:text="@string/sample_amount"
                     android:textColor="@color/roman_silver"
                     android:textSize="@dimen/text_big"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/assetNameTV" />
+                    android:gravity="right|center_vertical"
+                    app:layout_constrainedWidth="true"
+                    android:maxLines="1"
+                    app:layout_constraintEnd_toEndOf="@id/assetTickerTV"
+                    app:layout_constraintTop_toTopOf="@+id/assetNameTV"
+                    app:layout_constraintBottom_toTopOf="@id/assetTickerTV"
+                    app:layout_constraintStart_toEndOf="@id/assetNameTV"
+                    style="@style/auto_size_text"/>
 
                 <TextView
                     android:id="@+id/assetIDTV"
@@ -77,27 +82,33 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/extra_size"
                     android:ellipsize="middle"
-                    android:singleLine="true"
                     android:text="@string/sample_asset_id"
                     android:textColor="@color/granite_grey"
                     android:textSize="@dimen/text_small"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
                     app:layout_constrainedWidth="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/assetTickerTV"
-                    app:layout_constraintStart_toStartOf="@+id/assetNameTV"
                     app:layout_constraintTop_toBottomOf="@+id/assetNameTV" />
 
                 <TextView
                     android:id="@+id/assetTickerTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/medium_size"
                     android:text="@string/sample_asset_ticker"
                     android:textColor="@color/roman_silver_op6"
                     android:textSize="@dimen/text_small"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/assetIDTV"
+                    android:gravity="right|center_vertical"
+                    app:layout_constrainedWidth="true"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/assetBalanceTV"
-                    app:layout_constraintTop_toBottomOf="@+id/assetBalanceTV" />
+                    app:layout_constraintStart_toEndOf="@id/assetIDTV"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/assetBalanceTV"
+                    style="@style/auto_size_text"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

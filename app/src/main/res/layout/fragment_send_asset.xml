@@ -16,29 +16,37 @@
         android:layout_height="match_parent"
         android:layout_marginHorizontal="@dimen/big_size">
 
-        <include layout="@layout/balance"
-            android:id="@+id/sendBalanceLL"/>
-
         <ScrollView
+            android:id="@+id/sendScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:layout_marginTop="@dimen/medium_xl_size"
-            app:layout_constraintTop_toBottomOf="@id/sendBalanceLL">
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/sendSendBtn"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_marginTop="@dimen/big_size"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/sendBalanceTotalLL"
+                    layout="@layout/balance" />
+
+                <include
+                    android:id="@+id/sendBalanceSpendableLL"
+                    layout="@layout/balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/medium_size" />
 
                 <TextView
                     android:id="@+id/sendPayToLabelTV"
                     style="@style/et_label"
+                    android:layout_marginTop="@dimen/big_size"
                     android:text="@string/pay_to" />
 
                 <EditText
-                    android:id="@+id/sendPayToTV"
+                    android:id="@+id/sendPayToET"
                     style="@style/et_text"
                     android:digits="@string/letters_and_digits"
                     android:hint="@string/blinded_utxo"
@@ -50,16 +58,16 @@
 
                 <TextView
                     android:id="@+id/sendAmountLabelTV"
-                    android:text="@string/amount_to_pay"
-                    style="@style/et_label" />
+                    style="@style/et_label"
+                    android:text="@string/amount_to_pay" />
 
                 <EditText
-                    android:id="@+id/sendAmountTV"
+                    android:id="@+id/sendAmountET"
+                    style="@style/et_text"
                     android:hint="@string/sample_amount"
-                    android:inputType="number"
                     android:imeOptions="actionDone"
                     android:importantForAutofill="no"
-                    style="@style/et_text" />
+                    android:inputType="number" />
 
             </LinearLayout>
 
@@ -70,6 +78,7 @@
             android:enabled="false"
             android:text="@string/send"
             style="@style/main_button"
+            app:layout_constraintTop_toBottomOf="@id/sendScrollView"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

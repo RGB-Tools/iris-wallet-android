@@ -32,6 +32,10 @@ private fun getErrMsg(fragment: Fragment, baseMsgID: Int, extraMsg: String? = nu
 
 private fun toastError(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null) {
     val errMsg = getErrMsg(fragment, baseMsgID, extraMsg)
+    toastErrorMsg(fragment, errMsg)
+}
+
+private fun toastErrorMsg(fragment: Fragment, errMsg: String) {
     Log.d(fragment.TAG, errMsg)
     Toast.makeText(fragment.activity, errMsg, Toast.LENGTH_LONG).show()
 }
@@ -65,11 +69,6 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
         mActivity.backEnabled = true
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.checkCache()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -77,6 +76,16 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     ): View? {
         _binding = inflate.invoke(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) viewModel.restoreState()
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkCache()
     }
 
     override fun onDestroyView() {
@@ -88,6 +97,8 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
         getErrMsg(this, baseMsgID, extraMsg)
 
     fun toastError(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
+
+    fun toastError(errMsg: String) = toastErrorMsg(this, errMsg)
 
     internal fun showExitDialog(message: String) {
         AlertDialog.Builder(requireContext())
@@ -132,7 +143,11 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
         return allFilled
     }
 
-    fun fixETAmount(editText: EditText, amountString: String, maxAmount: ULong) {
+    fun fixETAmount(
+        editText: EditText,
+        amountString: String,
+        maxAmount: ULong = AppConstants.uLongMaxAmount
+    ) {
         if (amountString.isNotEmpty()) {
             var fixed = amountString
             // remove leading zero

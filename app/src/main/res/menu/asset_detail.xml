@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/refreshAssetMenu"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/refresh_asset" />
+    <item android:id="@+id/assetMetadataMenu"
+        app:showAsAction="never"
+        android:title="@string/view_asset_metadata" />
+    <item android:id="@+id/hideAssetMenu"
+        app:showAsAction="never"
+        android:title="@string/hide_asset" />
+</menu>

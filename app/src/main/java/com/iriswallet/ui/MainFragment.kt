@@ -35,7 +35,15 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (!mActivity.backEnabled) return
+                    if (!mActivity.backEnabled) {
+                        Toast.makeText(
+                                activity,
+                                getString(R.string.back_disabled),
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                        return
+                    }
                     if (doubleBackToExitPressedOnce) {
                         activity?.finish()
                         return

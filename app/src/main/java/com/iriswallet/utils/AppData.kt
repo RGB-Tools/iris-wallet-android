@@ -18,12 +18,14 @@ data class AppAsset(
     val type: AppAssetType,
     val id: String,
     var name: String,
-    val ticker: String?,
+    val ticker: String? = null,
     var media: AppMedia? = null,
     val fromFaucet: Boolean = false,
+    var spendableBalance: ULong = 0UL,
     var settledBalance: ULong = 0UL,
     var totalBalance: ULong = 0UL,
     var transfers: List<AppTransfer> = listOf(),
+    var hidden: Boolean = false,
 ) : Parcelable {
     constructor(
         rgbAsset: AssetRgb20
@@ -31,20 +33,20 @@ data class AppAsset(
         AppAssetType.RGB20,
         rgbAsset.assetId,
         rgbAsset.name,
-        rgbAsset.ticker,
-        null,
+        ticker = rgbAsset.ticker,
+        spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
         totalBalance = rgbAsset.balance.future,
     )
 
     constructor(
-        rgbAsset: AssetRgb21
+        rgbAsset: AssetRgb121
     ) : this(
-        AppAssetType.RGB21,
+        AppAssetType.RGB121,
         rgbAsset.assetId,
         rgbAsset.name,
-        null,
-        rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
+        media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
+        spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
         totalBalance = rgbAsset.balance.future,
     )
@@ -53,7 +55,7 @@ data class AppAsset(
         rgbPendingAsset: RgbPendingAsset
     ) : this(
         if (rgbPendingAsset.schema == AppAssetType.RGB20.toString()) AppAssetType.RGB20
-        else AppAssetType.RGB21,
+        else AppAssetType.RGB121,
         rgbPendingAsset.assetID,
         rgbPendingAsset.name,
         ticker = rgbPendingAsset.ticker,
@@ -117,6 +119,7 @@ data class AppMedia(
 }
 
 data class AppResponse<T>(
+    val requestID: String? = null,
     val data: T? = null,
     val error: AppError? = null,
 )
@@ -148,7 +151,7 @@ enum class BitcoinNetwork {
 enum class AppAssetType {
     BITCOIN,
     RGB20,
-    RGB21
+    RGB121
 }
 
 open class Event<out T>(private val content: T) {
@@ -227,9 +230,10 @@ data class AppTransfer(
     val date: Date,
     val status: TransferStatus,
     val incoming: Boolean,
-    val recipient: String? = null,
     val amount: ULong? = null,
+    val expiration: Long? = null,
     val txid: String? = null,
+    val blindedUTXO: String? = null,
     val unblindedUTXO: AppOutpoint? = null,
     val changeUTXO: AppOutpoint? = null,
     var automatic: Boolean = false,
@@ -252,9 +256,10 @@ data class AppTransfer(
         Date(transfer.updatedAt * 1000),
         transfer.status,
         transfer.incoming,
-        recipient = transfer.blindedUtxo,
         amount = transfer.amount,
+        expiration = transfer.expiration,
         txid = transfer.txid,
+        blindedUTXO = transfer.blindedUtxo,
         unblindedUTXO = transfer.unblindedUtxo?.let { AppOutpoint(it) },
         changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
     )

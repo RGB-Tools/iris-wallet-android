@@ -11,10 +11,10 @@
         android:layout_height="match_parent">
 
         <ScrollView
+            android:id="@+id/aboutScrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:fillViewport="true"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/aboutDownloadLogsBtn"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
@@ -50,6 +50,15 @@
             </LinearLayout>
 
         </ScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/aboutDownloadLogsBtn"
+            android:text="@string/download_logs"
+            app:layout_constraintTop_toBottomOf="@id/aboutScrollView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            style="@style/empty_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

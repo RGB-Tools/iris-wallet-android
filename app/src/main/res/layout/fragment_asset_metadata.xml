@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.AssetMetadataFragment">
+
+    <ProgressBar
+        android:id="@+id/metadataPB"
+        android:visibility="visible"
+        style="@style/progress_bar"/>
+
+    <ScrollView
+        android:id="@+id/metadataScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:layout_margin="@dimen/medium_xl_size"
+                app:cardBackgroundColor="@color/white_op10"
+                app:cardCornerRadius="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_margin="@dimen/medium_size"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/metadataTypeLabelTV"
+                        android:text="@string/asset_type"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataTypeTV"
+                        android:text="@string/sample_asset_type"
+                        style="@style/detail_text"/>
+
+                    <TextView
+                        android:id="@+id/metadataIssuedSupplyLabelTV"
+                        android:text="@string/issued_supply"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataIssuedSupplyTV"
+                        android:text="@string/sample_issued_supply"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataDateLabelTV"
+                        android:text="@string/issuance_date"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataDateTV"
+                        android:text="@string/sample_datetime"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataNameLabelTV"
+                        android:text="@string/asset_name"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataNameTV"
+                        android:text="@string/sample_asset_name"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataPrecisionLabelTV"
+                        android:text="@string/asset_precision"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataPrecisionTV"
+                        android:text="@string/sample_precision"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataTickerLabelTV"
+                        android:text="@string/asset_ticker"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataTickerTV"
+                        android:text="@string/sample_asset_ticker"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataDescriptionLabelTV"
+                        android:text="@string/asset_description"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataDescriptionTV"
+                        android:text="@string/sample_asset_description"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/metadataParentIDLabelTV"
+                        android:text="@string/asset_parent_id"
+                        style="@style/detail_label" />
+
+                    <TextView
+                        android:id="@+id/metadataParentIDTV"
+                        android:text="@string/sample_asset_id"
+                        style="@style/detail_text" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
