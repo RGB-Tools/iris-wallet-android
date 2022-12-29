@@ -154,6 +154,14 @@ class AssetDetailFragment :
         redrawAssetDetails()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (viewModel.refreshingAsset) {
+            refreshing = true
+            disableUI()
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         if (mediaPlayer != null) {

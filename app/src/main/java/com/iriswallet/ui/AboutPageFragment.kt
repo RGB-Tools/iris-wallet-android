@@ -26,7 +26,7 @@ class AboutPageFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val appVersion = getString(R.string.app_version, BuildConfig.VERSION_NAME)
+        val appVersion = getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
         binding.aboutVersionTV.text = appVersion
 
         Linkify.addLinks(

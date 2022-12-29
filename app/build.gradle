@@ -7,7 +7,7 @@ plugins {
   id 'kotlin-parcelize'
 }
 
-def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
   keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -20,8 +20,8 @@ android {
     applicationId 'com.iriswallet'
     minSdk 26
     targetSdk 33
-    versionCode 21
-    versionName '0.1.3'
+    versionCode 28
+    versionName '0.1.4'
     ndk {
       abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
     }
@@ -134,7 +134,7 @@ dependencies {
   implementation 'androidx.core:core-ktx:1.9.0'
   implementation 'androidx.core:core-splashscreen:1.0.0'
 
-  implementation 'androidx.fragment:fragment-ktx:1.5.4'
+  implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
   implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
@@ -174,7 +174,7 @@ dependencies {
   implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
   // RGB-Tools
-  implementation 'org.rgbtools:rgb-lib-android:0.1.3'
+  implementation 'org.rgbtools:rgb-lib-android:0.1.6'
 
   // Squareup
   implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'

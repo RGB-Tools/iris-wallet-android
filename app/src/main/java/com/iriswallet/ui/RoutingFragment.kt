@@ -56,7 +56,7 @@ class RoutingFragment :
                         showExitDialog(getString(R.string.err_getting_offline_assets))
                     }
                 } else {
-                    viewModel.refreshAssets()
+                    viewModel.refreshAssets(firstAppRefresh = true)
                     findNavController().navigate(R.id.action_routingFragment_to_mainFragment)
                 }
             }

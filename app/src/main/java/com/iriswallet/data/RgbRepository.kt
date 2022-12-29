@@ -29,8 +29,15 @@ object RgbRepository {
 
     fun deleteTransfer(transfer: AppTransfer) {
         if (transfer.status != TransferStatus.FAILED)
-            coloredWallet.failTransfers(online, transfer.blindedUTXO, null)
-        coloredWallet.deleteTransfers(transfer.blindedUTXO, null)
+            coloredWallet.failTransfers(online, transfer.blindedUTXO, null, false)
+        coloredWallet.deleteTransfers(transfer.blindedUTXO, null, false)
+    }
+
+    fun failAndDeleteOldTransfers(): Boolean {
+        var changed = coloredWallet.failTransfers(online, null, null, true)
+        val deleted = coloredWallet.deleteTransfers(null, null, true)
+        if (deleted) changed = true
+        return changed
     }
 
     fun getAddress(): String {
@@ -81,8 +88,8 @@ object RgbRepository {
         }
     }
 
-    fun refresh(asset: AppAsset? = null) {
-        return coloredWallet.refresh(online, asset?.id)
+    fun refresh(asset: AppAsset? = null): Boolean {
+        return coloredWallet.refresh(online, asset?.id, listOf())
     }
 
     fun send(asset: AppAsset, blindedUTXO: String, amount: ULong): String {

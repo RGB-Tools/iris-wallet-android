@@ -24,11 +24,11 @@ object AppConstants {
     const val bitcoinAssetID = "BTC"
     const val bitcoinAssetName = "bitcoin"
 
-    const val proxyURL = "https://proxy.rgbtools.org"
+    const val proxyURL = "https://proxy.iriswallet.com"
 
-    const val signetElectrumURL = "ssl://electrum.rgbtools.org:50032"
-    const val testnetElectrumURL = "ssl://electrum.rgbtools.org:50012"
-    const val mainnetElectrumURL = "ssl://electrum.rgbtools.org:50002"
+    const val signetElectrumURL = "ssl://electrum.iriswallet.com:50033"
+    const val testnetElectrumURL = "ssl://electrum.iriswallet.com:50013"
+    const val mainnetElectrumURL = "ssl://electrum.iriswallet.com:50003"
 
     const val signetExplorerURL = "https://mempool.space/signet/tx/"
     const val testnetExplorerURL = "https://mempool.space/testnet/tx/"
@@ -43,15 +43,15 @@ object AppConstants {
             "https://testnet-faucet.com/btc-testnet/"
         )
 
-    const val btcTestnetFaucetURL = "https://btc-faucet.rgbtools.org"
+    const val btcTestnetFaucetURL = "https://btc-faucet.iriswallet.com"
 
     val rgbTestnetFaucetURLs =
         listOf(
-            "https://rgb-faucet.rgbtools.org/testnet/",
+            "https://rgb-faucet.iriswallet.com/testnet/",
         )
     val rgbMainnetFaucetURLs =
         listOf(
-            "https://rgb-faucet.rgbtools.org/mainnet/",
+            "https://rgb-faucet.iriswallet.com/mainnet/",
         )
 
     const val privacyPolicyURL = "https://iriswallet.com/privacy_policy.html"

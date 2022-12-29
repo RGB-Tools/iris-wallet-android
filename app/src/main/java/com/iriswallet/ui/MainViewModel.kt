@@ -181,7 +181,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun refreshAssets() {
+    fun refreshAssets(firstAppRefresh: Boolean = false) {
         refreshingAssets = true
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
@@ -192,7 +192,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             },
             failureCallback = { refreshingAssets = false },
         ) {
-            AppRepository.getRefreshedAssets()
+            AppRepository.getRefreshedAssets(firstAppRefresh)
         }
     }
 

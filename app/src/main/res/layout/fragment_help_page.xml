@@ -24,6 +24,20 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/helpLearnMoreLabelTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_learn_more_label"
+                    style="@style/help_title" />
+
+                <TextView
+                    android:id="@+id/helpLearnMoreTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/help_learn_more_text"
+                    style="@style/help_text" />
+
+                <TextView
                     android:id="@+id/helpInternalLabelTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

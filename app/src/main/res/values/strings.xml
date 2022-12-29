@@ -75,6 +75,7 @@
     <string name="scanned_invalid_rgb">Scanned data is neither a blinded UTXO nor an RGB invoice</string>
     <string name="scanned_invalid_btc">Scanned data is neither a bitcoin address nor invoice</string>
     <string name="scanned_invalid_asset">Asset ID mismatch, the scanned invoice is for asset "%s"</string>
+    <string name="scanned_expired_invoice">The scanned invoice is expired"</string>
     <string name="blinded_utxo_already_used">Blinded UTXO already used</string>
     <string name="reached_max_assets">reached max assets</string>
     <string name="back_again_to_exit">Go back again to exit from app</string>
@@ -170,12 +171,14 @@
     <string name="help_faucet_text">You can get testnet bitcoin by using on of the many available
         faucet, below are linked few examples but you can always find more using a search
         engine:</string>
+    <string name="help_learn_more_label">Where can I learn more about RGB?</string>
+    <string name="help_learn_more_text">Visit rgb.info for resources and documentation.</string>
     <string name="help_internal_label">Why do I see outgoing Bitcoin transactions that I didn\'t
         authorise?</string>
     <string name="help_internal_text">In the RGB protocol assets need to be assigned to a Bitcoin
         output, if you do not have available UTXOs to receive, issue, or send yourself change
         assets, the wallet will use the available bitcoin balance to generate new UTXOs.
-        Such transactions are marked in the transaction list as “internal”</string>
+        Such transactions are marked in the transaction list as “internal”.</string>
     <string name="help_min_balance_label">What is the minimum bitcoin balance needed to issue and
         receive RGB assets?</string>
     <string name="help_min_balance_text">To create a set of UTXOs needed to issue and receive
@@ -231,7 +234,7 @@
         the Iris Wallet. Wallet data will be erased.</string>
     <string name="terms_of_service_link">Terms Of Service</string>
     <string name="privacy_policy_link">Privacy Policy</string>
-    <string name="app_version">App version: %s</string>
+    <string name="app_version">App version: %s (code #%d)</string>
     <string name="download_logs">Download debug logs</string>
     <string name="downloaded_logs">Logs successfully downloaded</string>
     <string name="download_logs_notification_title">File downloaded</string>

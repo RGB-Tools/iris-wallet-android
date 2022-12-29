@@ -57,6 +57,11 @@ class ReceiveAssetFragment :
         viewModel.genReceiveData(asset)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (asset == null) viewModel.refreshAssets() else viewModel.refreshAssetDetail(asset!!)
+    }
+
     private fun disableUI() {
         mActivity.backEnabled = false
     }

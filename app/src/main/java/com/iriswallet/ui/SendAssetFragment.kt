@@ -19,7 +19,10 @@ import com.google.zxing.client.android.Intents
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentSendAssetBinding
-import com.iriswallet.utils.*
+import com.iriswallet.utils.AppAsset
+import com.iriswallet.utils.AppAuthenticationService
+import com.iriswallet.utils.AppAuthenticationServiceListener
+import com.iriswallet.utils.AppContainer
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -247,6 +250,13 @@ class SendAssetFragment :
                     }
                     val amount =
                         if (invoiceData.amount != null) invoiceData.amount.toString() else null
+                    if (
+                        invoiceData.expirationTimestamp != null &&
+                            invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()
+                    ) {
+                        if (fromScanner) toastError(R.string.scanned_expired_invoice)
+                        return false
+                    }
                     Pair(invoiceData.blindedUtxo, amount)
                 } catch (_: RgbLibException) {
                     try {

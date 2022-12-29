@@ -17,6 +17,7 @@ class HelpPageFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Linkify.addLinks(binding.helpLearnMoreTV, Linkify.WEB_URLS)
         Linkify.addLinks(binding.helpFeedbackTV, Linkify.WEB_URLS)
 
         binding.helpFaucetLabelTV.text =

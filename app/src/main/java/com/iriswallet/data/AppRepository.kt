@@ -70,9 +70,10 @@ object AppRepository {
     ) {
         Log.d(TAG, "Updating RGB asset (${asset.id})...")
 
+        var callListTransfers = updateTransfers
         if (refresh)
             runCatching {
-                    RgbRepository.refresh(asset)
+                    callListTransfers = RgbRepository.refresh(asset) || callListTransfers
                     val balance = RgbRepository.getBalance(asset.id)
                     asset.spendableBalance = balance.spendable
                     asset.settledBalance = balance.settled
@@ -85,7 +86,7 @@ object AppRepository {
                     throw it
                 }
 
-        if (updateTransfers) {
+        if (callListTransfers) {
             if (updateTransfersFilter == asset.id || updateTransfersFilter == null)
                 asset.transfers = RgbRepository.listTransfers(asset)
         }
@@ -95,20 +96,24 @@ object AppRepository {
         refresh: Boolean = true,
         updateTransfers: Boolean = true,
         updateTransfersFilter: String? = null,
+        firstAppRefresh: Boolean = false,
     ) {
         Log.d(TAG, "Updating RGB assets...")
-        if (refresh) RgbRepository.refresh()
+        if (refresh && !firstAppRefresh) RgbRepository.refresh()
         val rgbAssets = RgbRepository.listAssets()
         for (rgbAsset in rgbAssets) {
+            var nextUpdateTransfers = updateTransfers
             var assetToUpdate = getCachedAsset(rgbAsset.id)
             if (assetToUpdate == null) {
                 assetToUpdate = rgbAsset
                 appAssets.add(rgbAsset)
+                nextUpdateTransfers = true
             } else if (rgbPendingAssetIDs.contains(assetToUpdate.id)) {
                 appAssets.remove(assetToUpdate)
                 removeRgbPendingAsset(assetToUpdate.id)
                 assetToUpdate = rgbAsset
                 appAssets.add(rgbAsset)
+                nextUpdateTransfers = true
             } else {
                 assetToUpdate.spendableBalance = rgbAsset.spendableBalance
                 assetToUpdate.settledBalance = rgbAsset.settledBalance
@@ -116,10 +121,35 @@ object AppRepository {
             }
             updateRGBAsset(
                 assetToUpdate,
-                refresh = false,
-                updateTransfers = updateTransfers,
+                refresh = firstAppRefresh,
+                updateTransfers = nextUpdateTransfers,
                 updateTransfersFilter = updateTransfersFilter
             )
+        }
+        if (firstAppRefresh) {
+            val changed = RgbRepository.refresh()
+            if (!changed) return
+            val rgbAssets = RgbRepository.listAssets()
+            for (rgbAsset in rgbAssets) {
+                var assetToUpdate = getCachedAsset(rgbAsset.id)
+                if (assetToUpdate == null) {
+                    assetToUpdate = rgbAsset
+                    appAssets.add(rgbAsset)
+                } else if (rgbPendingAssetIDs.contains(assetToUpdate.id)) {
+                    appAssets.remove(assetToUpdate)
+                    removeRgbPendingAsset(assetToUpdate.id)
+                    assetToUpdate = rgbAsset
+                    appAssets.add(rgbAsset)
+                } else {
+                    continue
+                }
+                updateRGBAsset(
+                    assetToUpdate,
+                    refresh = false,
+                    updateTransfers = true,
+                    updateTransfersFilter = updateTransfersFilter
+                )
+            }
         }
     }
 
@@ -299,9 +329,13 @@ object AppRepository {
         return appAssets
     }
 
-    fun getRefreshedAssets(): List<AppAsset> {
+    fun getRefreshedAssets(firstAppRefresh: Boolean): List<AppAsset> {
+        var updateTransfers = true
+        if (firstAppRefresh) {
+            updateTransfers = RgbRepository.failAndDeleteOldTransfers()
+        }
         updateBitcoinAsset()
-        updateRGBAssets()
+        updateRGBAssets(updateTransfers = updateTransfers, firstAppRefresh = firstAppRefresh)
         Log.d(TAG, "Updated APP assets: ${appAssets.map{it.id}}")
         return appAssets
     }

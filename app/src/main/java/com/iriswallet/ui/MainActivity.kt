@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +29,7 @@ import com.iriswallet.databinding.ActivityMainBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.BitcoinNetwork
 import com.iriswallet.utils.Event
+import com.iriswallet.utils.TAG
 
 class MainActivity : AppCompatActivity() {
 
@@ -112,7 +114,9 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.navView.visibility = View.VISIBLE
+            Log.d(TAG, "Destination ID: ${destination.id}")
             inMainFragment = destination.id == R.id.mainFragment
+            Log.d(TAG, "In main fragment: $inMainFragment")
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -146,6 +150,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.d(
+            TAG,
+            "onOptionsItemSelected item ID: ${item.itemId}\nin HOME: ${item.itemId ==
+                android.R.id.home}"
+        )
+        Log.d(TAG, "onOptionsItemSelected inMainFragment: $inMainFragment")
         if (item.itemId == android.R.id.home && inMainFragment)
             binding.drawerLayout.openDrawer(Gravity.LEFT)
         return super.onOptionsItemSelected(item)
