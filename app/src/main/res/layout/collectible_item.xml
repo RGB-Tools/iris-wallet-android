@@ -27,8 +27,8 @@
 
             <ImageView
                 android:id="@+id/collectibleImg"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="@dimen/collectible_size"
+                android:layout_height="@dimen/collectible_size"
                 android:contentDescription="@string/collectible_image_description" />
 
             <TextView

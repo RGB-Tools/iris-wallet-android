@@ -19,25 +19,21 @@ import com.google.zxing.client.android.Intents
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentSendAssetBinding
-import com.iriswallet.utils.AppAsset
-import com.iriswallet.utils.AppAuthenticationService
-import com.iriswallet.utils.AppAuthenticationServiceListener
-import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.*
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import java.math.BigDecimal
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.BdkException
-import org.rgbtools.BlindedUtxo
-import org.rgbtools.Invoice
-import org.rgbtools.RgbLibException
+import org.rgbtools.*
 
 class SendAssetFragment :
     MainBaseFragment<FragmentSendAssetBinding>(FragmentSendAssetBinding::inflate),
     AppAuthenticationServiceListener {
 
     lateinit var asset: AppAsset
+    private var consignmentEndpoints: List<String> = listOf()
 
     private var isLoading = false
 
@@ -46,6 +42,8 @@ class SendAssetFragment :
     private lateinit var editableFields: Array<EditText>
 
     private var insertedFromClipboard = false
+
+    private var validData: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +90,34 @@ class SendAssetFragment :
             Lifecycle.State.RESUMED
         )
 
+        editableFields = arrayOf(binding.sendPayToET, binding.sendAmountET, binding.sendFeeRateET)
+        for (editText in editableFields) {
+            editText.addTextChangedListener(
+                object : TextWatcher {
+                    override fun beforeTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {}
+                    override fun onTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {}
+                    override fun afterTextChanged(editable: Editable) {
+                        if (editText.hashCode() == binding.sendAmountET.hashCode())
+                            fixETAmount(editText, editable.toString())
+                        binding.sendSendBtn.isEnabled = enableSendBtn()
+                    }
+                }
+            )
+        }
+
+        binding.sendAmountET.setOnEditorActionListener(onKeyboardDoneListener)
+        binding.sendFeeRateET.setOnEditorActionListener(onKeyboardDoneListener)
+
         binding.sendPayToET.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus && !insertedFromClipboard) {
                 val clipboardData =
@@ -104,6 +130,16 @@ class SendAssetFragment :
                 }
             }
         }
+
+        binding.sendFeeRateET.hint = AppConstants.defaultFeeRate.toString()
+        binding.sendFeeRateET.setText(SharedPreferencesManager.feeRate)
+        binding.sendFeeRateET.filters +=
+            DecimalsInputFilter(
+                AppConstants.feeRateIntegerPlaces,
+                AppConstants.feeRateDecimalPlaces,
+                minValue = AppConstants.minFeeRate
+            )
+        binding.sendFeeRateET.setSelectAllOnFocus(true)
 
         binding.sendSendBtn.setOnClickListener {
             disableUI()
@@ -124,7 +160,7 @@ class SendAssetFragment :
                     findNavController().popBackStack()
                 } else
                     handleError(response.error!!) {
-                        toastError(R.string.err_sending, response.error.message)
+                        toastMsg(R.string.err_sending, response.error.message)
                         enableUI()
                     }
             }
@@ -139,32 +175,6 @@ class SendAssetFragment :
     override fun onResume() {
         super.onResume()
         enableUI()
-
-        editableFields = arrayOf(binding.sendPayToET, binding.sendAmountET)
-        for (editText in editableFields) {
-            editText.addTextChangedListener(
-                object : TextWatcher {
-                    override fun beforeTextChanged(
-                        charSequence: CharSequence,
-                        i: Int,
-                        i1: Int,
-                        i2: Int
-                    ) {}
-                    override fun onTextChanged(
-                        charSequence: CharSequence,
-                        i: Int,
-                        i1: Int,
-                        i2: Int
-                    ) {}
-                    override fun afterTextChanged(editable: Editable) {
-                        val editType = editText.inputType
-                        if (numberTypes.contains(editType))
-                            fixETAmount(editText, editable.toString())
-                        binding.sendSendBtn.isEnabled = enableSendBtn()
-                    }
-                }
-            )
-        }
 
         binding.sendSendBtn.isEnabled = enableSendBtn()
         binding.sendBalanceTotalLL.detailBalanceTV.text = asset.totalBalance.toString()
@@ -206,7 +216,7 @@ class SendAssetFragment :
             binding.sendAmountET.text.toString().toULong() <= asset.spendableBalance
     }
 
-    private fun detectContent(content: String, fromScanner: Boolean = false): Boolean {
+    private fun detectContent(content: String, toastErr: Boolean = false): Boolean {
         val (payTo, amount) =
             if (asset.bitcoin()) {
                 try {
@@ -234,7 +244,7 @@ class SendAssetFragment :
                             throw RuntimeException("invalid bitcoin invoice")
                         }
                     } catch (e: Exception) {
-                        if (fromScanner) toastError(R.string.scanned_invalid_btc)
+                        if (toastErr) toastMsg(R.string.scanned_invalid_btc)
                         return false
                     }
                 }
@@ -242,7 +252,7 @@ class SendAssetFragment :
                 try {
                     val invoiceData = Invoice(content).invoiceData()
                     if (invoiceData.assetId != null && invoiceData.assetId != asset.id) {
-                        if (fromScanner)
+                        if (toastErr)
                             toastError(
                                 getString(R.string.scanned_invalid_asset, invoiceData.assetId)
                             )
@@ -254,8 +264,16 @@ class SendAssetFragment :
                         invoiceData.expirationTimestamp != null &&
                             invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()
                     ) {
-                        if (fromScanner) toastError(R.string.scanned_expired_invoice)
+                        if (toastErr) toastMsg(R.string.scanned_expired_invoice)
                         return false
+                    }
+                    if (invoiceData.consignmentEndpoints.isNotEmpty()) {
+                        consignmentEndpoints =
+                            invoiceData.consignmentEndpoints.filter {
+                                ConsignmentEndpoint(it).protocol() ==
+                                    ConsignmentEndpointProtocol.RGB_HTTP_JSON_RPC
+                            }
+                        consignmentEndpoints.take(3)
                     }
                     Pair(invoiceData.blindedUtxo, amount)
                 } catch (_: RgbLibException) {
@@ -263,11 +281,12 @@ class SendAssetFragment :
                         BlindedUtxo(content)
                         Pair(content, null)
                     } catch (_: RgbLibException) {
-                        if (fromScanner) toastError(R.string.scanned_invalid_rgb)
+                        if (toastErr) toastMsg(R.string.scanned_invalid_rgb)
                         return false
                     }
                 }
             }
+        validData = payTo
 
         binding.sendPayToET.setText(payTo)
         if (amount != null) binding.sendAmountET.setText(amount)
@@ -288,28 +307,29 @@ class SendAssetFragment :
                             Toast.LENGTH_LONG
                         )
                         .show()
-            } else detectContent(result.contents, fromScanner = true)
+            } else detectContent(result.contents, toastErr = true)
         }
 
-    companion object {
-        val numberTypes =
-            arrayOf(
-                InputType.TYPE_CLASS_NUMBER,
-                InputType.TYPE_NUMBER_FLAG_DECIMAL,
-                InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
-            )
-    }
-
     override fun authenticated(requestCode: String) {
+        val payTo = binding.sendPayToET.text.toString()
+        if (payTo != validData) {
+            if (!detectContent(payTo, true)) return
+        }
+        if (consignmentEndpoints.isEmpty() && !asset.bitcoin()) {
+            consignmentEndpoints = listOf(AppContainer.proxyConsignmentEndpointDefault)
+            toastMsg(R.string.using_default_consignment_endpoint)
+        }
         viewModel.sendAsset(
             asset,
-            binding.sendPayToET.text.toString(),
-            binding.sendAmountET.text.toString()
+            payTo,
+            binding.sendAmountET.text.toString(),
+            consignmentEndpoints,
+            binding.sendFeeRateET.text.toString().toFloat(),
         )
     }
 
     override fun handleAuthError(requestCode: String, errorExtraInfo: String?, errCode: Int?) {
-        toastError(R.string.err_sending, errorExtraInfo)
+        toastMsg(R.string.err_sending, errorExtraInfo)
         enableUI()
     }
 }

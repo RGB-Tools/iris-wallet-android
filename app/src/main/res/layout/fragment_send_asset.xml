@@ -23,53 +23,68 @@
             app:layout_constraintBottom_toTopOf="@id/sendSendBtn"
             app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <include
-                    android:id="@+id/sendBalanceTotalLL"
-                    layout="@layout/balance" />
-
-                <include
-                    android:id="@+id/sendBalanceSpendableLL"
-                    layout="@layout/balance"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/medium_size" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/sendPayToLabelTV"
-                    style="@style/et_label"
-                    android:layout_marginTop="@dimen/big_size"
-                    android:text="@string/pay_to" />
+                    <include
+                        android:id="@+id/sendBalanceTotalLL"
+                        layout="@layout/balance" />
 
-                <EditText
-                    android:id="@+id/sendPayToET"
-                    style="@style/et_text"
-                    android:digits="@string/letters_and_digits"
-                    android:hint="@string/blinded_utxo"
-                    android:imeOptions="actionNext"
-                    android:importantForAutofill="no"
-                    android:inputType="textFilter|textNoSuggestions"
-                    android:maxLines="1"
-                    android:singleLine="true" />
+                    <include
+                        android:id="@+id/sendBalanceSpendableLL"
+                        layout="@layout/balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/medium_size" />
 
-                <TextView
-                    android:id="@+id/sendAmountLabelTV"
-                    style="@style/et_label"
-                    android:text="@string/amount_to_pay" />
+                    <TextView
+                        android:id="@+id/sendPayToLabelTV"
+                        style="@style/et_label"
+                        android:layout_marginTop="@dimen/big_size"
+                        android:text="@string/pay_to" />
+                    <EditText
+                        android:id="@+id/sendPayToET"
+                        style="@style/et_text"
+                        android:digits="@string/letters_and_digits"
+                        android:hint="@string/blinded_utxo"
+                        android:imeOptions="actionNext"
+                        android:importantForAutofill="no"
+                        android:inputType="textFilter|textNoSuggestions"
+                        android:maxLines="1"
+                        android:singleLine="true" />
 
-                <EditText
-                    android:id="@+id/sendAmountET"
-                    style="@style/et_text"
-                    android:hint="@string/sample_amount"
-                    android:imeOptions="actionDone"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
+                    <TextView
+                        android:id="@+id/sendAmountLabelTV"
+                        style="@style/et_label"
+                        android:text="@string/amount_to_pay" />
+                    <EditText
+                        android:id="@+id/sendAmountET"
+                        style="@style/et_text"
+                        android:hint="@string/sample_amount"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="number" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/sendFeeRateLabelTV"
+                        style="@style/et_label"
+                        android:text="@string/fee_rate" />
+                    <EditText
+                        android:id="@+id/sendFeeRateET"
+                        style="@style/et_text"
+                        android:hint="@string/sample_fee_rate"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </ScrollView>
 

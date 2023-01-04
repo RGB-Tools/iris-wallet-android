@@ -1,5 +1,7 @@
 <resources>
     <dimen name="icon_size">32dp</dimen>
+    <dimen name="fungible_size">50dp</dimen>
+    <dimen name="collectible_size">150dp</dimen>
 
     <!-- padding -->
     <dimen name="extra_size">64dp</dimen>

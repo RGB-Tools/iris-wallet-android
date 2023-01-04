@@ -1,6 +1,7 @@
 package com.iriswallet.data
 
 import android.content.SharedPreferences
+import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 
 object SharedPreferencesManager {
@@ -9,9 +10,11 @@ object SharedPreferencesManager {
     const val PREFS_PIN_ACTIONS_CONFIGURED = "pin_actions_configured"
     const val PREFS_PIN_LOGIN_CONFIGURED = "pin_login_configured"
     const val PREFS_ELECTRUM_URL = "electrum_url_pref"
-    const val PREFS_PROXY_URL = "proxy_url_pref"
+    const val PREFS_PROXY_CONSIGNMENT_ENDPOINT = "proxy_consignment_endpoint_pref"
+    private const val PREFS_PROXY_URL = "proxy_url_pref"
     const val PREFS_SHOW_HIDDEN_ASSETS = "show_hidden_assets"
     const val PREFS_HIDE_EXHAUSTED_ASSETS = "hide_exhausted_assets"
+    const val PREFS_FEE_RATE = "fee_rate"
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var encryptedSharedPreferences: SharedPreferences
@@ -33,6 +36,10 @@ object SharedPreferencesManager {
         settingsSharedPreferences.edit().clear().apply()
     }
 
+    fun removeOldKeys() {
+        settingsSharedPreferences.edit().remove(PREFS_PROXY_URL).apply()
+    }
+
     var electrumURL: String
         get() =
             settingsSharedPreferences.getString(
@@ -41,6 +48,16 @@ object SharedPreferencesManager {
             )!!
         set(value) {
             settingsSharedPreferences.edit()?.putString(PREFS_ELECTRUM_URL, value)?.apply()
+        }
+
+    var feeRate: String
+        get() =
+            settingsSharedPreferences.getString(
+                PREFS_FEE_RATE,
+                AppConstants.defaultFeeRate.toString()
+            )!!
+        set(value) {
+            settingsSharedPreferences.edit()?.putString(PREFS_FEE_RATE, value)?.apply()
         }
 
     var mnemonic: String
@@ -64,10 +81,17 @@ object SharedPreferencesManager {
             settingsSharedPreferences.edit()?.putBoolean(PREFS_PIN_LOGIN_CONFIGURED, value)?.apply()
         }
 
-    var proxyURL: String
-        get() = settingsSharedPreferences.getString(PREFS_PROXY_URL, AppContainer.proxyURLDefault)!!
+    var proxyConsignmentEndpoint: String
+        get() =
+            settingsSharedPreferences.getString(
+                PREFS_PROXY_CONSIGNMENT_ENDPOINT,
+                AppContainer.proxyConsignmentEndpointDefault
+            )!!
         set(value) {
-            settingsSharedPreferences.edit()?.putString(PREFS_PROXY_URL, value)?.apply()
+            settingsSharedPreferences
+                .edit()
+                ?.putString(PREFS_PROXY_CONSIGNMENT_ENDPOINT, value)
+                ?.apply()
         }
 
     var showHiddenAssets: Boolean

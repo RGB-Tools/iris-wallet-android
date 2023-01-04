@@ -100,9 +100,15 @@ object AppContainer {
         }
     }
 
-    val proxyURL: String by lazy { SharedPreferencesManager.proxyURL }
+    val proxyURL: String by lazy {
+        proxyConsignmentEndpoint.removePrefix(AppConstants.rgbHttpJsonRpcProtocol)
+    }
 
-    val proxyURLDefault: String by lazy { AppConstants.proxyURL }
+    val proxyConsignmentEndpoint: String by lazy {
+        SharedPreferencesManager.proxyConsignmentEndpoint
+    }
+
+    val proxyConsignmentEndpointDefault: String by lazy { AppConstants.proxyConsignmentEndpoint }
 
     val bitcoinAssetTicker: String by lazy {
         val prefix =

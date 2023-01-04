@@ -21,6 +21,13 @@ class CollectiblesFragment :
     MainBaseFragment<FragmentCollectiblesBinding>(FragmentCollectiblesBinding::inflate) {
     private lateinit var adapter: CollectiblesAdapter
 
+    private var collectibleSize: Int? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        collectibleSize = resources.getDimensionPixelSize(R.dimen.collectible_size)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -64,7 +71,7 @@ class CollectiblesFragment :
                 if (response.error != null || response.data.isNullOrEmpty()) {
                     enableUI()
                     handleError(response.error!!) {
-                        toastError(R.string.err_refreshing_assets, response.error.message)
+                        toastMsg(R.string.err_refreshing_assets, response.error.message)
                     }
                 }
             }
@@ -114,7 +121,7 @@ class CollectiblesFragment :
             TAG,
             "Refreshing collectibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
         )
-        adapter = CollectiblesAdapter(visibleAssets, viewModel, this)
+        adapter = CollectiblesAdapter(visibleAssets, viewModel, this, collectibleSize!!)
         adapter.stateRestorationPolicy =
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.collectiblesRV.adapter = adapter

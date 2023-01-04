@@ -6,6 +6,7 @@ object AppConstants {
     const val bdkDirName = ".bdk"
     const val rgbDirName = ".rgb"
     const val rgbDownloadLogsFileName = "iris-logs-%s-%s.txt"
+    const val rgbDownloadMediaFileName = "media_%s"
     const val sharedPreferencesName = "shared_prefs"
     const val encryptedSharedPreferencesName = "secret_shared_prefs"
 
@@ -15,6 +16,11 @@ object AppConstants {
     const val rgbDefaultPrecision: UByte = 0U
     const val uLongMaxAmount: ULong = 18446744073709551615UL
     const val issueMaxAmount = uLongMaxAmount
+    const val maxMediaBytes = 5 * 1024 * 1024
+    const val defaultFeeRate = 1.5F
+    const val minFeeRate = 1.0
+    const val feeRateIntegerPlaces = 3
+    const val feeRateDecimalPlaces = 2
 
     const val coloredWallet = "colored"
     const val vanillaWallet = "vanilla"
@@ -24,7 +30,10 @@ object AppConstants {
     const val bitcoinAssetID = "BTC"
     const val bitcoinAssetName = "bitcoin"
 
-    const val proxyURL = "https://proxy.iriswallet.com"
+    const val stormProtocol = "storm:"
+    const val rgbHttpJsonRpcProtocol = "rgbhttpjsonrpc:"
+    const val proxyURL = "https://proxy.iriswallet.com/json-rpc"
+    const val proxyConsignmentEndpoint = rgbHttpJsonRpcProtocol + proxyURL
 
     const val signetElectrumURL = "ssl://electrum.iriswallet.com:50033"
     const val testnetElectrumURL = "ssl://electrum.iriswallet.com:50013"
@@ -84,6 +93,9 @@ object AppConstants {
     const val BUNDLE_ASSET_ID = "asset_id"
     const val BUNDLE_TRANSFER_ID = "transfer_id"
 
-    const val DOWNLOADS_NOTIFICATION_CHANNEL = "IrisWallet.downloads"
-    const val DOWNLOADS_NOTIFICATION_ID = 135
+    const val DOWNLOAD_MEDIA_NOTIFICATION_CHANNEL = "IrisWallet.downloadMedia"
+    const val DOWNLOAD_MEDIA_NOTIFICATION_ID = 134
+
+    const val DOWNLOAD_LOGS_NOTIFICATION_CHANNEL = "IrisWallet.downloadLogs"
+    const val DOWNLOAD_LOGS_NOTIFICATION_ID = 135
 }

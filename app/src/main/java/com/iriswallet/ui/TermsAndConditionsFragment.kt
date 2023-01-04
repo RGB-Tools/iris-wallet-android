@@ -35,7 +35,9 @@ class TermsAndConditionsFragment :
                 Pattern.compile(getString(R.string.privacy_policy_link)),
                 null,
                 null
-            ) { _, _ -> AppConstants.privacyPolicyURL }
+            ) { _, _ ->
+                AppConstants.privacyPolicyURL
+            }
         }
         scrollViewListener =
             ViewTreeObserver.OnScrollChangedListener {

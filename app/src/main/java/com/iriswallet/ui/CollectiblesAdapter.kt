@@ -1,6 +1,5 @@
 package com.iriswallet.ui
 
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,15 +8,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.databinding.CollectibleItemBinding
-import com.iriswallet.utils.AppAsset
-import com.iriswallet.utils.AppUtils
-import com.iriswallet.utils.MimeType
-import com.iriswallet.utils.TAG
+import com.iriswallet.utils.*
 
 class CollectiblesAdapter(
     private val dataSet: List<AppAsset>,
     private val viewModel: MainViewModel,
-    private val fragment: CollectiblesFragment
+    private val fragment: CollectiblesFragment,
+    private val collectibleSize: Int,
 ) : RecyclerView.Adapter<CollectiblesAdapter.ViewHolder>() {
     private var isClickEnabled = true
 
@@ -39,17 +36,19 @@ class CollectiblesAdapter(
             showIdenticon = false
             when (media.mime) {
                 MimeType.IMAGE -> {
-                    val collectibleImg = Drawable.createFromPath(media.filePath)
-                    viewHolder.binding.collectibleImg.setImageDrawable(collectibleImg)
+                    val collectibleImg =
+                        AppUtils.getImageThumbnail(media.filePath, collectibleSize, collectibleSize)
+                    viewHolder.binding.collectibleImg.setImageBitmap(collectibleImg)
                 }
                 MimeType.VIDEO -> {
+                    val width = fragment.resources.getDimensionPixelSize(R.dimen.collectible_size)
                     val collectibleVideoThumbnail =
-                        AppUtils.getVideoThumbnail(media.filePath, 120, 120)
+                        AppUtils.getVideoThumbnail(media.filePath, width, width)
                     if (collectibleVideoThumbnail == null) Log.e(TAG, "Unhandled error")
                     else viewHolder.binding.collectibleImg.setImageBitmap(collectibleVideoThumbnail)
                 }
-                MimeType.UNSUPPORTED -> {
-                    Log.i(TAG, "Unsupported media file")
+                MimeType.OTHER -> {
+                    Log.i(TAG, "Media file without preview")
                     showIdenticon = true
                 }
             }
@@ -57,7 +56,7 @@ class CollectiblesAdapter(
 
         if (showIdenticon) {
             val collectibleMedia =
-                AppUtils.getAssetIdIdenticon(asset.id, fragment.mActivity.windowManager)
+                AppUtils.getAssetIdIdenticon(asset.id, collectibleSize, collectibleSize)
             viewHolder.binding.collectibleImg.setImageDrawable(collectibleMedia)
         }
 

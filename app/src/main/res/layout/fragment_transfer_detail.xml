@@ -67,7 +67,6 @@
                         android:id="@+id/transferTXIDLabelTV"
                         android:text="@string/transaction_id"
                         style="@style/detail_label" />
-
                     <TextView
                         android:id="@+id/transferTXIDTV"
                         android:focusable="false"
@@ -80,7 +79,6 @@
                         android:id="@+id/transferDateLabelTV"
                         android:text="@string/date"
                         style="@style/detail_label" />
-
                     <TextView
                         android:id="@+id/transferDateTV"
                         android:text="@string/sample_datetime"
@@ -90,7 +88,6 @@
                         android:id="@+id/transferInvoiceLabelTV"
                         android:text="@string/invoice"
                         style="@style/detail_label"/>
-
                     <TextView
                         android:id="@+id/transferInvoiceTV"
                         android:text="@string/sample_invoice"
@@ -101,7 +98,6 @@
                         android:id="@+id/transferBlindedUtxoLabelTV"
                         android:text="@string/blinded_utxo_cap"
                         style="@style/detail_label"/>
-
                     <TextView
                         android:id="@+id/transferBlindedUtxoTV"
                         android:text="@string/sample_blinded_utxo"
@@ -112,7 +108,6 @@
                         android:id="@+id/transferChangeUTXOLabelTV"
                         android:text="@string/change_utxo"
                         style="@style/detail_label"/>
-
                     <TextView
                         android:id="@+id/transferChangeUTXOTV"
                         android:focusable="false"
@@ -125,13 +120,22 @@
                         android:id="@+id/transferUnblindedUTXOLabelTV"
                         android:text="@string/unblinded_utxo"
                         style="@style/detail_label"/>
-
                     <TextView
                         android:id="@+id/transferUnblindedUTXOTV"
                         android:focusable="false"
                         android:text="@string/sample_utxo"
                         android:textIsSelectable="true"
                         android:textColor="@color/caribbean_green"
+                        style="@style/detail_text" />
+
+                    <TextView
+                        android:id="@+id/transferEndpointsLabelTV"
+                        android:text="@string/consignment_endpoints"
+                        style="@style/detail_label"/>
+                    <TextView
+                        android:id="@+id/transferEndpointsTV"
+                        android:text="@string/sample_consignment_endpoints"
+                        android:textIsSelectable="true"
                         style="@style/detail_text" />
 
                 </LinearLayout>

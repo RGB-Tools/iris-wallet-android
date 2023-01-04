@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.iriswallet.data.AppRepository
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
+import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
@@ -44,9 +45,13 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val sent: LiveData<Event<AppResponse<String>>>
         get() = _sent
 
-    private val _issuedAsset = MutableLiveData<Event<AppResponse<AppAsset>>>()
-    val issuedAsset: LiveData<Event<AppResponse<AppAsset>>>
-        get() = _issuedAsset
+    private val _issuedRgb20Asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
+    val issuedRgb20Asset: LiveData<Event<AppResponse<AppAsset>>>
+        get() = _issuedRgb20Asset
+
+    private val _issuedRgb121Asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
+    val issuedRgb121Asset: LiveData<Event<AppResponse<AppAsset>>>
+        get() = _issuedRgb121Asset
 
     private val _unspents = MutableLiveData<Event<AppResponse<List<UTXO>>>>()
     val unspents: LiveData<Event<AppResponse<List<UTXO>>>>
@@ -64,9 +69,9 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val hidden: LiveData<Event<AppResponse<Boolean>>>
         get() = _hidden
 
-    lateinit var cachedFungibles: List<AppAsset>
+    val cachedFungibles: MutableList<AppAsset> = mutableListOf()
 
-    lateinit var cachedCollectibles: List<AppAsset>
+    val cachedCollectibles: MutableList<AppAsset> = mutableListOf()
 
     var viewingAsset: AppAsset? = null
 
@@ -82,13 +87,16 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         if (viewingTransfer != null)
             savedStateHandle[AppConstants.BUNDLE_TRANSFER_ID] =
                 viewingAsset!!.transfers.indexOf(viewingTransfer)
+        Log.d(TAG, "State saved")
     }
 
     internal fun restoreState() {
         if (savedStateHandle.contains(AppConstants.BUNDLE_APP_ASSETS)) {
             Log.d(TAG, "Recovering assets from saved state...")
-            AppRepository.appAssets =
+            AppRepository.appAssets.clear()
+            AppRepository.appAssets.addAll(
                 savedStateHandle.get<MutableList<AppAsset>>(AppConstants.BUNDLE_APP_ASSETS)!!
+            )
             savedStateHandle.remove<MutableList<AppAsset>>(AppConstants.BUNDLE_APP_ASSETS)
             cacheAssets()
         }
@@ -104,6 +112,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             viewingTransfer = viewingAsset!!.transfers[cachedTransferId]
             savedStateHandle.remove<Int>(AppConstants.BUNDLE_TRANSFER_ID)
         }
+        Log.d(TAG, "Restore completed")
     }
 
     private inline fun callWithTimeout(
@@ -162,8 +171,12 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     private fun cacheAssets(postLiveData: Boolean = false) {
-        cachedFungibles = AppRepository.getCachedFungibles()
-        cachedCollectibles = AppRepository.getCachedCollectibles()
+        val cachedF = AppRepository.getCachedFungibles()
+        val cachedC = AppRepository.getCachedCollectibles()
+        cachedFungibles.clear()
+        cachedFungibles.addAll(cachedF)
+        cachedCollectibles.clear()
+        cachedCollectibles.addAll(cachedC)
 
         if (postLiveData) {
             _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
@@ -234,23 +247,55 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun sendAsset(asset: AppAsset, recipient: String, amount: String) {
+    fun sendAsset(
+        asset: AppAsset,
+        recipient: String,
+        amount: String,
+        consignmentEndpoints: List<String>,
+        feeRate: Float,
+    ) {
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _sent,
             successCallback = { cacheAssets() },
         ) {
-            AppRepository.sendAsset(asset, recipient, amount.toULong())
+            AppRepository.sendAsset(
+                asset,
+                recipient,
+                amount.toULong(),
+                consignmentEndpoints,
+                feeRate
+            )
         }
     }
 
-    fun issueAsset(ticker: String, name: String, amounts: List<String>) {
+    fun issueRgb20Asset(ticker: String, name: String, amounts: List<String>) {
         tryCallWithTimeout(
             AppConstants.longTimeout,
-            _issuedAsset,
+            _issuedRgb20Asset,
             successCallback = { cacheAssets() },
         ) {
-            AppRepository.issueRGBAsset(ticker, name, amounts.map { it.toULong() })
+            AppRepository.issueRgb20Asset(ticker, name, amounts.map { it.toULong() })
+        }
+    }
+
+    fun issueRgb121Asset(
+        name: String,
+        amounts: List<String>,
+        description: String?,
+        fileStream: InputStream?
+    ) {
+        tryCallWithTimeout(
+            AppConstants.longTimeout,
+            _issuedRgb121Asset,
+            successCallback = { cacheAssets() },
+        ) {
+            AppRepository.issueRgb121Asset(
+                name,
+                amounts.map { it.toULong() },
+                description,
+                fileStream
+            )
         }
     }
 

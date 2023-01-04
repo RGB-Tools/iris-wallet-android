@@ -1,17 +1,10 @@
 package com.iriswallet.ui
 
-import android.app.DownloadManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.util.Linkify
 import android.view.View
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import com.iriswallet.BuildConfig
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentAboutPageBinding
@@ -23,10 +16,16 @@ import java.util.regex.Pattern
 class AboutPageFragment :
     MainBaseFragment<FragmentAboutPageBinding>(FragmentAboutPageBinding::inflate) {
 
+    private var requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) showDownloadedNotification()
+        }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val appVersion = getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
+        val appVersion =
+            getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
         binding.aboutVersionTV.text = appVersion
 
         Linkify.addLinks(
@@ -34,14 +33,18 @@ class AboutPageFragment :
             Pattern.compile(getString(R.string.privacy_policy_link)),
             null,
             null
-        ) { _, _ -> AppConstants.privacyPolicyURL }
+        ) { _, _ ->
+            AppConstants.privacyPolicyURL
+        }
 
         Linkify.addLinks(
             binding.aboutTermsOfServiceTV,
             Pattern.compile(getString(R.string.terms_of_service_link)),
             null,
             null
-        ) { _, _ -> AppContainer.termsAndConditionsURL }
+        ) { _, _ ->
+            AppContainer.termsAndConditionsURL
+        }
 
         binding.aboutDownloadLogsBtn.setOnClickListener {
             val fileName =
@@ -52,56 +55,25 @@ class AboutPageFragment :
             AppUtils.saveFileToDownloads(
                 requireContext(),
                 AppContainer.rgbLogsFile.toURI().toString(),
-                fileName
+                fileName,
+                "text/plain"
             )
-            val channel =
-                NotificationChannel(
-                        AppConstants.DOWNLOADS_NOTIFICATION_CHANNEL,
-                        requireContext()
-                            .getString(R.string.download_logs_notification_channel_name),
-                        NotificationManager.IMPORTANCE_DEFAULT
-                    )
-                    .apply {
-                        description =
-                            requireContext()
-                                .getString(R.string.download_logs_notification_channel_description)
-                    }
-            val notificationManager: NotificationManager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE)
-                    as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-            val intent = Intent()
-            intent.action = DownloadManager.ACTION_VIEW_DOWNLOADS
-
-            val pendingIntent =
-                PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            val builder =
-                NotificationCompat.Builder(
-                        requireContext(),
-                        AppConstants.DOWNLOADS_NOTIFICATION_CHANNEL
-                    )
-                    .setSmallIcon(R.drawable.logo)
-                    .setContentTitle(
-                        requireContext().getString(R.string.download_logs_notification_title)
-                    )
-                    .setContentText(
-                        requireContext().getString(R.string.download_logs_notification_text)
-                    )
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-
-            with(NotificationManagerCompat.from(requireContext())) {
-                notify(AppConstants.DOWNLOADS_NOTIFICATION_ID, builder.build())
-            }
-
+            showDownloadedNotification()
             Toast.makeText(activity, getString(R.string.downloaded_logs), Toast.LENGTH_LONG).show()
             binding.aboutDownloadLogsBtn.isEnabled = false
         }
+    }
+
+    private fun showDownloadedNotification() {
+        AppUtils.showDownloadedNotification(
+            requireContext(),
+            AppConstants.DOWNLOAD_LOGS_NOTIFICATION_CHANNEL,
+            AppConstants.DOWNLOAD_LOGS_NOTIFICATION_ID,
+            R.string.download_logs_notification_channel_name,
+            R.string.download_logs_notification_channel_description,
+            R.string.download_logs_notification_title,
+            R.string.download_logs_notification_text,
+            requestPermissionLauncher,
+        )
     }
 }

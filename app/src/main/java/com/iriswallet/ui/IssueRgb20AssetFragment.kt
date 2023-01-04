@@ -9,17 +9,17 @@ import android.view.View
 import android.widget.EditText
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
-import com.iriswallet.databinding.FragmentIssueAssetBinding
+import com.iriswallet.databinding.FragmentIssueRgb20AssetBinding
 import com.iriswallet.utils.AppConstants
 
-class IssueAssetFragment :
-    MainBaseFragment<FragmentIssueAssetBinding>(FragmentIssueAssetBinding::inflate) {
+class IssueRgb20AssetFragment :
+    MainBaseFragment<FragmentIssueRgb20AssetBinding>(FragmentIssueRgb20AssetBinding::inflate) {
 
     private lateinit var editableFields: Array<EditText>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.tickerInputET.filters = binding.tickerInputET.filters + InputFilter.AllCaps()
+        binding.tickerInputET.filters += InputFilter.AllCaps()
         editableFields = arrayOf(binding.tickerInputET, binding.nameInputET, binding.amountInputET)
         for (editText in editableFields) {
             editText.addTextChangedListener(
@@ -43,7 +43,7 @@ class IssueAssetFragment :
                             fixETAmount(
                                 editText,
                                 editable.toString(),
-                                maxAmount = AppConstants.issueMaxAmount
+                                maxULongAmount = AppConstants.issueMaxAmount
                             )
                         binding.issueBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.amountInputET)
@@ -51,29 +51,32 @@ class IssueAssetFragment :
                 }
             )
         }
+
+        binding.amountInputET.setOnEditorActionListener(onKeyboardDoneListener)
+
         binding.issueBtn.setOnClickListener {
             disableUI()
-            viewModel.issueAsset(
+            viewModel.issueRgb20Asset(
                 binding.tickerInputET.text.toString(),
                 binding.nameInputET.text.toString(),
                 listOf(binding.amountInputET.text.toString())
             )
         }
 
-        viewModel.issuedAsset.observe(viewLifecycleOwner) {
+        viewModel.issuedRgb20Asset.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.data != null) {
                     viewModel.viewingAsset = response.data
                     findNavController()
                         .navigate(
-                            IssueAssetFragmentDirections
-                                .actionIssueAssetFragmentToAssetDetailFragment(
+                            IssueRgb20AssetFragmentDirections
+                                .actionIssueRgb20AssetFragmentToAssetDetailFragment(
                                     viewModel.viewingAsset!!.name
                                 )
                         )
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.err_issuing_asset, response.error.message)
+                        toastMsg(R.string.err_issuing_asset, response.error.message)
                     }
                     enableUI()
                 }

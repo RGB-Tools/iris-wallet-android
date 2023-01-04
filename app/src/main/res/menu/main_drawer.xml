@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/issueAssetFragment"
+    <item android:id="@+id/issueRgb20AssetFragment"
         android:icon="@drawable/ic_issue"
-        android:title="@string/menu_issue_asset" />
+        android:title="@string/menu_issue_rgb20_asset" />
+    <item android:id="@+id/issueRgb121AssetFragment"
+        android:icon="@drawable/ic_issue"
+        android:title="@string/menu_issue_rgb121_asset" />
     <item android:id="@+id/faucetFragment"
         android:icon="@drawable/ic_faucets"
         android:title="@string/menu_faucets" />

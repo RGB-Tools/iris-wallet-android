@@ -28,5 +28,12 @@ class IrisWallet : Application() {
             PreferenceManager.getDefaultSharedPreferences(this)
         )
         AppContainer.storedMnemonic = SharedPreferencesManager.mnemonic
+
+        if (SharedPreferencesManager.proxyConsignmentEndpoint.isBlank()) {
+            SharedPreferencesManager.proxyConsignmentEndpoint =
+                AppContainer.proxyConsignmentEndpointDefault
+            SharedPreferencesManager.electrumURL = AppContainer.electrumURLDefault
+            SharedPreferencesManager.removeOldKeys()
+        }
     }
 }

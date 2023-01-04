@@ -78,11 +78,12 @@ object BdkRepository {
         return vanillaWallet.listUnspent().map { UTXO(it) }
     }
 
-    fun sendToAddress(address: String, amount: ULong): String {
+    fun sendToAddress(address: String, amount: ULong, feeRate: Float): String {
         try {
             val psbt =
                 TxBuilder()
                     .addRecipient(Address(address).scriptPubkey(), amount)
+                    .feeRate(feeRate)
                     .finish(vanillaWallet)
                     .psbt
             vanillaWallet.sign(psbt)

@@ -23,8 +23,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="@dimen/fungible_size"
+                    android:layout_height="@dimen/fungible_size"
                     app:cardCornerRadius="25dp">
                     <ImageView
                         android:id="@+id/fungibleImg"

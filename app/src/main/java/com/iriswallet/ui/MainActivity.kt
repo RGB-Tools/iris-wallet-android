@@ -5,15 +5,18 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
-import android.view.Gravity
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.LiveData
@@ -29,7 +32,6 @@ import com.iriswallet.databinding.ActivityMainBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.BitcoinNetwork
 import com.iriswallet.utils.Event
-import com.iriswallet.utils.TAG
 
 class MainActivity : AppCompatActivity() {
 
@@ -104,7 +106,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.navView.menu.findItem(R.id.faucetFragment).isVisible =
             AppContainer.rgbFaucetURLS.isNotEmpty()
-        binding.navView.menu.findItem(R.id.issueAssetFragment).isVisible =
+        binding.navView.menu.findItem(R.id.issueRgb20AssetFragment).isVisible =
+            AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
+        binding.navView.menu.findItem(R.id.issueRgb121AssetFragment).isVisible =
             AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
@@ -114,9 +118,18 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.navView.visibility = View.VISIBLE
-            Log.d(TAG, "Destination ID: ${destination.id}")
             inMainFragment = destination.id == R.id.mainFragment
-            Log.d(TAG, "In main fragment: $inMainFragment")
+            if (
+                listOf(R.id.issueRgb20AssetFragment, R.id.issueRgb121AssetFragment)
+                    .contains(destination.id)
+            ) {
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.issue_warning))
+                    .setPositiveButton(getString(R.string.OK)) { _, _ -> }
+                    .setCancelable(false)
+                    .create()
+                    .show()
+            }
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -150,14 +163,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(
-            TAG,
-            "onOptionsItemSelected item ID: ${item.itemId}\nin HOME: ${item.itemId ==
-                android.R.id.home}"
-        )
-        Log.d(TAG, "onOptionsItemSelected inMainFragment: $inMainFragment")
         if (item.itemId == android.R.id.home && inMainFragment)
-            binding.drawerLayout.openDrawer(Gravity.LEFT)
+            return navController.navigateUp(appBarConfiguration) ||
+                super.onOptionsItemSelected(item)
         return super.onOptionsItemSelected(item)
     }
 
@@ -165,6 +173,24 @@ class MainActivity : AppCompatActivity() {
         if (mBound) unbindService(connection)
         mBound = false
         super.onDestroy()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev != null && ev.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                val clickedInsideET = outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())
+                if (!clickedInsideET) {
+                    v.clearFocus()
+                    val imm: InputMethodManager =
+                        getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun setupSplashScreen() {

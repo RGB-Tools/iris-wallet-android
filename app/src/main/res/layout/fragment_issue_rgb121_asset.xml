@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.IssueRgb20AssetFragment">
+
+    <ProgressBar
+        android:id="@+id/issuePB"
+        style="@style/progress_bar"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/issueScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/issueBtn"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginHorizontal="@dimen/big_size"
+                    android:layout_marginTop="@dimen/big_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/nameLabelTV"
+                        android:text="@string/asset_name"
+                        style="@style/et_label" />
+                    <EditText
+                        android:id="@+id/nameInputET"
+                        android:digits="@string/letters_digits_space_and_dash"
+                        android:hint="@string/name_of_the_asset"
+                        android:imeOptions="actionNext"
+                        android:importantForAutofill="no"
+                        android:inputType="textFilter|textNoSuggestions"
+                        android:maxLength="32"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        style="@style/et_text" />
+
+                    <TextView
+                        android:id="@+id/descriptionLabelTV"
+                        android:text="@string/asset_description"
+                        style="@style/et_label" />
+                    <EditText
+                        android:id="@+id/descriptionInputET"
+                        android:hint="@string/description_of_the_asset"
+                        android:imeOptions="actionNext|flagForceAscii"
+                        android:importantForAutofill="no"
+                        android:inputType="textFilter|textNoSuggestions"
+                        android:maxLength="32"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        style="@style/et_text" />
+
+                    <TextView
+                        android:id="@+id/amountLabelTV"
+                        android:text="@string/total_supply"
+                        style="@style/et_label"/>
+                    <EditText
+                        android:id="@+id/amountInputET"
+                        android:digits="0123456789"
+                        android:hint="@string/amount_to_issue"
+                        android:imeOptions="actionDone"
+                        android:inputType="number"
+                        android:importantForAutofill="no"
+                        style="@style/et_text" />
+
+                    <TextView
+                        android:id="@+id/nameUploadFileTV"
+                        android:text="@string/asset_file"
+                        style="@style/et_label" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/issueUploadFileBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/upload_file_button"
+                        android:layout_marginBottom="@dimen/medium_xl_size"
+                        style="@style/green_button"/>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/issueNoPreviewCardView"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/white_op10"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toTopOf="@id/detailCollectibleCard"
+                        app:layout_constraintTop_toBottomOf="@id/detailBalanceLL">
+
+                        <LinearLayout
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginVertical="@dimen/small_xl_size"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/detailAssetMediaInfoTV"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="none"
+                                android:singleLine="false"
+                                android:gravity="center"
+                                android:text="@string/asset_media_no_preview"
+                                android:textSize="@dimen/text_small" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/issueCollectibleCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/medium_xl_size"
+                        app:cardCornerRadius="15dp"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/issueCollectibleImg"
+                            android:adjustViewBounds="true"
+                            android:cropToPadding="true"
+                            android:contentDescription="@string/collectible_image_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/issueBtn"
+            android:enabled="false"
+            android:text="@string/issue_button"
+            style="@style/main_button"
+            app:layout_constraintTop_toBottomOf="@id/issueScrollView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

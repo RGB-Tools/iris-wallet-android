@@ -19,12 +19,16 @@ object RgbRepository {
         )
     }
 
-    private val online: Online by lazy {
-        coloredWallet.goOnline(true, AppContainer.electrumURL, AppContainer.proxyURL)
-    }
+    private val online: Online by lazy { coloredWallet.goOnline(true, AppContainer.electrumURL) }
 
     fun createUTXOs(): UByte {
-        return coloredWallet.createUtxos(online, false, null, null)
+        return coloredWallet.createUtxos(
+            online,
+            false,
+            null,
+            null,
+            SharedPreferencesManager.feeRate.toFloat()
+        )
     }
 
     fun deleteTransfer(transfer: AppTransfer) {
@@ -49,7 +53,12 @@ object RgbRepository {
     }
 
     fun getBlindedUTXO(assetID: String? = null, expirationSeconds: UInt): BlindData {
-        return coloredWallet.blind(assetID, null, expirationSeconds)
+        return coloredWallet.blind(
+            assetID,
+            null,
+            expirationSeconds,
+            listOf(AppContainer.proxyConsignmentEndpoint)
+        )
     }
 
     fun getMetadata(assetID: String): Metadata {
@@ -63,6 +72,23 @@ object RgbRepository {
             name,
             AppConstants.rgbDefaultPrecision,
             amounts
+        )
+    }
+
+    fun issueAssetRgb121(
+        name: String,
+        amounts: List<ULong>,
+        description: String?,
+        filePath: String?
+    ): AssetRgb121 {
+        return coloredWallet.issueAssetRgb121(
+            online,
+            name,
+            description,
+            AppConstants.rgbDefaultPrecision,
+            amounts,
+            null,
+            filePath
         )
     }
 
@@ -88,15 +114,29 @@ object RgbRepository {
         }
     }
 
-    fun refresh(asset: AppAsset? = null): Boolean {
-        return coloredWallet.refresh(online, asset?.id, listOf())
+    fun refresh(asset: AppAsset? = null, light: Boolean = false): Boolean {
+        val filter =
+            if (light)
+                listOf(
+                    RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, true),
+                    RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false)
+                )
+            else listOf()
+        return coloredWallet.refresh(online, asset?.id, filter)
     }
 
-    fun send(asset: AppAsset, blindedUTXO: String, amount: ULong): String {
+    fun send(
+        asset: AppAsset,
+        blindedUTXO: String,
+        amount: ULong,
+        consignmentEndpoints: List<String>,
+        feeRate: Float,
+    ): String {
         return coloredWallet.send(
             online,
-            mapOf(asset.id to listOf(Recipient(blindedUTXO, amount))),
-            false
+            mapOf(asset.id to listOf(Recipient(blindedUTXO, amount, consignmentEndpoints))),
+            false,
+            feeRate,
         )
     }
 }

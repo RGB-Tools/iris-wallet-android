@@ -67,7 +67,7 @@ data class AppAsset(
                 AppTransfer(
                     Date(rgbPendingAsset.timestamp),
                     TransferStatus.WAITING_COUNTERPARTY,
-                    true,
+                    TransferKind.RECEIVE,
                     amount = rgbPendingAsset.amount.toULong(),
                 )
             )
@@ -105,6 +105,7 @@ class AppException(message: String? = null, cause: Throwable? = null) : Exceptio
 data class AppMedia(
     val filePath: String,
     val mime: MimeType,
+    val mimeString: String,
 ) : Parcelable {
     constructor(
         media: Media
@@ -113,8 +114,9 @@ data class AppMedia(
         when (media.mime.split("/").getOrNull(0)?.uppercase()) {
             MimeType.IMAGE.toString() -> MimeType.IMAGE
             MimeType.VIDEO.toString() -> MimeType.VIDEO
-            else -> MimeType.UNSUPPORTED
-        }
+            else -> MimeType.OTHER
+        },
+        media.mime,
     )
 }
 
@@ -175,7 +177,7 @@ open class Event<out T>(private val content: T) {
 enum class MimeType {
     IMAGE,
     VIDEO,
-    UNSUPPORTED
+    OTHER
 }
 
 data class RgbFaucet(
@@ -226,17 +228,33 @@ data class AppOutpoint(val txid: String, val vout: UInt) : Parcelable {
 }
 
 @Parcelize
+data class AppTransferConsignmentEndpoint(
+    val endpoint: String,
+    val protocol: ConsignmentEndpointProtocol,
+    val used: Boolean
+) : Parcelable {
+    constructor(
+        transferConsignmentEndpoint: TransferConsignmentEndpoint
+    ) : this(
+        transferConsignmentEndpoint.endpoint,
+        transferConsignmentEndpoint.protocol,
+        transferConsignmentEndpoint.used
+    )
+}
+
+@Parcelize
 data class AppTransfer(
     val date: Date,
     val status: TransferStatus,
-    val incoming: Boolean,
+    val kind: TransferKind,
     val amount: ULong? = null,
     val expiration: Long? = null,
     val txid: String? = null,
     val blindedUTXO: String? = null,
     val unblindedUTXO: AppOutpoint? = null,
     val changeUTXO: AppOutpoint? = null,
-    var automatic: Boolean = false,
+    val consignmentEndpoints: List<AppTransferConsignmentEndpoint>? = null,
+    var internal: Boolean = false,
 ) : Parcelable {
     constructor(
         bdkTransfer: TransactionDetails
@@ -245,7 +263,7 @@ data class AppTransfer(
         else Date(bdkTransfer.confirmationTime!!.timestamp.toLong() * 1000),
         if (bdkTransfer.confirmationTime == null) TransferStatus.WAITING_CONFIRMATIONS
         else TransferStatus.SETTLED,
-        bdkTransfer.received > bdkTransfer.sent,
+        if (bdkTransfer.received > bdkTransfer.sent) TransferKind.RECEIVE else TransferKind.SEND,
         amount = AppUtils.uLongAbsDiff(bdkTransfer.received, bdkTransfer.sent),
         txid = bdkTransfer.txid,
     )
@@ -255,17 +273,23 @@ data class AppTransfer(
     ) : this(
         Date(transfer.updatedAt * 1000),
         transfer.status,
-        transfer.incoming,
+        transfer.kind,
         amount = transfer.amount,
         expiration = transfer.expiration,
         txid = transfer.txid,
         blindedUTXO = transfer.blindedUtxo,
         unblindedUTXO = transfer.unblindedUtxo?.let { AppOutpoint(it) },
         changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
+        consignmentEndpoints =
+            transfer.consignmentEndpoints.map { AppTransferConsignmentEndpoint(it) }
     )
 
     fun deletable(): Boolean {
         return status in listOf(TransferStatus.WAITING_COUNTERPARTY, TransferStatus.FAILED)
+    }
+
+    fun incoming(): Boolean {
+        return listOf(TransferKind.RECEIVE, TransferKind.ISSUANCE).contains(kind)
     }
 }
 

@@ -26,7 +26,7 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                     showFaucetGroups(response.data)
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.err_getting_faucet_data, response.error.message)
+                        toastMsg(R.string.err_getting_faucet_data, response.error.message)
                     }
                 }
                 enableUI()
@@ -97,7 +97,7 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                     if (requestedAssetGroup.second == 1) excludeTags.add(requestedAssetGroup.first)
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.err_receiving_from_faucet, response.error.message)
+                        toastMsg(R.string.err_receiving_from_faucet, response.error.message)
                     }
                 }
                 enableUI()

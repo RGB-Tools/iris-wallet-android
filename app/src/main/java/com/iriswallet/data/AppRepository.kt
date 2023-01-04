@@ -7,6 +7,8 @@ import com.iriswallet.data.db.HiddenAsset
 import com.iriswallet.data.db.RgbPendingAsset
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
+import java.io.File
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import org.rgbtools.RgbLibException
 
@@ -14,7 +16,7 @@ object AppRepository {
 
     internal var isCacheDirty: Boolean = false
 
-    lateinit var appAssets: MutableList<AppAsset>
+    val appAssets: MutableList<AppAsset> = mutableListOf()
 
     private var rgbPendingAssetIDs: MutableList<String> = mutableListOf()
 
@@ -51,9 +53,7 @@ object AppRepository {
 
         val transfers = BdkRepository.listTransfers().toMutableList()
         val autoTXs = AppContainer.db.automaticTransactionDao().getAutomaticTransactions()
-        transfers
-            .filter { it.txid in autoTXs.map { tx -> tx.txid } }
-            .forEach { it.automatic = true }
+        transfers.filter { it.txid in autoTXs.map { tx -> tx.txid } }.forEach { it.internal = true }
         bitcoinAsset.transfers = transfers
 
         val balance = BdkRepository.getBalance()
@@ -129,8 +129,8 @@ object AppRepository {
         if (firstAppRefresh) {
             val changed = RgbRepository.refresh()
             if (!changed) return
-            val rgbAssets = RgbRepository.listAssets()
-            for (rgbAsset in rgbAssets) {
+            val updatedRgbAssets = RgbRepository.listAssets()
+            for (rgbAsset in updatedRgbAssets) {
                 var assetToUpdate = getCachedAsset(rgbAsset.id)
                 if (assetToUpdate == null) {
                     assetToUpdate = rgbAsset
@@ -169,7 +169,11 @@ object AppRepository {
             Log.d(TAG, "Sending funds to RGB wallet...")
             try {
                 val txid =
-                    BdkRepository.sendToAddress(RgbRepository.getAddress(), AppConstants.satsForRgb)
+                    BdkRepository.sendToAddress(
+                        RgbRepository.getAddress(),
+                        AppConstants.satsForRgb,
+                        SharedPreferencesManager.feeRate.toFloat()
+                    )
                 AppContainer.db
                     .automaticTransactionDao()
                     .insertAutomaticTransactions(AutomaticTransaction(txid))
@@ -235,9 +239,15 @@ object AppRepository {
         return Receiver(blindedData.invoice, AppConstants.rgbBlindDuration, false)
     }
 
-    private fun initiateRgbTransfer(asset: AppAsset, blindedUTXO: String, amount: ULong): String {
+    private fun initiateRgbTransfer(
+        asset: AppAsset,
+        blindedUTXO: String,
+        amount: ULong,
+        consignmentEndpoints: List<String>,
+        feeRate: Float,
+    ): String {
         Log.d(TAG, "Initiating transfer for blinded UTXO: $blindedUTXO")
-        val txid = RgbRepository.send(asset, blindedUTXO, amount)
+        val txid = RgbRepository.send(asset, blindedUTXO, amount, consignmentEndpoints, feeRate)
         runCatching {
                 updateRGBAssets(
                     refresh = false,
@@ -249,7 +259,7 @@ object AppRepository {
         return txid
     }
 
-    fun issueRGBAsset(ticker: String, name: String, amounts: List<ULong>): AppAsset {
+    fun issueRgb20Asset(ticker: String, name: String, amounts: List<ULong>): AppAsset {
         checkMaxAssets()
         val contract = handleMissingFunds { RgbRepository.issueAssetRgb20(ticker, name, amounts) }
         val asset =
@@ -259,6 +269,40 @@ object AppRepository {
                 name,
                 ticker = ticker,
             )
+        appAssets.add(asset)
+        updateRGBAsset(asset)
+        return asset
+    }
+
+    fun issueRgb121Asset(
+        name: String,
+        amounts: List<ULong>,
+        description: String?,
+        fileStream: InputStream?
+    ): AppAsset {
+        checkMaxAssets()
+        val contract = handleMissingFunds {
+            var filePath: String? = null
+            var file: File? = null
+
+            if (fileStream != null) {
+                file = File.createTempFile("tmp", null, AppContainer.appContext.cacheDir)
+                file.writeBytes(fileStream.readBytes())
+                fileStream.close()
+                filePath = file.absolutePath
+            }
+
+            val contract = RgbRepository.issueAssetRgb121(name, amounts, description, filePath)
+            file?.delete()
+            contract
+        }
+        val asset =
+            AppAsset(
+                AppAssetType.RGB121,
+                contract.assetId,
+                name,
+            )
+        if (contract.dataPaths.isNotEmpty()) asset.media = AppMedia(contract.dataPaths[0])
         appAssets.add(asset)
         updateRGBAsset(asset)
         return asset
@@ -299,13 +343,21 @@ object AppRepository {
         else handleMissingFunds { startRGBReceiving(asset) }
     }
 
-    fun sendAsset(asset: AppAsset, recipient: String, amount: ULong): String {
-        return if (asset.bitcoin()) BdkRepository.sendToAddress(recipient, amount)
-        else handleMissingFunds { initiateRgbTransfer(asset, recipient, amount) }
+    fun sendAsset(
+        asset: AppAsset,
+        recipient: String,
+        amount: ULong,
+        consignmentEndpoints: List<String>,
+        feeRate: Float,
+    ): String {
+        return if (asset.bitcoin()) BdkRepository.sendToAddress(recipient, amount, feeRate)
+        else
+            handleMissingFunds {
+                initiateRgbTransfer(asset, recipient, amount, consignmentEndpoints, feeRate)
+            }
     }
 
     fun getAssets(): List<AppAsset> {
-        appAssets = mutableListOf()
         updateBitcoinAsset(refresh = false)
         updateRGBAssets(refresh = false)
 

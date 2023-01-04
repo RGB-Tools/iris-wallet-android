@@ -27,7 +27,7 @@ class AssetMetadataFragment :
                     showMetadata(response.data)
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.err_showing_metadata, response.error.message)
+                        toastMsg(R.string.err_showing_metadata, response.error.message)
                         findNavController().popBackStack()
                     }
                 }

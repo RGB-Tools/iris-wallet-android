@@ -21,6 +21,13 @@ class FungiblesFragment :
     MainBaseFragment<FragmentFungiblesBinding>(FragmentFungiblesBinding::inflate) {
     private lateinit var adapter: FungiblesAdapter
 
+    private var fungibleSize: Int? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        fungibleSize = resources.getDimensionPixelSize(R.dimen.fungible_size)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -64,7 +71,7 @@ class FungiblesFragment :
                 if (response.error != null || response.data.isNullOrEmpty()) {
                     enableUI()
                     handleError(response.error!!) {
-                        toastError(R.string.err_refreshing_assets, response.error.message)
+                        toastMsg(R.string.err_refreshing_assets, response.error.message)
                     }
                 }
             }
@@ -114,7 +121,7 @@ class FungiblesFragment :
             TAG,
             "Refreshing fungibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
         )
-        adapter = FungiblesAdapter(visibleAssets, viewModel, this)
+        adapter = FungiblesAdapter(visibleAssets, viewModel, this, fungibleSize!!)
         adapter.stateRestorationPolicy =
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.fungiblesRV.adapter = adapter

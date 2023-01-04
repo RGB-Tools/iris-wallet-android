@@ -14,7 +14,8 @@ import com.iriswallet.utils.AppUtils
 class FungiblesAdapter(
     private val dataSet: List<AppAsset>,
     private val viewModel: MainViewModel,
-    private val fragment: FungiblesFragment
+    private val fragment: FungiblesFragment,
+    private val fungibleSize: Int,
 ) : RecyclerView.Adapter<FungiblesAdapter.ViewHolder>() {
     var isClickEnabled = true
 
@@ -43,7 +44,7 @@ class FungiblesAdapter(
             viewHolder.binding.assetBalanceTV.text = asset.totalBalance.toString()
             viewHolder.binding.assetIDTV.text = asset.id
             viewHolder.binding.fungibleImg.setImageDrawable(
-                AppUtils.getAssetIdIdenticon(asset.id, fragment.mActivity.windowManager)
+                AppUtils.getAssetIdIdenticon(asset.id, fungibleSize, fungibleSize)
             )
         }
         viewHolder.itemView.setOnClickListener {

@@ -84,12 +84,12 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
 
   kotlinOptions {
-    jvmTarget = '1.8'
+    jvmTarget = '11'
   }
 
   buildFeatures {
@@ -123,7 +123,7 @@ ksp {
 
 dependencies {
   // AndroidX
-  implementation 'androidx.appcompat:appcompat:1.5.1'
+  implementation 'androidx.appcompat:appcompat:1.6.0'
 
   implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha05'
 
@@ -157,6 +157,8 @@ dependencies {
 
   implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
+  implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
   // Bitcoindevkit
   implementation 'org.bitcoindevkit:bdk-android:0.11.0'
 
@@ -164,9 +166,9 @@ dependencies {
   implementation 'com.github.lelloman:android-identicons:v11'
 
   // Google
-  implementation 'com.google.android.gms:play-services-auth:20.4.0'
+  implementation 'com.google.android.gms:play-services-auth:20.4.1'
 
-  implementation 'com.google.android.material:material:1.7.0'
+  implementation 'com.google.android.material:material:1.8.0'
 
   implementation 'com.google.code.gson:gson:2.9.0'
 
@@ -174,7 +176,7 @@ dependencies {
   implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
   // RGB-Tools
-  implementation 'org.rgbtools:rgb-lib-android:0.1.6'
+  implementation 'org.rgbtools:rgb-lib-android:0.1.7'
 
   // Squareup
   implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'

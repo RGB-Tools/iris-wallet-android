@@ -17,11 +17,10 @@ import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentTransferDetailBinding
 import com.iriswallet.utils.*
+import com.iriswallet.utils.AppUtils.Companion.toBulletedList
 import java.text.SimpleDateFormat
 import java.util.*
-import org.rgbtools.Invoice
-import org.rgbtools.InvoiceData
-import org.rgbtools.TransferStatus
+import org.rgbtools.*
 
 class TransferDetailFragment :
     MainBaseFragment<FragmentTransferDetailBinding>(FragmentTransferDetailBinding::inflate) {
@@ -92,7 +91,7 @@ class TransferDetailFragment :
 
     private fun drawTransferDetails() {
         binding.transferInternalTV.visibility =
-            if (transfer.automatic) {
+            if (transfer.internal) {
                 binding.transferInternalTV.setOnClickListener {
                     AlertDialog.Builder(requireContext())
                         .setMessage(getString(R.string.auto_text_utxo))
@@ -112,7 +111,7 @@ class TransferDetailFragment :
                         findNavController().popBackStack()
                     } else {
                         handleError(response.error!!) {
-                            toastError(R.string.err_deleting_transfer, response.error.message)
+                            toastMsg(R.string.err_deleting_transfer, response.error.message)
                         }
                     }
                 }
@@ -122,7 +121,7 @@ class TransferDetailFragment :
             if (transfer.amount == null) getString(R.string.not_available)
             else transfer.amount.toString()
         binding.transferAmountTV.text = amountStr
-        if (transfer.incoming) {
+        if (transfer.incoming()) {
             binding.transferAmountTV.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.color_green)
             )
@@ -160,13 +159,26 @@ class TransferDetailFragment :
             binding.transferBlindedUtxoTV.visibility = View.GONE
         } else {
             binding.transferBlindedUtxoTV.text = transfer.blindedUTXO
-            if (transfer.status == TransferStatus.WAITING_COUNTERPARTY && transfer.incoming) {
+            if (
+                transfer.status == TransferStatus.WAITING_COUNTERPARTY &&
+                    transfer.kind == TransferKind.RECEIVE
+            ) {
                 val invoiceData =
                     InvoiceData(
                         transfer.blindedUTXO!!,
                         amount = null,
                         assetId = asset.id,
-                        expirationTimestamp = transfer.expiration
+                        expirationTimestamp = transfer.expiration,
+                        consignmentEndpoints =
+                            transfer.consignmentEndpoints.orEmpty().map {
+                                val uri =
+                                    if (
+                                        it.protocol == ConsignmentEndpointProtocol.RGB_HTTP_JSON_RPC
+                                    )
+                                        AppConstants.rgbHttpJsonRpcProtocol
+                                    else AppConstants.stormProtocol
+                                uri + it.endpoint
+                            },
                     )
                 val invoice = Invoice.fromInvoiceData(invoiceData)
                 binding.transferInvoiceTV.text = invoice.bech32Invoice()
@@ -176,12 +188,11 @@ class TransferDetailFragment :
         }
 
         // unblinded UTXO
-        val unblindedOutpoint = transfer.unblindedUTXO
-        if (!transfer.incoming or (unblindedOutpoint == null)) {
+        if (asset.bitcoin() || transfer.kind != TransferKind.RECEIVE) {
             binding.transferUnblindedUTXOLabelTV.visibility = View.GONE
             binding.transferUnblindedUTXOTV.visibility = View.GONE
         } else {
-            val outpoint = unblindedOutpoint!!.outpointStr()
+            val outpoint = transfer.unblindedUTXO!!.outpointStr()
             binding.transferUnblindedUTXOTV.text = outpoint
             binding.transferUnblindedUTXOTV.paintFlags =
                 binding.transferUnblindedUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
@@ -196,7 +207,7 @@ class TransferDetailFragment :
         }
 
         // change UTXO
-        if (transfer.changeUTXO == null) {
+        if (asset.bitcoin() || transfer.changeUTXO == null) {
             binding.transferChangeUTXOLabelTV.visibility = View.GONE
             binding.transferChangeUTXOTV.visibility = View.GONE
         } else {
@@ -210,6 +221,22 @@ class TransferDetailFragment :
                 intent.data = Uri.parse(link)
                 startActivity(intent)
             }
+        }
+
+        // consignment endpoints
+        if (asset.bitcoin()) {
+            binding.transferEndpointsTV.visibility = View.GONE
+            binding.transferEndpointsLabelTV.visibility = View.GONE
+        } else if (transfer.consignmentEndpoints.isNullOrEmpty()) {
+            binding.transferEndpointsTV.text = getString(R.string.not_available)
+        } else {
+            val bulletedList =
+                transfer.consignmentEndpoints!!
+                    .map { it.endpoint }
+                    .toBulletedList(
+                        color = ContextCompat.getColor(requireContext(), R.color.caribbean_green)
+                    )
+            binding.transferEndpointsTV.text = bulletedList
         }
     }
 }

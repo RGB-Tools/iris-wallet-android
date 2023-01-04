@@ -50,8 +50,11 @@
             android:id="@+id/action_mainFragment_to_receiveAssetFragment"
             app:destination="@id/receiveAssetFragment" />
         <action
-            android:id="@+id/action_mainFragment_to_issueAssetFragment"
-            app:destination="@id/issueAssetFragment" />
+            android:id="@+id/action_mainFragment_to_issueRgb20AssetFragment"
+            app:destination="@id/issueRgb20AssetFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_issueRgb121AssetFragment"
+            app:destination="@id/issueRgb121AssetFragment" />
         <action
             android:id="@+id/action_mainFragment_to_bitcoinUnspentFragment"
             app:destination="@id/bitcoinUnspentFragment" />
@@ -127,12 +130,22 @@
         tools:layout="@layout/fragment_asset_metadata">
     </fragment>
     <fragment
-        android:id="@+id/issueAssetFragment"
-        android:name="com.iriswallet.ui.IssueAssetFragment"
-        android:label="@string/issue_asset_title"
-        tools:layout="@layout/fragment_issue_asset">
+        android:id="@+id/issueRgb20AssetFragment"
+        android:name="com.iriswallet.ui.IssueRgb20AssetFragment"
+        android:label="@string/issue_rgb20_asset_title"
+        tools:layout="@layout/fragment_issue_rgb20_asset">
         <action
-            android:id="@+id/action_issueAssetFragment_to_assetDetailFragment"
+            android:id="@+id/action_issueRgb20AssetFragment_to_assetDetailFragment"
+            app:destination="@id/assetDetailFragment"
+            app:popUpTo="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/issueRgb121AssetFragment"
+        android:name="com.iriswallet.ui.IssueRgb121AssetFragment"
+        android:label="@string/issue_rgb121_asset_title"
+        tools:layout="@layout/fragment_issue_rgb121_asset">
+        <action
+            android:id="@+id/action_issueRgb121AssetFragment_to_assetDetailFragment"
             app:destination="@id/assetDetailFragment"
             app:popUpTo="@id/mainFragment" />
     </fragment>

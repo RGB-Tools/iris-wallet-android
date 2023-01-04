@@ -8,6 +8,9 @@
     <item android:id="@+id/assetMetadataMenu"
         app:showAsAction="never"
         android:title="@string/view_asset_metadata" />
+    <item android:id="@+id/downloadMediaMenu"
+        app:showAsAction="never"
+        android:title="@string/download_media" />
     <item android:id="@+id/hideAssetMenu"
         app:showAsAction="never"
         android:title="@string/hide_asset" />

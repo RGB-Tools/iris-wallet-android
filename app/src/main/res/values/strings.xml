@@ -43,6 +43,7 @@
     <string name="address">Address</string>
     <string name="amount">Amount</string>
     <string name="amount_to_pay">Amount to pay</string>
+    <string name="fee_rate">Fee rate in sat/vbyte</string>
     <string name="total_balance">Total Balance</string>
     <string name="spendable_balance">Spendable Balance</string>
     <string name="blinded_utxo">blinded UTXO</string>
@@ -72,10 +73,13 @@
     <string name="insufficient_bitcoins_for_rgb">insufficient bitcoins. %s SATs are needed in order
         to operate on RGB with the Iris wallet.</string>
     <string name="invalid_blinded_utxo">Invalid blinded UTXO</string>
+    <string name="invalid_consignment_endpoint">Invalid consignment endpoint</string>
     <string name="scanned_invalid_rgb">Scanned data is neither a blinded UTXO nor an RGB invoice</string>
     <string name="scanned_invalid_btc">Scanned data is neither a bitcoin address nor invoice</string>
     <string name="scanned_invalid_asset">Asset ID mismatch, the scanned invoice is for asset "%s"</string>
     <string name="scanned_expired_invoice">The scanned invoice is expired"</string>
+    <string name="using_default_consignment_endpoint">Using default URL for the consignment endpoint
+        since no one has been provided in the invoice</string>
     <string name="blinded_utxo_already_used">Blinded UTXO already used</string>
     <string name="reached_max_assets">reached max assets</string>
     <string name="back_again_to_exit">Go back again to exit from app</string>
@@ -120,6 +124,7 @@
     <string name="sample_invoice">i1q93kqcru6xlkqn6qa455mg2u34v4t23ddg5443nmuuwdk0p0h9aaakwnclnyuetzvp3gqqq9sewm2p4m8y4rdmxarvewhr5nn4t6lwut8k96kamgmgp9radhhu8xs933gd2hyvx5es5y7p43qq8834eq</string>
     <string name="sample_date">1970–01–01</string>
     <string name="sample_datetime">1970–01–01 00:00:00</string>
+    <string name="sample_consignment_endpoints">&#8226; https://proxy.sample.com\n&#8226; https://proxy.sample.alt.com<br/></string>
     <string name="sample_faucet_name">RGB-Tools Faucet</string>
     <string name="sample_asset_group_name">Collectibles assets</string>
     <string name="sample_time">00:00:00</string>
@@ -129,9 +134,12 @@
     <string name="sample_issued_supply">18446744073709551615</string>
     <string name="sample_precision">0</string>
     <string name="sample_asset_description">A very cool asset</string>
+    <string name="sample_fee_rate">1.5</string>
 
     <!-- layout strings -->
     <string name="asset_id_label">Asset ID</string>
+    <string name="asset_media_no_preview">Preview of media file is not available</string>
+    <string name="asset_without_media">Asset has no media file</string>
     <string name="receive_button">Receive</string>
     <string name="request">Request</string>
     <string name="flashlight_icon_description">Toggle flashlight</string>
@@ -144,22 +152,30 @@
     <string name="copy_desc">Copy data button</string>
     <string name="help_title">Help</string>
     <string name="about_title">About</string>
-    <string name="issue_asset_title">Issue new asset</string>
+    <string name="issue_rgb20_asset_title">Issue new RGB20 asset</string>
+    <string name="issue_rgb121_asset_title">Issue new RGB121 asset</string>
     <string name="receive_asset_title">Receive</string>
     <string name="unspent_list_title">Unspent list</string>
     <string name="faucet_title">Faucets</string>
     <string name="settings_title">Settings</string>
     <string name="backup_title">Backup</string>
     <string name="issue_button">Issue asset</string>
+    <string name="upload_file_button">Upload file</string>
+    <string name="change_file_button">Change uploaded file</string>
+    <string name="file_too_big">File is too big. Cannot exceed 5 MB</string>
+    <string name="err_retrieving_file_length">Error retrieving file length</string>
     <string name="main_receive_button">Receive assets</string>
     <string name="main_title">My assets</string>
     <string name="internal">INTERNAL</string>
+    <string name="issuance">ISSUANCE</string>
     <string name="auto_text_utxo">Automated internal transaction to create new UTXOs for asset
         allocations</string>
+    <string name="asset_file">Asset file</string>
     <string name="asset_ticker">Asset ticker</string>
     <string name="short_identifier">short identifier</string>
     <string name="asset_name">Asset name</string>
     <string name="name_of_the_asset">name of the asset</string>
+    <string name="description_of_the_asset">description of the asset</string>
     <string name="total_supply">Total supply</string>
     <string name="amount_to_issue">amount to issue</string>
     <string name="pay_to">Pay to</string>
@@ -167,6 +183,7 @@
     <string name="invoice">Invoice</string>
     <string name="change_utxo">Change UTXO</string>
     <string name="unblinded_utxo">Unblinded UTXO</string>
+    <string name="consignment_endpoints">Consignment endpoints</string>
     <string name="help_faucet_label">Where can I get %s bitcoins?</string>
     <string name="help_faucet_text">You can get testnet bitcoin by using on of the many available
         faucet, below are linked few examples but you can always find more using a search
@@ -189,12 +206,14 @@
     <string name="faucet_label">Available faucets</string>
     <string name="faucet_info">You can get free RGB assets from the available faucets</string>
     <string name="menu_faucets">Faucets</string>
-    <string name="menu_issue_asset">Issue new asset</string>
+    <string name="menu_issue_rgb20_asset">Issue new RGB20 asset</string>
+    <string name="menu_issue_rgb121_asset">Issue new RGB121 asset</string>
     <string name="delete_transfer">Delete transfer</string>
     <string name="hide_asset">Hide asset</string>
     <string name="unhide_asset">Unhide asset</string>
     <string name="refresh_asset">Refresh asset</string>
     <string name="view_asset_metadata">View asset metadata</string>
+    <string name="download_media">Download media file</string>
     <string name="copy_text">Copy</string>
     <string name="send_asset_title">Send</string>
     <string name="open_scanner">Open scanner</string>
@@ -225,6 +244,10 @@
     <string name="pref_hide_exhausted_assets_title">Hide exhausted assets</string>
     <string name="pref_hide_exhausted_assets_summary">Hide all RGB assets that have a total balance
         equal to zero.</string>
+    <string name="pref_fee_rate_title">Set a default fee rate</string>
+    <string name="pref_fee_rate_summary">Set a fee rate to be used as default in all send operations</string>
+    <string name="pref_fee_rate_dialog_title">Set a default fee rate in sat/vbyte</string>
+    <string name="pref_fee_rate_dialog_summary">Input a fee rate between 1.0 and 1000.0</string>
     <string name="sat_amount">SAT %s</string>
     <string name="rgb_amount">%1$s %2$s</string>
     <string name="transactions">Transactions</string>
@@ -237,12 +260,19 @@
     <string name="app_version">App version: %s (code #%d)</string>
     <string name="download_logs">Download debug logs</string>
     <string name="downloaded_logs">Logs successfully downloaded</string>
-    <string name="download_logs_notification_title">File downloaded</string>
-    <string name="download_logs_notification_text">Iris logs file successfully downloaded</string>
-    <string name="download_logs_notification_channel_name">Download Service</string>
-    <string name="download_logs_notification_channel_description">Channel to download files</string>
+    <string name="download_logs_notification_title">Logs file downloaded</string>
+    <string name="download_logs_notification_text">Tap to view the log file in the downloads directory</string>
+    <string name="download_logs_notification_channel_name">Download Logs Service</string>
+    <string name="download_logs_notification_channel_description">Channel to notify log file download</string>
+    <string name="downloaded_media">Media file successfully downloaded</string>
+    <string name="download_media_notification_title">Media file downloaded</string>
+    <string name="download_media_notification_text">Tap to view the media file in the downloads directory</string>
+    <string name="download_media_notification_channel_name">Download Media Service</string>
+    <string name="download_media_notification_channel_description">Channel to notify media file download</string>
     <string name="pending_asset_faucet">Pending asset from faucet. Please wait, it should arrive in
         a few minutes</string>
     <string name="show_mnemonic">Show mnemonic</string>
     <string name="hide_mnemonic">Hide mnemonic</string>
+    <string name="issue_warning">WARNING: assets issued with this RGB version (0.9) will be
+        incompatible with the next one and will therefore be lost when upgrading</string>
 </resources>

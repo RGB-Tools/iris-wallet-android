@@ -23,7 +23,7 @@
         app:dialogMessage="@string/pref_electrum_url_dialog_summary"/>
 
     <EditTextPreference
-        app:key="proxy_url_pref"
+        app:key="proxy_consignment_endpoint_pref"
         app:persistent="true"
         app:title="@string/pref_proxy_url_title"
         app:summary="@string/pref_proxy_url_summary"
@@ -41,5 +41,13 @@
         app:title="@string/pref_hide_exhausted_assets_title"
         app:summary="@string/pref_hide_exhausted_assets_summary"
         android:singleLineTitle="false"/>
+
+    <EditTextPreference
+        app:key="fee_rate"
+        app:persistent="true"
+        app:title="@string/pref_fee_rate_title"
+        app:summary="@string/pref_fee_rate_summary"
+        app:dialogTitle="@string/pref_fee_rate_dialog_title"
+        app:dialogMessage="@string/pref_fee_rate_dialog_summary"/>
 
 </PreferenceScreen>

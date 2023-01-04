@@ -86,7 +86,7 @@
                     style="@style/auto_size_text" />
 
                 <TextView
-                    android:id="@+id/transferAutoTV"
+                    android:id="@+id/transferExtraInfoTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

@@ -7,7 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -63,10 +65,16 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
 
     internal lateinit var mActivity: MainActivity
 
+    lateinit var onKeyboardDoneListener: OnEditorActionListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = activity as MainActivity
         mActivity.backEnabled = true
+        onKeyboardDoneListener = OnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) v.clearFocus()
+            false
+        }
     }
 
     override fun onCreateView(
@@ -96,7 +104,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     fun getErrMsg(baseMsgID: Int, extraMsg: String? = null): String =
         getErrMsg(this, baseMsgID, extraMsg)
 
-    fun toastError(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
+    fun toastMsg(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
 
     fun toastError(errMsg: String) = toastErrorMsg(this, errMsg)
 
@@ -146,14 +154,14 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     fun fixETAmount(
         editText: EditText,
         amountString: String,
-        maxAmount: ULong = AppConstants.uLongMaxAmount
+        maxULongAmount: ULong = AppConstants.uLongMaxAmount,
     ) {
         if (amountString.isNotEmpty()) {
             var fixed = amountString
             // remove leading zero
             if (fixed.length > 1 && fixed.startsWith("0")) fixed = fixed.drop(1)
-            runCatching { if (fixed.toULong() > maxAmount) fixed = maxAmount.toString() }
-                .onFailure { fixed = maxAmount.toString() }
+            runCatching { if (fixed.toULong() > maxULongAmount) fixed = maxULongAmount.toString() }
+                .onFailure { fixed = maxULongAmount.toString() }
             if (fixed != amountString) {
                 editText.setText(fixed)
                 editText.setSelection(editText.text.length)

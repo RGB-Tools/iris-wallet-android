@@ -43,7 +43,7 @@ class ReceiveAssetFragment :
                     enableUI()
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.recipient_error, response.error.message)
+                        toastMsg(R.string.recipient_error, response.error.message)
                         findNavController().popBackStack()
                     }
                 }

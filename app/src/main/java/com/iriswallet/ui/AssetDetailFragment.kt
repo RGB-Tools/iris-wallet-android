@@ -7,6 +7,8 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -17,6 +19,7 @@ import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentAssetDetailBinding
 import com.iriswallet.utils.*
+import java.io.File
 
 class AssetDetailFragment :
     MainBaseFragment<FragmentAssetDetailBinding>(FragmentAssetDetailBinding::inflate),
@@ -30,6 +33,11 @@ class AssetDetailFragment :
 
     private var mediaPlayer: MediaPlayer? = null
     private lateinit var textureView: TextureView
+
+    private var requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) showDownloadedNotification()
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -45,6 +53,8 @@ class AssetDetailFragment :
                     hideAssetMenuItem.title = getString(title)
 
                     if (asset.bitcoin()) menu.findItem(R.id.assetMetadataMenu).isVisible = false
+
+                    menu.findItem(R.id.downloadMediaMenu).isVisible = asset.media != null
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -56,6 +66,23 @@ class AssetDetailFragment :
                         R.id.assetMetadataMenu -> {
                             findNavController()
                                 .navigate(R.id.action_assetDetailFragment_to_assetMetadataFragment)
+                            true
+                        }
+                        R.id.downloadMediaMenu -> {
+                            val mediaFile = File(asset.media!!.filePath).toURI().toString()
+                            AppUtils.saveFileToDownloads(
+                                requireContext(),
+                                mediaFile,
+                                AppConstants.rgbDownloadMediaFileName.format(asset.id),
+                                asset.media!!.mimeString
+                            )
+                            showDownloadedNotification()
+                            Toast.makeText(
+                                    activity,
+                                    getString(R.string.downloaded_media),
+                                    Toast.LENGTH_LONG
+                                )
+                                .show()
                             true
                         }
                         R.id.hideAssetMenu -> {
@@ -115,7 +142,7 @@ class AssetDetailFragment :
                     redrawAssetDetails()
                 } else {
                     handleError(response.error!!) {
-                        toastError(R.string.err_refreshing_asset_details, response.error.message)
+                        toastMsg(R.string.err_refreshing_asset_details, response.error.message)
                     }
                 }
                 refreshing = false
@@ -133,7 +160,7 @@ class AssetDetailFragment :
                 } else {
                     val msg =
                         if (asset.hidden) R.string.err_unhiding_asset else R.string.err_hiding_asset
-                    handleError(response.error!!) { toastError(msg, response.error.message) }
+                    handleError(response.error!!) { toastMsg(msg, response.error.message) }
                 }
             }
         }
@@ -215,45 +242,54 @@ class AssetDetailFragment :
     private fun setHeader() {
         val media = asset.media
         var showMedia = false
-        if (asset.type == AppAssetType.RGB121 && media != null) {
-            showMedia = true
-            when (media.mime) {
-                MimeType.IMAGE -> {
-                    val collectibleImg = Drawable.createFromPath(media.filePath)
-                    binding.detailCollectibleImg.setImageDrawable(collectibleImg)
-                    binding.detailCollectibleImg.visibility = View.VISIBLE
+        if (asset.type == AppAssetType.RGB121) {
+            if (media != null) {
+                showMedia = true
+                when (media.mime) {
+                    MimeType.IMAGE -> {
+                        val collectibleImg = Drawable.createFromPath(media.filePath)
+                        binding.detailCollectibleImg.setImageDrawable(collectibleImg)
+                        binding.detailCollectibleImg.visibility = View.VISIBLE
+                        binding.detailAssetFileCard.visibility = View.GONE
+                    }
+                    MimeType.VIDEO -> {
+                        binding.detailAssetFileCard.visibility = View.GONE
+                        binding.detailCollectibleCard.visibility = View.VISIBLE
+                        val retriever = MediaMetadataRetriever()
+                        retriever.setDataSource(media.filePath)
+                        val videoWidth =
+                            retriever
+                                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                                ?.toInt()
+                                ?: 0
+                        val videoHeight =
+                            retriever
+                                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                                ?.toInt()
+                                ?: 0
+                        retriever.release()
+                        val collectibleVideoThumbnail =
+                            AppUtils.getVideoThumbnail(media.filePath, videoWidth, videoHeight)
+                        binding.detailCollectibleImg.setImageBitmap(collectibleVideoThumbnail)
+                        textureView =
+                            LayoutInflater.from(context)
+                                .inflate(R.layout.video, binding.detailCollectibleCard, false)
+                                as TextureView
+                        textureView.surfaceTextureListener = this
+                        binding.detailCollectibleCard.addView(textureView)
+                    }
+                    MimeType.OTHER -> {
+                        Log.i(TAG, "Media file without preview")
+                        binding.detailCollectibleImg.visibility = View.GONE
+                        binding.detailAssetFileCard.visibility = View.VISIBLE
+                        showMedia = false
+                    }
                 }
-                MimeType.VIDEO -> {
-                    binding.detailCollectibleCard.visibility = View.VISIBLE
-                    val retriever = MediaMetadataRetriever()
-                    retriever.setDataSource(media.filePath)
-                    val videoWidth =
-                        retriever
-                            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                            ?.toInt()
-                            ?: 0
-                    val videoHeight =
-                        retriever
-                            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                            ?.toInt()
-                            ?: 0
-                    retriever.release()
-                    val collectibleVideoThumbnail =
-                        AppUtils.getVideoThumbnail(media.filePath, videoWidth, videoHeight)
-                    binding.detailCollectibleImg.setImageBitmap(collectibleVideoThumbnail)
-                    textureView =
-                        LayoutInflater.from(context)
-                            .inflate(R.layout.video, binding.detailCollectibleCard, false)
-                            as TextureView
-                    textureView.surfaceTextureListener = this
-                    binding.detailCollectibleCard.addView(textureView)
-                }
-                MimeType.UNSUPPORTED -> {
-                    binding.detailCollectibleImg.visibility = View.GONE
-                    showMedia = false
-                    Log.i(TAG, "Unsupported media file")
-                }
+            } else {
+                binding.detailAssetMediaInfoTV.text = getString(R.string.asset_without_media)
             }
+        } else {
+            binding.detailAssetFileCard.visibility = View.GONE
         }
         binding.detailCollectibleCard.visibility = if (showMedia) View.VISIBLE else View.GONE
 
@@ -269,6 +305,19 @@ class AssetDetailFragment :
 
     private fun setLoader(state: Boolean) {
         binding.detailSwipeRefresh.post { binding.detailSwipeRefresh.isRefreshing = state }
+    }
+
+    private fun showDownloadedNotification() {
+        AppUtils.showDownloadedNotification(
+            requireContext(),
+            AppConstants.DOWNLOAD_MEDIA_NOTIFICATION_CHANNEL,
+            AppConstants.DOWNLOAD_MEDIA_NOTIFICATION_ID,
+            R.string.download_media_notification_channel_name,
+            R.string.download_media_notification_channel_description,
+            R.string.download_media_notification_title,
+            R.string.download_media_notification_text,
+            requestPermissionLauncher,
+        )
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {

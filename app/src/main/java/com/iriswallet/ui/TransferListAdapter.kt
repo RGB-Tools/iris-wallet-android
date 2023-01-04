@@ -12,6 +12,7 @@ import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppTransfer
 import java.text.SimpleDateFormat
 import java.util.*
+import org.rgbtools.TransferKind
 import org.rgbtools.TransferStatus
 
 class TransferListAdapter(
@@ -34,13 +35,23 @@ class TransferListAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val transaction = dataSet[position]
+        val transfer = dataSet[position]
 
-        if (transaction.automatic) viewHolder.binding.transferAutoTV.visibility = View.VISIBLE
-        else viewHolder.binding.transferAutoTV.visibility = View.GONE
+        viewHolder.binding.transferExtraInfoTV.visibility =
+            if (transfer.kind == TransferKind.ISSUANCE) {
+                viewHolder.binding.transferExtraInfoTV.text =
+                    viewHolder.itemView.context.getString(R.string.issuance)
+                View.VISIBLE
+            } else if (transfer.internal) {
+                viewHolder.binding.transferExtraInfoTV.text =
+                    viewHolder.itemView.context.getString(R.string.internal)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
-        var amount = transaction.amount!!.toString()
-        if (transaction.incoming) {
+        var amount = transfer.amount!!.toString()
+        if (transfer.incoming()) {
             viewHolder.binding.transferItemAmountTV.setTextColor(
                 ContextCompat.getColor(
                     viewHolder.binding.transferItemAmountTV.context,
@@ -60,17 +71,15 @@ class TransferListAdapter(
         viewHolder.binding.transferItemAmountTV.text = amount
         viewHolder.binding.transferItemAmountTV.visibility = View.VISIBLE
 
-        when (transaction.status) {
+        when (transfer.status) {
             TransferStatus.WAITING_COUNTERPARTY,
             TransferStatus.WAITING_CONFIRMATIONS,
-            TransferStatus.FAILED -> handleIncompleteTransfer(viewHolder, transaction)
+            TransferStatus.FAILED -> handleIncompleteTransfer(viewHolder, transfer)
             TransferStatus.SETTLED -> {
                 viewHolder.binding.transferItemDateTV.text =
-                    SimpleDateFormat(AppConstants.transferDateFmt, Locale.US)
-                        .format(transaction.date)
+                    SimpleDateFormat(AppConstants.transferDateFmt, Locale.US).format(transfer.date)
                 viewHolder.binding.transferItemTimeTV.text =
-                    SimpleDateFormat(AppConstants.transferTimeFmt, Locale.US)
-                        .format(transaction.date)
+                    SimpleDateFormat(AppConstants.transferTimeFmt, Locale.US).format(transfer.date)
             }
         }
         viewHolder.itemView.setOnClickListener {
