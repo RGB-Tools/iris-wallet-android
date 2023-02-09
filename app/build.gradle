@@ -28,6 +28,12 @@ android {
     testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
   }
 
+  packagingOptions {
+    jniLibs {
+      useLegacyPackaging true
+    }
+  }
+
   externalNativeBuild {
     cmake {
       path "CMakeLists.txt"
