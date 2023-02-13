@@ -20,8 +20,8 @@ android {
     applicationId 'com.iriswallet'
     minSdk 26
     targetSdk 33
-    versionCode 31
-    versionName '0.1.4'
+    versionCode 42
+    versionName '0.1.5'
     ndk {
       abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
     }
