@@ -30,7 +30,8 @@ object BdkRepository {
                     null,
                     AppConstants.bdkRetry.toUByte(),
                     AppConstants.bdkTimeout.toUByte(),
-                    AppConstants.bdkStopGap.toULong()
+                    AppConstants.bdkStopGap.toULong(),
+                    true,
                 )
             )
         )
@@ -49,10 +50,11 @@ object BdkRepository {
         val descriptor: String = calculateDescriptor(keys, false)
         val changeDescriptor: String = calculateDescriptor(keys, true)
         val dbPath = AppContainer.bdkDBVanillaPath
+        val bdkNetwork = AppContainer.bitcoinNetwork.toBdkNetwork()
         return Wallet(
-            descriptor,
-            changeDescriptor,
-            AppContainer.bitcoinNetwork.toBdkNetwork(),
+            Descriptor(descriptor, bdkNetwork),
+            Descriptor(changeDescriptor, bdkNetwork),
+            bdkNetwork,
             DatabaseConfig.Sqlite(SqliteDbConfiguration(dbPath.absolutePath)),
         )
     }
@@ -62,11 +64,11 @@ object BdkRepository {
     }
 
     fun getNewAddress(): String {
-        return vanillaWallet.getAddress(AddressIndex.NEW).address
+        return vanillaWallet.getAddress(AddressIndex.New).address.asString()
     }
 
     fun listTransfers(): List<AppTransfer> {
-        val transactions = vanillaWallet.listTransactions()
+        val transactions = vanillaWallet.listTransactions(false)
         return transactions
             .filter { it.confirmationTime != null }
             .sortedBy { it.confirmationTime!!.timestamp }
@@ -86,8 +88,8 @@ object BdkRepository {
                     .feeRate(feeRate)
                     .finish(vanillaWallet)
                     .psbt
-            vanillaWallet.sign(psbt)
-            blockchain.broadcast(psbt)
+            vanillaWallet.sign(psbt, null)
+            blockchain.broadcast(psbt.extractTx())
             return psbt.txid()
         } catch (e: BdkException.InsufficientFunds) {
             throw AppException(AppContainer.appContext.getString(R.string.insufficient_bitcoins))
