@@ -69,9 +69,9 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val hidden: LiveData<Event<AppResponse<Boolean>>>
         get() = _hidden
 
-    val cachedFungibles: MutableList<AppAsset> = mutableListOf()
+    var cachedFungibles: List<AppAsset> = listOf()
 
-    val cachedCollectibles: MutableList<AppAsset> = mutableListOf()
+    var cachedCollectibles: List<AppAsset> = listOf()
 
     var viewingAsset: AppAsset? = null
 
@@ -91,6 +91,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     internal fun restoreState() {
+        Log.d(TAG, "Restoring state...")
         if (savedStateHandle.contains(AppConstants.BUNDLE_APP_ASSETS)) {
             Log.d(TAG, "Recovering assets from saved state...")
             AppRepository.appAssets.clear()
@@ -170,27 +171,19 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    private fun cacheAssets(postLiveData: Boolean = false) {
-        val cachedF = AppRepository.getCachedFungibles()
-        val cachedC = AppRepository.getCachedCollectibles()
-        cachedFungibles.clear()
-        cachedFungibles.addAll(cachedF)
-        cachedCollectibles.clear()
-        cachedCollectibles.addAll(cachedC)
-
-        if (postLiveData) {
-            _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
-            _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
-        }
+    private fun cacheAssets() {
+        cachedFungibles = AppRepository.getCachedFungibles()
+        cachedCollectibles = AppRepository.getCachedCollectibles()
     }
 
     fun getOfflineAssets() {
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _offlineAssets,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.getAssets()
+            val assets = AppRepository.getAssets()
+            cacheAssets()
+            assets
         }
     }
 
@@ -201,11 +194,14 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             _refreshedAssets,
             successCallback = {
                 refreshingAssets = false
-                cacheAssets(postLiveData = true)
             },
             failureCallback = { refreshingAssets = false },
         ) {
-            AppRepository.getRefreshedAssets(firstAppRefresh)
+            val refreshedAssets = AppRepository.getRefreshedAssets(firstAppRefresh)
+            cacheAssets()
+            _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
+            _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
+            refreshedAssets
         }
     }
 
@@ -241,9 +237,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.shortTimeout,
             _recipient,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.genReceiveData(asset)
+            val data = AppRepository.genReceiveData(asset)
+            cacheAssets()
+            data
         }
     }
 
@@ -257,15 +254,16 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _sent,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.sendAsset(
+            val txid = AppRepository.sendAsset(
                 asset,
                 recipient,
                 amount.toULong(),
                 consignmentEndpoints,
                 feeRate
             )
+            cacheAssets()
+            txid
         }
     }
 
@@ -273,9 +271,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _issuedRgb20Asset,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.issueRgb20Asset(ticker, name, amounts.map { it.toULong() })
+            val asset = AppRepository.issueRgb20Asset(ticker, name, amounts.map { it.toULong() })
+            cacheAssets()
+            asset
         }
     }
 
@@ -288,14 +287,15 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _issuedRgb121Asset,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.issueRgb121Asset(
+            val asset = AppRepository.issueRgb121Asset(
                 name,
                 amounts.map { it.toULong() },
                 description,
                 fileStream
             )
+            cacheAssets()
+            asset
         }
     }
 
@@ -304,19 +304,21 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             AppConstants.shortTimeout,
             _asset,
             requestID = asset.id,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.deleteRGBTransfer(asset, transfer)
+            val asset = AppRepository.deleteRGBTransfer(asset, transfer)
+            cacheAssets()
+            asset
         }
     }
 
-    fun handleAssetVisibility(asset: AppAsset) {
+    fun handleAssetVisibility(assetID: String) {
         tryCallWithTimeout(
             AppConstants.shortTimeout,
             _hidden,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.handleAssetVisibility(asset)
+            val hidden = AppRepository.handleAssetVisibility(assetID)
+            cacheAssets()
+            hidden
         }
     }
 
@@ -334,9 +336,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
             _rgbAsset,
-            successCallback = { cacheAssets() },
         ) {
-            AppRepository.receiveFromRgbFaucet(url, group)
+            val asset = AppRepository.receiveFromRgbFaucet(url, group)
+            cacheAssets()
+            asset
         }
     }
 }

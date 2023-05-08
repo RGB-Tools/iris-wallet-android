@@ -322,7 +322,8 @@ object AppRepository {
         return asset
     }
 
-    fun handleAssetVisibility(asset: AppAsset): Boolean {
+    fun handleAssetVisibility(assetID: String): Boolean {
+        val asset = getCachedAsset(assetID)!!
         if (asset.hidden) {
             AppContainer.db.hiddenAssetDao().deleteHiddenAsset(asset.id)
             asset.hidden = false

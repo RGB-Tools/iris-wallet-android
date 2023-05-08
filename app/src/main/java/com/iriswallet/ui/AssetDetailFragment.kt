@@ -94,7 +94,7 @@ class AssetDetailFragment :
                                 .setMessage(getString(msg))
                                 .setPositiveButton(getString(posBtn)) { _, _ ->
                                     disableUI(disableBack = true)
-                                    viewModel.handleAssetVisibility(asset)
+                                    viewModel.handleAssetVisibility(asset.id)
                                 }
                                 .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
                                 .create()
