@@ -1,5 +1,7 @@
 package com.iriswallet.ui
 
+import android.app.DownloadManager
+import android.content.Intent
 import android.os.Bundle
 import android.text.util.Linkify
 import android.view.View
@@ -65,7 +67,9 @@ class AboutPageFragment :
     }
 
     private fun showDownloadedNotification() {
-        AppUtils.showDownloadedNotification(
+        val intent = Intent()
+        intent.action = DownloadManager.ACTION_VIEW_DOWNLOADS
+        AppUtils.createNotification(
             requireContext(),
             AppConstants.DOWNLOAD_LOGS_NOTIFICATION_CHANNEL,
             AppConstants.DOWNLOAD_LOGS_NOTIFICATION_ID,
@@ -73,7 +77,8 @@ class AboutPageFragment :
             R.string.download_logs_notification_channel_description,
             R.string.download_logs_notification_title,
             R.string.download_logs_notification_text,
-            requestPermissionLauncher,
+            intent,
+            requestPermissionLauncher = requestPermissionLauncher,
         )
     }
 }

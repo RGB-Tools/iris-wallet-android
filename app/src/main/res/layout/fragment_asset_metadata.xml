@@ -105,16 +105,6 @@
                         android:text="@string/sample_asset_description"
                         style="@style/detail_text" />
 
-                    <TextView
-                        android:id="@+id/metadataParentIDLabelTV"
-                        android:text="@string/asset_parent_id"
-                        style="@style/detail_label" />
-
-                    <TextView
-                        android:id="@+id/metadataParentIDTV"
-                        android:text="@string/sample_asset_id"
-                        style="@style/detail_text" />
-
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>

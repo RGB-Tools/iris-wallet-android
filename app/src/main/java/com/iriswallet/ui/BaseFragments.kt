@@ -3,7 +3,6 @@ package com.iriswallet.ui
 import android.content.ClipData
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,30 +16,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceFragmentCompat
 import androidx.viewbinding.ViewBinding
 import com.iriswallet.R
-import com.iriswallet.utils.*
+import com.iriswallet.utils.AppConstants
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.AppError
+import com.iriswallet.utils.AppErrorType
+import com.iriswallet.utils.AppUtils
 import java.math.BigDecimal
-
-private fun getErrMsg(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null): String {
-    var errMsg = fragment.getString(baseMsgID)
-    if (!extraMsg.isNullOrBlank())
-        errMsg =
-            fragment.getString(
-                R.string.app_exception_msg,
-                errMsg,
-                extraMsg.replaceFirstChar(Char::lowercase)
-            )
-    return errMsg
-}
-
-private fun toastError(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null) {
-    val errMsg = getErrMsg(fragment, baseMsgID, extraMsg)
-    toastErrorMsg(fragment, errMsg)
-}
-
-private fun toastErrorMsg(fragment: Fragment, errMsg: String) {
-    Log.d(fragment.TAG, errMsg)
-    Toast.makeText(fragment.activity, errMsg, Toast.LENGTH_LONG).show()
-}
 
 abstract class PreferenceBaseFragment : PreferenceFragmentCompat() {
     private lateinit var mActivity: MainActivity
@@ -51,7 +32,8 @@ abstract class PreferenceBaseFragment : PreferenceFragmentCompat() {
         mActivity.backEnabled = true
     }
 
-    fun toastError(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
+    fun toastError(baseMsgID: Int, extraMsg: String? = null) =
+        AppUtils.toastErrorFromFragment(this, baseMsgID, extraMsg)
 }
 
 typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
@@ -102,11 +84,12 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     }
 
     fun getErrMsg(baseMsgID: Int, extraMsg: String? = null): String =
-        getErrMsg(this, baseMsgID, extraMsg)
+        AppUtils.getErrMsg(requireContext(), baseMsgID, extraMsg)
 
-    fun toastMsg(baseMsgID: Int, extraMsg: String? = null) = toastError(this, baseMsgID, extraMsg)
+    fun toastMsg(baseMsgID: Int, extraMsg: String? = null) =
+        AppUtils.toastErrorFromFragment(this, baseMsgID, extraMsg)
 
-    fun toastError(errMsg: String) = toastErrorMsg(this, errMsg)
+    fun toastError(errMsg: String) = AppUtils.toastFromFragment(this, errMsg)
 
     internal fun showExitDialog(message: String) {
         AlertDialog.Builder(requireContext())
@@ -125,7 +108,8 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     }
 
     fun handleError(error: AppError, callback: () -> Unit) {
-        if (error.type == AppErrorType.TIMEOUT_EXCEPTION)
+        if (error.type == AppErrorType.TIMEOUT_EXCEPTION) {
+            viewModel.avoidBackup = true
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.err_timeout))
                 .setPositiveButton(getString(R.string.exit)) { _, _ ->
@@ -136,7 +120,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
                 .setCancelable(false)
                 .create()
                 .show()
-        else callback()
+        } else callback()
     }
 
     open fun enableUI() {

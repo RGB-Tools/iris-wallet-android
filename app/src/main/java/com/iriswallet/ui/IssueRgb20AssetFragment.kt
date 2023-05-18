@@ -77,8 +77,8 @@ class IssueRgb20AssetFragment :
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_issuing_asset, response.error.message)
+                        enableUI()
                     }
-                    enableUI()
                 }
             }
         }

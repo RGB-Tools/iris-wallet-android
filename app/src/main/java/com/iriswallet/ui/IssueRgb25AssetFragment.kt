@@ -12,15 +12,14 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
-import com.iriswallet.databinding.FragmentIssueRgb121AssetBinding
+import com.iriswallet.databinding.FragmentIssueRgb25AssetBinding
 import com.iriswallet.utils.AppConstants
-import com.iriswallet.utils.AsciiInputFilter
 import com.iriswallet.utils.TAG
 import java.io.BufferedInputStream
 import java.io.InputStream
 
-class IssueRgb121AssetFragment :
-    MainBaseFragment<FragmentIssueRgb121AssetBinding>(FragmentIssueRgb121AssetBinding::inflate) {
+class IssueRgb25AssetFragment :
+    MainBaseFragment<FragmentIssueRgb25AssetBinding>(FragmentIssueRgb25AssetBinding::inflate) {
 
     private lateinit var editableFields: Array<EditText>
 
@@ -71,7 +70,6 @@ class IssueRgb121AssetFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.descriptionInputET.filters += AsciiInputFilter()
         editableFields = arrayOf(binding.nameInputET, binding.amountInputET)
         for (editText in editableFields) {
             editText.addTextChangedListener(
@@ -107,7 +105,7 @@ class IssueRgb121AssetFragment :
 
         binding.issueBtn.setOnClickListener {
             disableUI()
-            viewModel.issueRgb121Asset(
+            viewModel.issueRgb25Asset(
                 binding.nameInputET.text.toString(),
                 listOf(binding.amountInputET.text.toString()),
                 binding.descriptionInputET.text.toString(),
@@ -117,22 +115,23 @@ class IssueRgb121AssetFragment :
 
         binding.issueUploadFileBtn.setOnClickListener { getContent.launch("*/*") }
 
-        viewModel.issuedRgb121Asset.observe(viewLifecycleOwner) {
+        viewModel.issuedRgb25Asset.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.data != null) {
                     viewModel.viewingAsset = response.data
+                    enableUI()
                     findNavController()
                         .navigate(
-                            IssueRgb121AssetFragmentDirections
-                                .actionIssueRgb121AssetFragmentToAssetDetailFragment(
+                            IssueRgb25AssetFragmentDirections
+                                .actionIssueRgb25AssetFragmentToAssetDetailFragment(
                                     viewModel.viewingAsset!!.name
                                 )
                         )
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_issuing_asset, response.error.message)
+                        enableUI()
                     }
-                    enableUI()
                 }
             }
         }

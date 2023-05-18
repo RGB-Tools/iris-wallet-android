@@ -21,6 +21,14 @@ object AppContainer {
         appContext = context
     }
 
+    val backupServerClientID: String by lazy {
+        if (BuildConfig.DEBUG) {
+            AppConstants.backupServerClientIDDebug
+        } else {
+            AppConstants.backupServerClientIDRelease
+        }
+    }
+
     val bitcoinNetwork =
         when (BuildConfig.FLAVOR) {
             "bitcoinSignet" -> BitcoinNetwork.SIGNET
@@ -41,8 +49,10 @@ object AppContainer {
 
     var canUseBiometric = false
 
+    val walletIdentifier: String by lazy { bitcoinKeys.xpub.getSha256() }
+
     val rgbDir: File by lazy { getRgbDir(appContext.filesDir) }
-    val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.xpubFingerprint) }
+    private val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.xpubFingerprint) }
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.appDBName)!! }
     val bdkDir: File by lazy { File(appContext.filesDir, AppConstants.bdkDirName) }
@@ -74,8 +84,6 @@ object AppContainer {
         }
     }
 
-    val electrumURL: String by lazy { SharedPreferencesManager.electrumURL }
-
     val explorerURL: String by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.signetExplorerURL
@@ -100,15 +108,17 @@ object AppContainer {
         }
     }
 
-    val proxyURL: String by lazy {
-        proxyConsignmentEndpoint.removePrefix(AppConstants.rgbHttpJsonRpcProtocol)
-    }
+    val proxyURL: String
+        get() {
+            val endpoint = SharedPreferencesManager.proxyTransportEndpoint
+            return if (endpoint.startsWith(AppConstants.rgbTLSRpcURI)) {
+                "https://" + endpoint.removePrefix(AppConstants.rgbTLSRpcURI)
+            } else {
+                "http://" + endpoint.removePrefix(AppConstants.rgbRpcURI)
+            }
+        }
 
-    val proxyConsignmentEndpoint: String by lazy {
-        SharedPreferencesManager.proxyConsignmentEndpoint
-    }
-
-    val proxyConsignmentEndpointDefault: String by lazy { AppConstants.proxyConsignmentEndpoint }
+    val proxyTransportEndpointDefault: String by lazy { AppConstants.proxyTransportEndpoint }
 
     val bitcoinAssetTicker: String by lazy {
         val prefix =

@@ -8,21 +8,21 @@ import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.AppException
 
 object RgbFaucetRepository {
-    suspend fun getConfig(url: String, xpub: String): FaucetConfig? {
+    suspend fun getConfig(url: String, walletIdentifier: String): FaucetConfig? {
         return RetrofitModule.getRgbFaucetApiService(url)
-            .getConfig(Keys.rgbFaucetApiKey(), xpub)
+            .getConfig(Keys.rgbFaucetApiKey(), walletIdentifier)
             .body()
     }
 
     suspend fun receiveRgbAsset(
         url: String,
-        xpub: String,
+        walletIdentifier: String,
         blindedUTXO: String,
         group: String
     ): RgbAsset {
         val receiveRgbAssetResponse =
             RetrofitModule.getRgbFaucetApiService(url)
-                .receiveAsset(Keys.rgbFaucetApiKey(), xpub, blindedUTXO, group)
+                .receiveAsset(Keys.rgbFaucetApiKey(), walletIdentifier, blindedUTXO, group)
         val successResponse = receiveRgbAssetResponse.body()
         if (successResponse?.asset == null) {
             val errorResponse =

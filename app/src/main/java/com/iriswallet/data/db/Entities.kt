@@ -5,11 +5,6 @@ import androidx.room.PrimaryKey
 import com.iriswallet.data.retrofit.RgbAsset
 
 @Entity
-data class AutomaticTransaction(
-    @PrimaryKey val txid: String,
-)
-
-@Entity
 data class HiddenAsset(
     @PrimaryKey val id: String,
 )

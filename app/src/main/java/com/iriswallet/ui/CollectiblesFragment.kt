@@ -69,9 +69,9 @@ class CollectiblesFragment :
         viewModel.refreshedAssets.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.error != null || response.data.isNullOrEmpty()) {
-                    enableUI()
                     handleError(response.error!!) {
                         toastMsg(R.string.err_refreshing_assets, response.error.message)
+                        enableUI()
                     }
                 }
             }

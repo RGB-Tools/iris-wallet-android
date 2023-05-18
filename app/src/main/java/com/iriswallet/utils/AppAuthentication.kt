@@ -14,6 +14,7 @@ import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_ACTIONS_CONFIGURED
 
 interface AppAuthenticationServiceListener {
     fun authenticated(requestCode: String = PREFS_PIN_ACTIONS_CONFIGURED)
+
     fun handleAuthError(requestCode: String, errorExtraInfo: String? = null, errCode: Int? = null)
 }
 

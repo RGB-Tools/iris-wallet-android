@@ -12,6 +12,7 @@ import com.iriswallet.databinding.FragmentRoutingBinding
 import com.iriswallet.utils.AppAuthenticationService
 import com.iriswallet.utils.AppAuthenticationServiceListener
 import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.AppUtils
 
 class RoutingFragment :
     MainBaseFragment<FragmentRoutingBinding>(FragmentRoutingBinding::inflate),
@@ -24,6 +25,16 @@ class RoutingFragment :
         appAuthenticationService = AppAuthenticationService(this)
         if (AppContainer.storedMnemonic.isBlank())
             findNavController().navigate(R.id.action_routingFragment_to_firstRunFragment)
+        else if (!SharedPreferencesManager.updatedToRgb010) {
+            SharedPreferencesManager.proxyTransportEndpoint =
+                AppContainer.proxyTransportEndpointDefault
+            AppUtils.deleteRgbData()
+            AppUtils.deleteBdkData()
+            viewModel.deleteDbDataAfterRgb010Update()
+            viewModel.recoverFunds()
+        } else if (!SharedPreferencesManager.recoveredFunds) {
+            viewModel.recoverFunds()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,6 +66,8 @@ class RoutingFragment :
                     handleError(response.error!!) {
                         showExitDialog(getString(R.string.err_getting_offline_assets))
                     }
+                } else if (!SharedPreferencesManager.updatedToRgb010) {
+                    findNavController().navigate(R.id.action_routingFragment_to_afterUpdateFragment)
                 } else {
                     viewModel.refreshAssets(firstAppRefresh = true)
                     findNavController().navigate(R.id.action_routingFragment_to_mainFragment)

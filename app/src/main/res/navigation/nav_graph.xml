@@ -3,16 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/routingFragment">
+    app:startDestination="@id/startFragment">
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="com.iriswallet.ui.StartFragment"
+        android:label=""
+        app:defaultNavHost="true"
+        tools:layout="@layout/fragment_start">
+        <action
+            android:id="@+id/action_startFragment_to_routingFragment"
+            app:destination="@id/routingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+    </fragment>
     <fragment
         android:id="@+id/routingFragment"
         android:name="com.iriswallet.ui.RoutingFragment"
         android:label=""
-        app:defaultNavHost="true"
         tools:layout="@layout/fragment_routing">
         <action
             android:id="@+id/action_routingFragment_to_firstRunFragment"
             app:destination="@id/firstRunFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_routingFragment_to_afterUpdateFragment"
+            app:destination="@id/afterUpdateFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"/>
         <action
@@ -27,16 +43,35 @@
         tools:layout="@layout/fragment_first_run">
         <action
             android:id="@+id/action_firstRunFragment_to_termsAndConditionsFragment"
-            app:destination="@id/termsAndConditionsFragment" />
+            app:destination="@id/termsAndConditionsFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_firstRunFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/termsAndConditionsFragment"
         android:name="com.iriswallet.ui.TermsAndConditionsFragment"
         android:label="@string/terms_and_conditions"
-        tools:layout="@layout/fragment_terms_and_conditions">
+        tools:layout="@layout/fragment_terms_and_conditions"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="true">
         <action
             android:id="@+id/action_termsAndConditionsFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
+            app:popUpToInclusive="true"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/nav_graph" />
+    </fragment>
+    <fragment
+        android:id="@+id/afterUpdateFragment"
+        android:name="com.iriswallet.ui.AfterUpdateFragment"
+        tools:layout="@layout/fragment_after_update">
+        <action
+            android:id="@+id/action_afterUpdateFragment_to_mainFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/nav_graph" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
@@ -53,8 +88,8 @@
             android:id="@+id/action_mainFragment_to_issueRgb20AssetFragment"
             app:destination="@id/issueRgb20AssetFragment" />
         <action
-            android:id="@+id/action_mainFragment_to_issueRgb121AssetFragment"
-            app:destination="@id/issueRgb121AssetFragment" />
+            android:id="@+id/action_mainFragment_to_issueRgb25AssetFragment"
+            app:destination="@id/issueRgb25AssetFragment" />
         <action
             android:id="@+id/action_mainFragment_to_bitcoinUnspentFragment"
             app:destination="@id/bitcoinUnspentFragment" />
@@ -140,12 +175,12 @@
             app:popUpTo="@id/mainFragment" />
     </fragment>
     <fragment
-        android:id="@+id/issueRgb121AssetFragment"
-        android:name="com.iriswallet.ui.IssueRgb121AssetFragment"
-        android:label="@string/issue_rgb121_asset_title"
-        tools:layout="@layout/fragment_issue_rgb121_asset">
+        android:id="@+id/issueRgb25AssetFragment"
+        android:name="com.iriswallet.ui.IssueRgb25AssetFragment"
+        android:label="@string/issue_rgb25_asset_title"
+        tools:layout="@layout/fragment_issue_rgb25_asset">
         <action
-            android:id="@+id/action_issueRgb121AssetFragment_to_assetDetailFragment"
+            android:id="@+id/action_issueRgb25AssetFragment_to_assetDetailFragment"
             app:destination="@id/assetDetailFragment"
             app:popUpTo="@id/mainFragment" />
     </fragment>

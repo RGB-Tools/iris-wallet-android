@@ -26,7 +26,7 @@ object BdkRepository {
         Blockchain(
             BlockchainConfig.Electrum(
                 ElectrumConfig(
-                    AppContainer.electrumURL,
+                    SharedPreferencesManager.electrumURL,
                     null,
                     AppConstants.bdkRetry.toUByte(),
                     AppConstants.bdkTimeout.toUByte(),
@@ -37,25 +37,44 @@ object BdkRepository {
         )
     }
 
-    private fun calculateDescriptor(keys: DescriptorSecretKey, change: Boolean): String {
-        val changeNum = if (change) 1 else 0
-        val path =
-            DerivationPath(
-                "m/84'/${AppContainer.bitcoinDerivationPathCoinType}'/${AppConstants.derivationAccountVanilla}'/$changeNum"
-            )
-        return "wpkh(${keys.extend(path).asString()})"
+    private fun calculateDescriptor(
+        keys: DescriptorSecretKey,
+        changeNum: Int,
+        derivationAccount: Int
+    ): String {
+        return "wpkh(${keys.extend(DerivationPath(
+            "m/84'/${AppContainer.bitcoinDerivationPathCoinType}'/${derivationAccount}'/$changeNum"
+        )).asString()})"
     }
 
     private fun getWallet(keys: DescriptorSecretKey): Wallet {
-        val descriptor: String = calculateDescriptor(keys, false)
-        val changeDescriptor: String = calculateDescriptor(keys, true)
-        val dbPath = AppContainer.bdkDBVanillaPath
+        val descriptor: String =
+            calculateDescriptor(
+                keys,
+                AppConstants.derivationChangeVanilla,
+                AppConstants.derivationAccountVanilla
+            )
+        return getWalletFromDescriptors(
+            DatabaseConfig.Sqlite(
+                SqliteDbConfiguration(AppContainer.bdkDBVanillaPath.absolutePath)
+            ),
+            descriptor,
+            null
+        )
+    }
+
+    private fun getWalletFromDescriptors(
+        dbConfig: DatabaseConfig,
+        descriptor: String,
+        changeDescriptor: String?
+    ): Wallet {
         val bdkNetwork = AppContainer.bitcoinNetwork.toBdkNetwork()
+        val changeDesc = changeDescriptor?.let { Descriptor(it, bdkNetwork) }
         return Wallet(
             Descriptor(descriptor, bdkNetwork),
-            Descriptor(changeDescriptor, bdkNetwork),
+            changeDesc,
             bdkNetwork,
-            DatabaseConfig.Sqlite(SqliteDbConfiguration(dbPath.absolutePath)),
+            dbConfig,
         )
     }
 
@@ -77,7 +96,35 @@ object BdkRepository {
     }
 
     fun listUnspent(): List<UTXO> {
-        return vanillaWallet.listUnspent().map { UTXO(it) }
+        val unspents = vanillaWallet.listUnspent()
+        Log.d(TAG, "BDK unspents: $unspents")
+        return unspents.map { UTXO(it) }
+    }
+
+    fun recoverFundsFromDerivationPath(derivationAccount: Int, change: Boolean) {
+        Log.i(TAG, "Recovering funds from derivation account: $derivationAccount")
+        val descriptor: String = calculateDescriptor(keys, 0, derivationAccount)
+        val changeDescriptor = if (change) calculateDescriptor(keys, 1, derivationAccount) else null
+        val wallet = getWalletFromDescriptors(DatabaseConfig.Memory, descriptor, changeDescriptor)
+        wallet.sync(blockchain, null)
+        if (wallet.getBalance().total == 0UL) {
+            Log.w(TAG, "Skipping funds recovering because there's no total balance")
+            return
+        }
+        val psbt =
+            try {
+                TxBuilder()
+                    .drainWallet()
+                    .drainTo(Address(getNewAddress()).scriptPubkey())
+                    .finish(wallet)
+                    .psbt
+            } catch (e: BdkException.InsufficientFunds) {
+                Log.w(TAG, "Skipping funds recovering because there's no sufficient balance")
+                return
+            }
+        wallet.sign(psbt, null)
+        blockchain.broadcast(psbt.extractTx())
+        Log.i(TAG, "Funds recovered successfully")
     }
 
     fun sendToAddress(address: String, amount: ULong, feeRate: Float): String {

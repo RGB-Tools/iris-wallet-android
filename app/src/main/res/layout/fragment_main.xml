@@ -21,8 +21,8 @@
             app:tabMode="fixed" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/mainCooL"
-            android:background="@color/white"
+            android:id="@+id/mainBackupCooL"
+            android:background="@color/background_blue"
             android:elevation="@dimen/elevation_size"
             android:visibility="gone"
             android:layout_width="match_parent"
@@ -30,7 +30,55 @@
             app:layout_constraintTop_toBottomOf="@id/mainTabLayout">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mainCardView"
+                android:id="@+id/mainBackupCardView"
+                android:theme="@style/Theme.MaterialComponents"
+                app:cardCornerRadius="0dp"
+                android:layout_marginBottom="@dimen/unit_size"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/mainBackupCardViewTV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/medium_size"
+                        android:layout_alignParentStart="true"
+                        android:layout_toLeftOf="@id/mainBackupConfigureBtn"
+                        android:text="@string/backup_not_configured"
+                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textColor="?android:attr/textColorSecondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/mainBackupConfigureBtn"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_alignParentEnd="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/configure" />
+
+                </RelativeLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/mainConnectionCooL"
+            android:background="@color/background_blue"
+            android:elevation="@dimen/elevation_size"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/mainBackupCooL">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mainConnectionCardView"
                 android:theme="@style/Theme.MaterialComponents"
                 app:cardCornerRadius="0dp"
                 android:layout_width="match_parent"
@@ -42,7 +90,6 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/mainCardViewTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/medium_size"
@@ -63,7 +110,7 @@
             app:layout_constraintBottom_toTopOf="@id/mainDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mainCooL" />
+            app:layout_constraintTop_toBottomOf="@+id/mainConnectionCooL" />
 
         <View
             android:id="@+id/mainDivider"

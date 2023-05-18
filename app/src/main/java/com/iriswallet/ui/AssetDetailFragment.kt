@@ -1,5 +1,7 @@
 package com.iriswallet.ui
 
+import android.app.DownloadManager
+import android.content.Intent
 import android.graphics.SurfaceTexture
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
@@ -140,27 +142,31 @@ class AssetDetailFragment :
                 if (response.data != null) {
                     asset = response.data
                     redrawAssetDetails()
+                    enableUI()
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_refreshing_asset_details, response.error.message)
+                        enableUI()
                     }
                 }
                 refreshing = false
-                enableUI()
             }
         }
 
         viewModel.hidden.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
-                enableUI()
                 if (response.data != null) {
+                    enableUI()
                     if (response.data && !SharedPreferencesManager.showHiddenAssets)
                         findNavController().popBackStack()
                     else requireActivity().invalidateOptionsMenu()
                 } else {
                     val msg =
                         if (asset.hidden) R.string.err_unhiding_asset else R.string.err_hiding_asset
-                    handleError(response.error!!) { toastMsg(msg, response.error.message) }
+                    handleError(response.error!!) {
+                        toastMsg(msg, response.error.message)
+                        enableUI()
+                    }
                 }
             }
         }
@@ -226,7 +232,7 @@ class AssetDetailFragment :
 
     private fun enableSendBtn(): Boolean {
         if (mActivity.serviceMap != null) {
-            val enable = mActivity.serviceMap!![AppContainer.electrumURL] == true
+            val enable = mActivity.serviceMap!![SharedPreferencesManager.electrumURL] == true
             if (enable && !asset.bitcoin())
                 return mActivity.serviceMap!![AppContainer.proxyURL] == true
             return enable
@@ -242,7 +248,7 @@ class AssetDetailFragment :
     private fun setHeader() {
         val media = asset.media
         var showMedia = false
-        if (asset.type == AppAssetType.RGB121) {
+        if (asset.type == AppAssetType.RGB25) {
             if (media != null) {
                 showMedia = true
                 when (media.mime) {
@@ -308,7 +314,9 @@ class AssetDetailFragment :
     }
 
     private fun showDownloadedNotification() {
-        AppUtils.showDownloadedNotification(
+        val intent = Intent()
+        intent.action = DownloadManager.ACTION_VIEW_DOWNLOADS
+        AppUtils.createNotification(
             requireContext(),
             AppConstants.DOWNLOAD_MEDIA_NOTIFICATION_CHANNEL,
             AppConstants.DOWNLOAD_MEDIA_NOTIFICATION_ID,
@@ -316,7 +324,8 @@ class AssetDetailFragment :
             R.string.download_media_notification_channel_description,
             R.string.download_media_notification_title,
             R.string.download_media_notification_text,
-            requestPermissionLauncher,
+            intent,
+            requestPermissionLauncher = requestPermissionLauncher,
         )
     }
 

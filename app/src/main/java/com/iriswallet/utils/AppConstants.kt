@@ -10,6 +10,13 @@ object AppConstants {
     const val sharedPreferencesName = "shared_prefs"
     const val encryptedSharedPreferencesName = "secret_shared_prefs"
 
+    const val backupName = "%s.rgb_backup"
+    const val backupServerClientIDDebug =
+        "115452963739-i8bn94t1imp1svaulc0o2osctn0nbpqt.apps.googleusercontent.com"
+    const val backupServerClientIDRelease =
+        "527013939550-i6gdjjv727eqct5v53j899jimff13pjq.apps.googleusercontent.com"
+    const val backupRestoreTimeout = 120000L
+
     const val maxAssets = 50
     const val satsForRgb = 9000UL
     const val rgbBlindDuration = 86400U
@@ -25,15 +32,17 @@ object AppConstants {
     const val coloredWallet = "colored"
     const val vanillaWallet = "vanilla"
 
+    const val derivationChangeVanilla = 1
     const val derivationAccountVanilla = 0
+    const val derivationAccountOldRgb = 827166
 
     const val bitcoinAssetID = "BTC"
     const val bitcoinAssetName = "bitcoin"
 
-    const val stormProtocol = "storm:"
-    const val rgbHttpJsonRpcProtocol = "rgbhttpjsonrpc:"
-    const val proxyURL = "https://proxy.iriswallet.com/json-rpc"
-    const val proxyConsignmentEndpoint = rgbHttpJsonRpcProtocol + proxyURL
+    const val rgbRpcURI = "rpc://"
+    const val rgbTLSRpcURI = "rpcs://"
+    private const val proxyBaseURL = "proxy.iriswallet.com/0.2/json-rpc"
+    const val proxyTransportEndpoint = rgbTLSRpcURI + proxyBaseURL
 
     const val signetElectrumURL = "ssl://electrum.iriswallet.com:50033"
     const val testnetElectrumURL = "ssl://electrum.iriswallet.com:50013"
@@ -70,7 +79,7 @@ object AppConstants {
 
     const val bdkTimeout = 5
     const val bdkRetry = 3
-    const val bdkStopGap = 10
+    const val bdkStopGap = 20
     const val bdkDBName = "bdk_db_%s"
 
     const val httpConnectTimeout = 3L
@@ -98,4 +107,7 @@ object AppConstants {
 
     const val DOWNLOAD_LOGS_NOTIFICATION_CHANNEL = "IrisWallet.downloadLogs"
     const val DOWNLOAD_LOGS_NOTIFICATION_ID = 135
+
+    const val BACKUP_LOGS_NOTIFICATION_CHANNEL = "IrisWallet.doBackup"
+    const val BACKUP_LOGS_NOTIFICATION_ID = 136
 }

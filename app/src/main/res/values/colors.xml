@@ -2,8 +2,7 @@
 <resources>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
-    <color name="color_accent_dark">#FF437B05</color>
-    <color name="color_accent">@color/color_accent_dark</color>
+    <color name="color_accent">#FF437B05</color>
     <color name="color_list_fg_2">#FFA1B0BE</color>
     <color name="color_label">@color/roman_silver</color>
     <color name="color_green">#FF00AA00</color>

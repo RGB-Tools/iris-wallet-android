@@ -106,12 +106,13 @@ class TransferDetailFragment :
             viewModel.asset.observe(viewLifecycleOwner) {
                 it.getContentIfNotHandled()?.let { response ->
                     if (response.requestID != asset.id) return@let
-                    enableUI()
                     if (response.data != null) {
+                        enableUI()
                         findNavController().popBackStack()
                     } else {
                         handleError(response.error!!) {
                             toastMsg(R.string.err_deleting_transfer, response.error.message)
+                            enableUI()
                         }
                     }
                 }
@@ -161,38 +162,34 @@ class TransferDetailFragment :
             binding.transferBlindedUtxoTV.text = transfer.blindedUTXO
             if (
                 transfer.status == TransferStatus.WAITING_COUNTERPARTY &&
-                    transfer.kind == TransferKind.RECEIVE
+                    transfer.kind == AppTransferKind.RECEIVE
             ) {
                 val invoiceData =
                     InvoiceData(
-                        transfer.blindedUTXO!!,
+                        recipientId = transfer.blindedUTXO!!,
+                        assetIface = asset.iface,
                         amount = null,
                         assetId = asset.id,
+                        network = AppContainer.bitcoinNetwork.toRgbLibNetwork(),
                         expirationTimestamp = transfer.expiration,
-                        consignmentEndpoints =
-                            transfer.consignmentEndpoints.orEmpty().map {
-                                val uri =
-                                    if (
-                                        it.protocol == ConsignmentTransport.RGB_HTTP_JSON_RPC
-                                    )
-                                        AppConstants.rgbHttpJsonRpcProtocol
-                                    else AppConstants.stormProtocol
-                                uri + it.endpoint
+                        transportEndpoints =
+                            transfer.transportEndpoints.orEmpty().map {
+                                AppConstants.rgbRpcURI + it.endpoint
                             },
                     )
                 val invoice = Invoice.fromInvoiceData(invoiceData)
-                binding.transferInvoiceTV.text = invoice.bech32Invoice()
+                binding.transferInvoiceTV.text = invoice.invoiceString()
                 binding.transferInvoiceLabelTV.visibility = View.VISIBLE
                 binding.transferInvoiceTV.visibility = View.VISIBLE
             }
         }
 
         // unblinded UTXO
-        if (asset.bitcoin() || transfer.kind != TransferKind.RECEIVE) {
+        if (asset.bitcoin() || transfer.kind != AppTransferKind.RECEIVE) {
             binding.transferUnblindedUTXOLabelTV.visibility = View.GONE
             binding.transferUnblindedUTXOTV.visibility = View.GONE
         } else {
-            val outpoint = transfer.unblindedUTXO!!.outpointStr()
+            val outpoint = transfer.receiveUTXO!!.outpointStr()
             binding.transferUnblindedUTXOTV.text = outpoint
             binding.transferUnblindedUTXOTV.paintFlags =
                 binding.transferUnblindedUTXOTV.paintFlags or Paint.UNDERLINE_TEXT_FLAG
@@ -227,11 +224,11 @@ class TransferDetailFragment :
         if (asset.bitcoin()) {
             binding.transferEndpointsTV.visibility = View.GONE
             binding.transferEndpointsLabelTV.visibility = View.GONE
-        } else if (transfer.consignmentEndpoints.isNullOrEmpty()) {
+        } else if (transfer.transportEndpoints.isNullOrEmpty()) {
             binding.transferEndpointsTV.text = getString(R.string.not_available)
         } else {
             val bulletedList =
-                transfer.consignmentEndpoints!!
+                transfer.transportEndpoints!!
                     .map { it.endpoint }
                     .toBulletedList(
                         color = ContextCompat.getColor(requireContext(), R.color.caribbean_green)

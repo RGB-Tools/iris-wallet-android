@@ -55,6 +55,11 @@
         <item name="android:layout_gravity">center</item>
     </style>
 
+    <style name="blue_button" parent="green_button">
+        <item name="backgroundTint">@color/blue_ryb</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
     <style name="main_button" parent="green_button">
         <item name="android:layout_margin">@dimen/big_size</item>
     </style>

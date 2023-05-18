@@ -11,25 +11,32 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentMainBinding
 import com.iriswallet.utils.AppAuthenticationService
+import com.iriswallet.utils.AppAuthenticationServiceListener
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.TAG
 
-class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
+class MainFragment :
+    MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate),
+    AppAuthenticationServiceListener {
 
     private lateinit var appAuthenticationService: AppAuthenticationService
 
     private var doubleBackToExitPressedOnce = false
 
+    private var backupSnackbarDismissed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mActivity.startConnectivityService()
-
         appAuthenticationService = AppAuthenticationService(this)
+
+        mActivity.startConnectivityService()
 
         mActivity.onBackPressedDispatcher.addCallback(
             this,
@@ -63,6 +70,11 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
                 }
             }
         )
+
+        mActivity.binding.navView.menu.findItem(R.id.backupFragment).setOnMenuItemClickListener {
+            launchBackupFragment()
+            true
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,28 +98,79 @@ class MainFragment : MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::
             findNavController().navigate(R.id.action_mainFragment_to_receiveAssetFragment)
         }
 
+        handleBackupBannerVisibility()
         mActivity.services.observe(viewLifecycleOwner) {
-            if (it.peekContent().containsValue(false)) showConnectionIssuesBanner()
-            else binding.mainCooL.visibility = View.GONE
+            handleConnectionBannerVisibility(it.peekContent())
             it.getContentIfNotHandled()?.let { serviceMap ->
-                if (serviceMap.containsValue(false)) showConnectionIssuesBanner()
-                else binding.mainCooL.visibility = View.GONE
+                handleConnectionBannerVisibility(serviceMap)
             }
         }
     }
 
-    private fun showConnectionIssuesBanner() {
-        Log.d(TAG, "Showing connection error banner...")
-        (binding.mainCardView.layoutParams as CoordinatorLayout.LayoutParams).behavior = null
-        binding.mainCardViewTV.text = getString(R.string.connection_err)
-        binding.mainCardView.visibility = View.VISIBLE
-        binding.mainCardView.isEnabled = true
-        binding.mainCardView.isCheckable = true
-        binding.mainCardView.toggle()
-        (binding.mainCardView.layoutParams as CoordinatorLayout.LayoutParams).setMargins(0, 0, 0, 0)
-        binding.mainCardView.alpha = 1.0f
-        binding.mainCardView.requestLayout()
-        binding.mainCooL.visibility = View.VISIBLE
+    private fun handleBackupBannerVisibility() {
+        if (!SharedPreferencesManager.backupConfigured && !backupSnackbarDismissed) {
+            Log.d(TAG, "Showing backup banner...")
+            binding.mainBackupConfigureBtn.visibility = View.VISIBLE
+            binding.mainBackupConfigureBtn.isEnabled = true
+            binding.mainBackupConfigureBtn.setOnClickListener { launchBackupFragment() }
+            val swipeDismissBehavior = SwipeDismissBehavior<View>()
+            swipeDismissBehavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY)
+            swipeDismissBehavior.listener =
+                object : SwipeDismissBehavior.OnDismissListener {
+                    override fun onDismiss(view: View?) {
+                        backupSnackbarDismissed = true
+                    }
+
+                    override fun onDragStateChanged(state: Int) {
+                        when (state) {
+                            SwipeDismissBehavior.STATE_DRAGGING -> {
+                                binding.mainBackupCardView.isDragged = true
+                            }
+                            SwipeDismissBehavior.STATE_SETTLING -> {
+                                binding.mainBackupCardView.isDragged = true
+                            }
+                            SwipeDismissBehavior.STATE_IDLE -> {
+                                binding.mainBackupCardView.isDragged = false
+                                binding.mainBackupCooL.visibility = View.GONE
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+            (binding.mainBackupCardView.layoutParams as CoordinatorLayout.LayoutParams).behavior =
+                swipeDismissBehavior
+            binding.mainBackupCooL.visibility = View.VISIBLE
+        } else binding.mainBackupCooL.visibility = View.GONE
+    }
+
+    private fun handleConnectionBannerVisibility(serviceMap: Map<String, Boolean>) {
+        if (serviceMap.containsValue(false)) {
+            Log.d(TAG, "Showing connection error banner...")
+            (binding.mainConnectionCardView.layoutParams as CoordinatorLayout.LayoutParams)
+                .behavior = null
+            binding.mainConnectionCardView.isEnabled = true
+            binding.mainConnectionCardView.isCheckable = true
+            binding.mainConnectionCardView.toggle()
+            (binding.mainConnectionCardView.layoutParams as CoordinatorLayout.LayoutParams)
+                .setMargins(0, 0, 0, 0)
+            binding.mainConnectionCardView.alpha = 1.0f
+            binding.mainConnectionCardView.requestLayout()
+            binding.mainConnectionCooL.visibility = View.VISIBLE
+        } else binding.mainConnectionCooL.visibility = View.GONE
+    }
+
+    override fun authenticated(requestCode: String) {
+        mActivity.binding.drawerLayout.close()
+        findNavController().navigate(R.id.action_mainFragment_to_backupFragment)
+    }
+
+    override fun handleAuthError(requestCode: String, errorExtraInfo: String?, errCode: Int?) {
+        toastMsg(R.string.err_accessing_backup_page, errorExtraInfo)
+    }
+
+    private fun launchBackupFragment() {
+        if (SharedPreferencesManager.pinActionsConfigured) appAuthenticationService.auth()
+        else authenticated()
     }
 }
 

@@ -21,10 +21,12 @@ import android.util.Log
 import android.util.Size
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.fragment.app.Fragment
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.common.CharacterSetECI
@@ -35,7 +37,10 @@ import com.lelloman.identicon.drawable.ClassicIdenticonDrawable
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import java.security.MessageDigest
 import java.util.*
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 class AppUtils {
     companion object {
@@ -61,10 +66,22 @@ class AppUtils {
 
         fun deleteAppData() {
             Log.i(TAG, "Deleting app data...")
-            AppContainer.bdkDir.deleteRecursively()
-            AppContainer.rgbDir.deleteRecursively()
+            deleteBdkData()
+            deleteRgbData()
             AppContainer.dbPath.delete()
             SharedPreferencesManager.clearAll()
+        }
+
+        fun deleteBdkData() {
+            Log.i(TAG, "Deleting bdk data...")
+            AppContainer.bdkDir.deleteRecursively()
+            AppContainer.bdkDir.mkdir()
+        }
+
+        fun deleteRgbData() {
+            Log.i(TAG, "Deleting rgb data...")
+            AppContainer.rgbDir.deleteRecursively()
+            AppContainer.rgbDir.mkdir()
         }
 
         fun getAssetIdIdenticon(
@@ -143,7 +160,7 @@ class AppUtils {
             }
         }
 
-        fun showDownloadedNotification(
+        fun createNotification(
             context: Context,
             channelId: String,
             notificationId: Int,
@@ -151,8 +168,9 @@ class AppUtils {
             channelDescriptionId: Int,
             contentTitleId: Int,
             contentTextId: Int,
-            requestPermissionLauncher: ActivityResultLauncher<String>
-        ) {
+            intent: Intent,
+            requestPermissionLauncher: ActivityResultLauncher<String>? = null,
+        ): Notification? {
             val channel =
                 NotificationChannel(
                         channelId,
@@ -163,8 +181,6 @@ class AppUtils {
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
-            val intent = Intent()
-            intent.action = DownloadManager.ACTION_VIEW_DOWNLOADS
 
             val pendingIntent =
                 PendingIntent.getActivity(
@@ -179,6 +195,7 @@ class AppUtils {
                     .setContentTitle(context.getString(contentTitleId))
                     .setContentText(context.getString(contentTextId))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
 
@@ -190,12 +207,37 @@ class AppUtils {
                             Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
-                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        return
+                        if (requestPermissionLauncher != null) {
+                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            return null
+                        } else {
+                            Log.d(TAG, "Cannot request notification permissions")
+                        }
                     }
                 }
-                notify(notificationId, builder.build())
+                val notification = builder.build()
+                notify(notificationId, notification)
+                return notification
             }
+        }
+
+        fun askForNotificationsPermission(
+            context: Context,
+            requestPermissionLauncher: ActivityResultLauncher<String>
+        ): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (
+                    ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    Log.d(TAG, "Requesting notification permissions...")
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return true
+                }
+            }
+            return false
         }
 
         fun List<String>.toBulletedList(color: Int = 0): CharSequence {
@@ -212,25 +254,39 @@ class AppUtils {
         fun uLongAbsDiff(first: ULong, second: ULong): ULong {
             return if (first > second) first - second else second - first
         }
+
+        fun getErrMsg(context: Context, baseMsgID: Int, extraMsg: String? = null): String {
+            var errMsg = context.getString(baseMsgID)
+            if (!extraMsg.isNullOrBlank())
+                errMsg =
+                    context.getString(
+                        R.string.app_exception_msg,
+                        errMsg,
+                        extraMsg.replaceFirstChar(Char::lowercase)
+                    )
+            return errMsg
+        }
+
+        fun toastErrorFromFragment(fragment: Fragment, baseMsgID: Int, extraMsg: String? = null) {
+            val errMsg = getErrMsg(fragment.requireContext(), baseMsgID, extraMsg)
+            toastFromFragment(fragment, errMsg)
+        }
+
+        fun toastFromFragment(fragment: Fragment, msg: String) {
+            Log.d(fragment.TAG, msg)
+            Toast.makeText(fragment.activity, msg, Toast.LENGTH_LONG).show()
+        }
     }
 }
 
-class AsciiInputFilter : InputFilter {
-    override fun filter(
-        source: CharSequence,
-        start: Int,
-        end: Int,
-        dest: Spanned?,
-        dstart: Int,
-        dend: Int
-    ): CharSequence {
-        for (i in start until end) {
-            if (source[i].code < 32 || source[i].code > 127) {
-                return ""
-            }
+fun String.getSha256(): String {
+    val digest = MessageDigest.getInstance("SHA-256").apply { reset() }
+    val byteData: ByteArray = digest.digest(this.toByteArray())
+    return StringBuffer()
+        .apply {
+            byteData.forEach { append(((it.toInt() and 0xff) + 0x100).toString(16).substring(1)) }
         }
-        return source
-    }
+        .toString()
 }
 
 class DecimalsInputFilter(maxIntegerPlaces: Int, maxDecimalPlaces: Int, minValue: Double? = null) :
@@ -273,5 +329,24 @@ class DecimalsInputFilter(maxIntegerPlaces: Int, maxDecimalPlaces: Int, minValue
         if (decimalPlaces > maxDecimalPlaces) return ""
 
         return source
+    }
+}
+
+class LazyMutable<T>(val initializer: () -> T) : ReadWriteProperty<Any?, T> {
+    private object UNINITIALIZED
+
+    private var prop: Any? = UNINITIALIZED
+
+    @Suppress("UNCHECKED_CAST")
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return if (prop == UNINITIALIZED) {
+            synchronized(this) {
+                return if (prop == UNINITIALIZED) initializer().also { prop = it } else prop as T
+            }
+        } else prop as T
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        synchronized(this) { prop = value }
     }
 }

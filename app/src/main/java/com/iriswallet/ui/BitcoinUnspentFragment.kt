@@ -40,6 +40,7 @@ class BitcoinUnspentFragment :
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_listing_unspents, response.error.message)
+                        enableUI()
                         findNavController().popBackStack()
                     }
                 }

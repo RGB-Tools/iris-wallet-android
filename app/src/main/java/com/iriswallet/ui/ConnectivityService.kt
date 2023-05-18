@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.TAG
 import java.net.InetSocketAddress
@@ -23,7 +24,7 @@ class ConnectivityService : Service() {
 
     private val serviceURLs: List<String> by lazy {
         listOf(
-            AppContainer.electrumURL,
+            SharedPreferencesManager.electrumURL,
             AppContainer.proxyURL,
         )
     }

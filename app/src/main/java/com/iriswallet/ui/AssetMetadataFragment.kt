@@ -28,6 +28,7 @@ class AssetMetadataFragment :
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_showing_metadata, response.error.message)
+                        enableUI()
                         findNavController().popBackStack()
                     }
                 }
@@ -47,7 +48,7 @@ class AssetMetadataFragment :
     }
 
     private fun showMetadata(metadata: org.rgbtools.Metadata) {
-        binding.metadataTypeTV.text = metadata.assetType.toString()
+        binding.metadataTypeTV.text = metadata.assetIface.toString()
         binding.metadataIssuedSupplyTV.text = metadata.issuedSupply.toString()
         binding.metadataDateTV.text =
             SimpleDateFormat(AppConstants.transferDateFmt, Locale.US)
@@ -62,10 +63,6 @@ class AssetMetadataFragment :
             binding.metadataDescriptionTV.visibility = View.GONE
             binding.metadataDescriptionLabelTV.visibility = View.GONE
         } else binding.metadataDescriptionTV.text = metadata.description
-        if (metadata.parentId.isNullOrBlank()) {
-            binding.metadataParentIDTV.visibility = View.GONE
-            binding.metadataParentIDLabelTV.visibility = View.GONE
-        } else binding.metadataParentIDTV.text = metadata.parentId
         binding.metadataScrollView.visibility = View.VISIBLE
     }
 }

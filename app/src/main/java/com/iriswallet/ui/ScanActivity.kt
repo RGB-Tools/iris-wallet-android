@@ -86,6 +86,7 @@ class ScanActivity : AppCompatActivity() {
             PackageManager.FEATURE_CAMERA_FLASH
         )
     }
+
     override fun onSupportNavigateUp(): Boolean {
         setResult(ABORT)
         finish()

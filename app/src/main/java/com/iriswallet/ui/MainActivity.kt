@@ -14,8 +14,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.LiveData
@@ -27,6 +28,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.iriswallet.R
+import com.iriswallet.data.RgbRepository
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.ActivityMainBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.BitcoinNetwork
@@ -40,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    private lateinit var navController: NavController
+    internal lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private var inMainFragment = true
 
@@ -54,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     private val _services = MutableLiveData<Event<Map<String, Boolean>>>()
     val services: LiveData<Event<Map<String, Boolean>>>
         get() = _services
+
     var serviceMap: Map<String, Boolean>? = null
 
     internal lateinit var mService: ConnectivityService
@@ -107,8 +111,9 @@ class MainActivity : AppCompatActivity() {
             AppContainer.rgbFaucetURLS.isNotEmpty()
         binding.navView.menu.findItem(R.id.issueRgb20AssetFragment).isVisible =
             AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
-        binding.navView.menu.findItem(R.id.issueRgb121AssetFragment).isVisible =
+        binding.navView.menu.findItem(R.id.issueRgb25AssetFragment).isVisible =
             AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
+
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             binding.drawerLayout.close()
@@ -118,23 +123,30 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.navView.visibility = View.VISIBLE
             inMainFragment = destination.id == R.id.mainFragment
-            if (
-                listOf(R.id.issueRgb20AssetFragment, R.id.issueRgb121AssetFragment)
-                    .contains(destination.id)
-            ) {
-                AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.issue_warning))
-                    .setPositiveButton(getString(R.string.OK)) { _, _ -> }
-                    .setCancelable(false)
-                    .create()
-                    .show()
-            }
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         manager.cancelAll()
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!backEnabled) {
+                        Toast.makeText(
+                                baseContext,
+                                getString(R.string.back_disabled),
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                        return
+                    }
+                    navController.popBackStack()
+                }
+            }
+        )
 
         viewModel.refreshedFungibles.observe(this) {
             if (!inMainFragment) it.getContentIfNotHandled()
@@ -149,7 +161,11 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return if (backEnabled)
             navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-        else false
+        else {
+            Toast.makeText(baseContext, getString(R.string.back_disabled), Toast.LENGTH_SHORT)
+                .show()
+            false
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -162,6 +178,13 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         if (mBound) unbindService(connection)
         mBound = false
+        if (
+            SharedPreferencesManager.backupConfigured &&
+                RgbRepository.isBackupRequired() &&
+                !(SharedPreferencesManager.pinLoginConfigured && !loggedIn) &&
+                !viewModel.avoidBackup
+        )
+            applicationContext.startForegroundService(Intent(this, BackupService::class.java))
         super.onDestroy()
     }
 
@@ -183,6 +206,12 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
+    internal fun startConnectivityService() {
+        Intent(this, ConnectivityService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
     private fun setupSplashScreen() {
         val content: View = findViewById(android.R.id.content)
         content.viewTreeObserver.addOnPreDrawListener(
@@ -197,11 +226,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
-    }
-
-    internal fun startConnectivityService() {
-        Intent(this, ConnectivityService::class.java).also { intent ->
-            bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        }
     }
 }

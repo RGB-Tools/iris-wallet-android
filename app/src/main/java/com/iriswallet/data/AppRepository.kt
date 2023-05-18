@@ -2,15 +2,25 @@ package com.iriswallet.data
 
 import android.util.Log
 import com.iriswallet.R
-import com.iriswallet.data.db.AutomaticTransaction
 import com.iriswallet.data.db.HiddenAsset
 import com.iriswallet.data.db.RgbPendingAsset
 import com.iriswallet.data.retrofit.RgbAsset
-import com.iriswallet.utils.*
+import com.iriswallet.utils.AppAsset
+import com.iriswallet.utils.AppAssetType
+import com.iriswallet.utils.AppConstants
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.AppException
+import com.iriswallet.utils.AppMedia
+import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.Receiver
+import com.iriswallet.utils.RgbFaucet
+import com.iriswallet.utils.TAG
+import com.iriswallet.utils.UTXO
 import java.io.File
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import org.rgbtools.RgbLibException
+import org.rgbtools.TransactionType
 
 object AppRepository {
 
@@ -27,7 +37,7 @@ object AppRepository {
     }
 
     fun getCachedCollectibles(): List<AppAsset> {
-        return appAssets.filter { it.type == AppAssetType.RGB121 }
+        return appAssets.filter { it.type == AppAssetType.RGB25 }
     }
 
     internal fun getCachedAsset(assetID: String): AppAsset? {
@@ -35,7 +45,7 @@ object AppRepository {
     }
 
     private fun updateBitcoinAsset(refresh: Boolean = true) {
-        Log.d(TAG, "Updating bitcoin asset...")
+        Log.d(TAG, "Updating bitcoin asset with refresh $refresh...")
 
         if (appAssets.isEmpty()) {
             appAssets.add(
@@ -52,11 +62,15 @@ object AppRepository {
         if (refresh) BdkRepository.syncWithBlockchain()
 
         val transfers = BdkRepository.listTransfers().toMutableList()
-        val autoTXs = AppContainer.db.automaticTransactionDao().getAutomaticTransactions()
-        transfers.filter { it.txid in autoTXs.map { tx -> tx.txid } }.forEach { it.internal = true }
+        val autoTXs =
+            RgbRepository.listTransactions(refresh)
+                .filter { it.transactionType == TransactionType.CREATE_UTXOS }
+                .map { tx -> tx.txid }
+        transfers.filter { it.txid in autoTXs }.forEach { it.internal = true }
         bitcoinAsset.transfers = transfers
 
         val balance = BdkRepository.getBalance()
+        Log.d(TAG, "BDK balance: $balance")
         bitcoinAsset.spendableBalance = balance.total
         bitcoinAsset.settledBalance = balance.total
         bitcoinAsset.totalBalance = balance.total
@@ -165,35 +179,17 @@ object AppRepository {
 
     private fun createUTXOs(e: Exception) {
         Log.d(TAG, "Creating UTXOs because: ${e.message}")
-        if (e is RgbLibException.InsufficientBitcoins) {
-            Log.d(TAG, "Sending funds to RGB wallet...")
-            try {
-                val txid =
-                    BdkRepository.sendToAddress(
-                        RgbRepository.getAddress(),
-                        AppConstants.satsForRgb,
-                        SharedPreferencesManager.feeRate.toFloat()
-                    )
-                AppContainer.db
-                    .automaticTransactionDao()
-                    .insertAutomaticTransactions(AutomaticTransaction(txid))
-            } catch (e: AppException) {
-                throw AppException(
-                    AppContainer.appContext.getString(
-                        R.string.insufficient_bitcoins_for_rgb,
-                        AppConstants.satsForRgb.toString()
-                    )
+        try {
+            Log.d(TAG, "Calling create UTXOs...")
+            val newUTXOs = RgbRepository.createUTXOs()
+            Log.d(TAG, "Created $newUTXOs UTXOs")
+        } catch (e: RgbLibException.InsufficientBitcoins) {
+            throw AppException(
+                AppContainer.appContext.getString(
+                    R.string.insufficient_bitcoins_for_rgb,
+                    AppConstants.satsForRgb.toString()
                 )
-            }
-        }
-        var attempts = 3
-        var newUTXOs: UByte = 0u
-        while (newUTXOs == 0u.toUByte() && attempts > 0) {
-            try {
-                Log.d(TAG, "Calling create UTXOs...")
-                newUTXOs = RgbRepository.createUTXOs()
-            } catch (_: RgbLibException.InsufficientBitcoins) {}
-            attempts--
+            )
         }
     }
 
@@ -202,7 +198,13 @@ object AppRepository {
             callback()
         } catch (e: RgbLibException) {
             when (e) {
-                is RgbLibException.InsufficientBitcoins,
+                is RgbLibException.InsufficientBitcoins ->
+                    throw AppException(
+                        AppContainer.appContext.getString(
+                            R.string.insufficient_bitcoins_for_rgb,
+                            AppConstants.satsForRgb.toString()
+                        )
+                    )
                 is RgbLibException.InsufficientAllocationSlots -> {
                     createUTXOs(e)
                     updateBitcoinAsset()
@@ -212,7 +214,7 @@ object AppRepository {
                     throw AppException(
                         AppContainer.appContext.getString(R.string.invalid_blinded_utxo)
                     )
-                is RgbLibException.BlindedUtxoAlreadyUsed ->
+                is RgbLibException.RecipientIdAlreadyUsed ->
                     throw AppException(
                         AppContainer.appContext.getString(R.string.blinded_utxo_already_used)
                     )
@@ -243,11 +245,11 @@ object AppRepository {
         asset: AppAsset,
         blindedUTXO: String,
         amount: ULong,
-        consignmentEndpoints: List<String>,
+        transportEndpoints: List<String>,
         feeRate: Float,
     ): String {
         Log.d(TAG, "Initiating transfer for blinded UTXO: $blindedUTXO")
-        val txid = RgbRepository.send(asset, blindedUTXO, amount, consignmentEndpoints, feeRate)
+        val txid = RgbRepository.send(asset, blindedUTXO, amount, transportEndpoints, feeRate)
         runCatching {
                 updateRGBAssets(
                     refresh = false,
@@ -274,31 +276,28 @@ object AppRepository {
         return asset
     }
 
-    fun issueRgb121Asset(
+    fun issueRgb25Asset(
         name: String,
         amounts: List<ULong>,
         description: String?,
         fileStream: InputStream?
     ): AppAsset {
         checkMaxAssets()
-        val contract = handleMissingFunds {
-            var filePath: String? = null
-            var file: File? = null
-
-            if (fileStream != null) {
-                file = File.createTempFile("tmp", null, AppContainer.appContext.cacheDir)
-                file.writeBytes(fileStream.readBytes())
-                fileStream.close()
-                filePath = file.absolutePath
-            }
-
-            val contract = RgbRepository.issueAssetRgb121(name, amounts, description, filePath)
-            file?.delete()
-            contract
+        var filePath: String? = null
+        var file: File? = null
+        if (fileStream != null) {
+            file = File.createTempFile("tmp", null, AppContainer.appContext.cacheDir)
+            file.writeBytes(fileStream.readBytes())
+            fileStream.close()
+            filePath = file.absolutePath
         }
+        val contract = handleMissingFunds {
+            RgbRepository.issueAssetRgb25(name, amounts, description, filePath)
+        }
+        file?.delete()
         val asset =
             AppAsset(
-                AppAssetType.RGB121,
+                AppAssetType.RGB25,
                 contract.assetId,
                 name,
             )
@@ -348,13 +347,13 @@ object AppRepository {
         asset: AppAsset,
         recipient: String,
         amount: ULong,
-        consignmentEndpoints: List<String>,
+        transportEndpoints: List<String>,
         feeRate: Float,
     ): String {
         return if (asset.bitcoin()) BdkRepository.sendToAddress(recipient, amount, feeRate)
         else
             handleMissingFunds {
-                initiateRgbTransfer(asset, recipient, amount, consignmentEndpoints, feeRate)
+                initiateRgbTransfer(asset, recipient, amount, transportEndpoints, feeRate)
             }
     }
 
@@ -401,7 +400,13 @@ object AppRepository {
     fun getBitcoinUnspents(): List<UTXO> {
         val assetsInfoMap =
             appAssets.associate { it.id to if (it.ticker.isNullOrBlank()) it.name else it.ticker }
-        val unspentList = BdkRepository.listUnspent() + RgbRepository.listUnspent(assetsInfoMap)
+        val bdkUnspents = BdkRepository.listUnspent()
+        val bdkOutpoints = bdkUnspents.map { it.outpoint() }
+        val rgbUnspentsFiltered =
+            RgbRepository.listUnspent(assetsInfoMap).filter {
+                !bdkOutpoints.contains(it.outpoint())
+            }
+        val unspentList = bdkUnspents + rgbUnspentsFiltered
         Log.d(TAG, "Unspent list: $unspentList")
         return unspentList
     }
@@ -415,7 +420,7 @@ object AppRepository {
     suspend fun getRgbFaucetAssetGroups(): List<RgbFaucet> {
         val assetGroups = mutableListOf<RgbFaucet>()
         for (url in AppContainer.rgbFaucetURLS) {
-            RgbFaucetRepository.getConfig(url, AppContainer.bitcoinKeys.xpub)?.let {
+            RgbFaucetRepository.getConfig(url, AppContainer.walletIdentifier)?.let {
                 assetGroups.add(RgbFaucet(it, url))
             }
         }
@@ -430,13 +435,14 @@ object AppRepository {
         val asset =
             RgbFaucetRepository.receiveRgbAsset(
                 url,
-                AppContainer.bitcoinKeys.xpub,
+                AppContainer.walletIdentifier,
                 blindedUtxo,
                 group
             )
         Log.d(TAG, "Will receive an RGB asset with ID '${asset.assetID}'")
         val existingAsset = getCachedAsset(asset.assetID)
         if (existingAsset == null) {
+            Log.d(TAG, "Asset from faucet is unknown")
             val rgbPendingAsset = RgbPendingAsset(asset)
             AppContainer.db.rgbPendingAssetDao().insertRgbPendingAsset(rgbPendingAsset)
             rgbPendingAssetIDs.add(rgbPendingAsset.assetID)

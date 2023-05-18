@@ -10,9 +10,9 @@ import com.iriswallet.R
 import com.iriswallet.databinding.TransferListItemBinding
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.AppTransferKind
 import java.text.SimpleDateFormat
 import java.util.*
-import org.rgbtools.TransferKind
 import org.rgbtools.TransferStatus
 
 class TransferListAdapter(
@@ -20,7 +20,7 @@ class TransferListAdapter(
     private val viewModel: MainViewModel,
     private val fragment: AssetDetailFragment
 ) : RecyclerView.Adapter<TransferListAdapter.ViewHolder>() {
-    var isClickEnabled = true
+    private var isClickEnabled = true
 
     class ViewHolder(val binding: TransferListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -38,7 +38,7 @@ class TransferListAdapter(
         val transfer = dataSet[position]
 
         viewHolder.binding.transferExtraInfoTV.visibility =
-            if (transfer.kind == TransferKind.ISSUANCE) {
+            if (transfer.kind == AppTransferKind.ISSUANCE) {
                 viewHolder.binding.transferExtraInfoTV.text =
                     viewHolder.itemView.context.getString(R.string.issuance)
                 View.VISIBLE

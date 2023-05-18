@@ -26,6 +26,14 @@
         Please note that this app is not optimised neither for efficiency nor for privacy, and it
         should be used for testing purposes only.</string>
     <string name="first_run_create">Create</string>
+    <string name="first_run_restore">Restore</string>
+    <string name="i_understand">I understand</string>
+    <string name="restore_info_positive">Understood</string>
+    <string name="restore_info_title">The restore procedure is about to begin</string>
+    <string name="restore_info_message">You will need to enter the mnemonic phrase. Be careful not to be observed while entering it.
+        \n\nYou will then need to select the Google account where the backup is stored. It needs to be the same account that has been chosen at backup configuration time. Using any other account will cause the restore to fail.
+        \n\nMake sure you are restoring a recent backup. Restoring an old one might lead to issues.
+        \n\nDo not use the same wallet on more than one device (e.g. restoring to a new device while still using the original one) as it causes serious issues that lead to the loss of funds.</string>
     <string name="accept">Accept</string>
     <string name="do_not_accept">Do not accept</string>
     <string name="cancel">Cancel</string>
@@ -41,12 +49,13 @@
     <string name="confirm_unhide_asset">This will make the asset visible on the main list, even when
         the “Show hidden assets” setting is disabled.\n\nDo you want to proceed?</string>
     <string name="address">Address</string>
+    <string name="address_or_invoice">Address or bitcoin invoice</string>
     <string name="amount">Amount</string>
     <string name="amount_to_pay">Amount to pay</string>
     <string name="fee_rate">Fee rate in sat/vbyte</string>
     <string name="total_balance">Total Balance</string>
     <string name="spendable_balance">Spendable Balance</string>
-    <string name="blinded_utxo">blinded UTXO</string>
+    <string name="blinded_utxo_or_invoice">blinded UTXO or RGB invoice</string>
     <string name="date">Date</string>
     <string name="issuance_date">Issuance date</string>
     <string name="send">Send</string>
@@ -55,7 +64,6 @@
     <string name="issued_supply">Issued supply</string>
     <string name="asset_precision">Asset precision</string>
     <string name="asset_description">Asset description</string>
-    <string name="asset_parent_id">Asset parent ID</string>
     <string name="err_refreshing_asset_details">Error refreshing asset details</string>
     <string name="err_deleting_transfer">Error deleting transfer</string>
     <string name="err_hiding_asset">Error hiding asset</string>
@@ -65,6 +73,8 @@
     <string name="err_listing_unspents">Error listing unspents</string>
     <string name="err_showing_metadata">Error showing asset metadata</string>
     <string name="err_sending">Error sending</string>
+    <string name="err_accessing_backup_page">Cannot access to backup page</string>
+    <string name="err_notification_permission">Cannot proceed without notification permission</string>
     <string name="faucet_no_assets">There are no available assets</string>
     <string name="sent_txid">Sent %s</string>
     <string name="cancelled_scan_permissions">Cancelled scan due to missing camera
@@ -80,7 +90,6 @@
     <string name="asset_id_mismatch">Asset ID mismatch, the given invoice is for asset "%s"</string>
     <string name="expired_rgb_invoice">The given RGB invoice is expired"</string>
     <string name="invalid_btc_invoice_scheme">The given bitcoin invoice has an invalid schema</string>
-    <string name="invalid_btc_address">The </string>
     <string name="invalid_address_network">Address for wrong network</string>
     <string name="using_default_consignment_endpoint">Using default URL for the consignment endpoint
         since no one has been provided in the invoice</string>
@@ -128,7 +137,7 @@
     <string name="sample_invoice">i1q93kqcru6xlkqn6qa455mg2u34v4t23ddg5443nmuuwdk0p0h9aaakwnclnyuetzvp3gqqq9sewm2p4m8y4rdmxarvewhr5nn4t6lwut8k96kamgmgp9radhhu8xs933gd2hyvx5es5y7p43qq8834eq</string>
     <string name="sample_date">1970–01–01</string>
     <string name="sample_datetime">1970–01–01 00:00:00</string>
-    <string name="sample_consignment_endpoints">&#8226; https://proxy.sample.com\n&#8226; https://proxy.sample.alt.com<br/></string>
+    <string name="sample_consignment_endpoints">&#8226; https://proxy.sample.com\n&#8226; https://proxy.sample.alt.com<br /></string>
     <string name="sample_faucet_name">RGB-Tools Faucet</string>
     <string name="sample_asset_group_name">Collectibles assets</string>
     <string name="sample_time">00:00:00</string>
@@ -139,6 +148,8 @@
     <string name="sample_precision">0</string>
     <string name="sample_asset_description">A very cool asset</string>
     <string name="sample_fee_rate">1.5</string>
+    <string name="mnemonic_pt1">01. season\n02. dumb\n03. romance\n04. december\n05. blood\n06. toy</string>
+    <string name="mnemonic_pt2">07. dinner\n08. robot\n09. weird\n10. rabbit\n11. cook\n12. immense</string>
 
     <!-- layout strings -->
     <string name="asset_id_label">Asset ID</string>
@@ -150,6 +161,7 @@
     <string name="wallet_icon_description">Wallet icon</string>
     <string name="collectible_image_description">Collectible image</string>
     <string name="collectible_video_description">Collectible video</string>
+    <string name="fungible_item">Fungible image</string>
     <string name="iris_title_desc">Iris RGB Wallet</string>
     <string name="receive_qrcode_desc">QR code</string>
     <string name="logo_desc">Iris Wallet logo</string>
@@ -157,7 +169,7 @@
     <string name="help_title">Help</string>
     <string name="about_title">About</string>
     <string name="issue_rgb20_asset_title">Issue new RGB20 asset</string>
-    <string name="issue_rgb121_asset_title">Issue new RGB121 asset</string>
+    <string name="issue_rgb25_asset_title">Issue new RGB25 asset</string>
     <string name="receive_asset_title">Receive</string>
     <string name="unspent_list_title">Unspent list</string>
     <string name="faucet_title">Faucets</string>
@@ -211,7 +223,7 @@
     <string name="faucet_info">You can get free RGB assets from the available faucets</string>
     <string name="menu_faucets">Faucets</string>
     <string name="menu_issue_rgb20_asset">Issue new RGB20 asset</string>
-    <string name="menu_issue_rgb121_asset">Issue new RGB121 asset</string>
+    <string name="menu_issue_rgb25_asset">Issue new RGB25 asset</string>
     <string name="delete_transfer">Delete transfer</string>
     <string name="hide_asset">Hide asset</string>
     <string name="unhide_asset">Unhide asset</string>
@@ -233,16 +245,12 @@
     <string name="pref_electrum_url_summary">Specify which electrum server to use for Bitcoin and
         RGB operations</string>
     <string name="pref_electrum_url_dialog_title">Insert an electrum URL</string>
-    <string name="pref_electrum_url_dialog_summary">Insert an electrum server URL to use for Bitcoin
-        and RGB operations. Please note that after changing this option you need to close and
-        re-open the app in order to the changes to have effect.</string>
+    <string name="pref_electrum_url_dialog_summary">Insert an electrum server URL to use for Bitcoin and RGB operations.</string>
     <string name="pref_proxy_url_title">Specify an RGB proxy URL</string>
     <string name="pref_proxy_url_summary">Specify which proxy server to use for RGB
         operations</string>
     <string name="pref_proxy_url_dialog_title">Insert an RGB proxy URL</string>
-    <string name="pref_proxy_url_dialog_summary">Insert a proxy server URL to use for RGB
-        operations. Please note that after changing this option you need to close and re-open the
-        app in order to the changes to have effect.</string>
+    <string name="pref_proxy_url_dialog_summary">Insert a proxy server URL to use for RGB operations.</string>
     <string name="pref_show_hidden_assets_title">Show hidden assets</string>
     <string name="pref_show_hidden_assets_summary">View also hidden assets in the asset list</string>
     <string name="pref_hide_exhausted_assets_title">Hide exhausted assets</string>
@@ -277,6 +285,39 @@
         a few minutes</string>
     <string name="show_mnemonic">Show mnemonic</string>
     <string name="hide_mnemonic">Hide mnemonic</string>
-    <string name="issue_warning">WARNING: assets issued with this RGB version (0.9) will be
-        incompatible with the next one and will therefore be lost when upgrading</string>
+    <string name="backup_info">In order to recover your assets, you need a backup copy of both the bitcoin mnemonic phrase and RGB offline data.</string>
+    <string name="backup_disclaimer_mnemonic">Write down the mnemonic phrase and store it in a secure place. The mnemonic phrase is used to encrypt the RGB data backup, so it will be needed, together with the data backup, in order to recover your assets.</string>
+    <string name="backup_disclaimer_data">Select a Google account where the RGB data backup will be saved. The bitcoin mnemonic phrase will also be required at restore time to decrypt the backup and recover your assets.</string>
+    <string name="configure_backup">Configure backup</string>
+    <string name="backup_configured">Backup of RGB offline data is configured.
+        Backups will be performed on app exit, only if data has changed since the last backup.
+        \n\nThe backup copy is stored on the following Google Drive account: %s</string>
+    <string name="backup_notification_title">Performing backup…</string>
+    <string name="backup_notification_text">Do not force stop the app while this notification is
+        visible</string>
+    <string name="backup_notification_error_title">Error performing backup!</string>
+    <string name="backup_notification_error_text">Open the app and close it again to start another
+        backup attempt</string>
+    <string name="backup_notification_channel_name">Backup Background Service</string>
+    <string name="backup_notification_channel_description">Channel to notify backup</string>
+    <string name="invalid_mnemonic">invalid mnemonic</string>
+    <string name="err_no_backup_found">no backup found</string>
+    <string name="err_restoring_app">Error restoring app</string>
+    <string name="mnemonic_restore_title">Mnemonic phrase restore</string>
+    <string name="mnemonic_restore_message">Enter your mnemonic phrase, being careful not to be
+        observed</string>
+    <string name="alert_continue">Continue</string>
+    <string name="err_google_sign_in">Error signing in to Google</string>
+    <string name="configure">configure</string>
+    <string name="backup_not_configured">Backup not yet configured!</string>
+    <string name="backup_completed">Backup successfully completed!</string>
+    <string name="err_doing_backup">Error doing backup</string>
+    <string name="after_update_disclaimer">This update contains breaking changes due to the update
+    of the RGB protocol from version 0.9 to 0.10.\n\n
+    You will not see your RGB assets anymore but we will move any existing bitcoin funds from the
+    old wallet to the new one (WARNING: it could take a while before funds become visible, refresh
+    the wallet to update the balance).\n\n
+    The faucet has also been updated in order to send assets back to the users that requested them in the past.
+    Make sure the RGB wallet has enough funds to create some UTXOs and then go to the faucet to request
+    the assets back.</string>
 </resources>

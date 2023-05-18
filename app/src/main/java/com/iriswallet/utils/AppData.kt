@@ -18,6 +18,7 @@ data class AppAsset(
     val type: AppAssetType,
     val id: String,
     var name: String,
+    val iface: AssetIface? = null,
     val ticker: String? = null,
     var media: AppMedia? = null,
     val fromFaucet: Boolean = false,
@@ -28,11 +29,12 @@ data class AppAsset(
     var hidden: Boolean = false,
 ) : Parcelable {
     constructor(
-        rgbAsset: AssetRgb20
+        rgbAsset: AssetNia
     ) : this(
         AppAssetType.RGB20,
         rgbAsset.assetId,
         rgbAsset.name,
+        iface = rgbAsset.assetIface,
         ticker = rgbAsset.ticker,
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
@@ -40,11 +42,12 @@ data class AppAsset(
     )
 
     constructor(
-        rgbAsset: AssetRgb121
+        rgbAsset: AssetCfa
     ) : this(
-        AppAssetType.RGB121,
+        AppAssetType.RGB25,
         rgbAsset.assetId,
         rgbAsset.name,
+        iface = rgbAsset.assetIface,
         media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
@@ -54,10 +57,13 @@ data class AppAsset(
     constructor(
         rgbPendingAsset: RgbPendingAsset
     ) : this(
-        if (rgbPendingAsset.schema == AppAssetType.RGB20.toString()) AppAssetType.RGB20
-        else AppAssetType.RGB121,
+        if (rgbPendingAsset.schema == AppAssetType.RGB20.schemaName()) AppAssetType.RGB20
+        else AppAssetType.RGB25,
         rgbPendingAsset.assetID,
         rgbPendingAsset.name,
+        iface =
+            if (rgbPendingAsset.schema == AppAssetType.RGB20.toString()) AssetIface.RGB20
+            else AssetIface.RGB25,
         ticker = rgbPendingAsset.ticker,
         media = null,
         fromFaucet = true,
@@ -67,7 +73,7 @@ data class AppAsset(
                 AppTransfer(
                     Date(rgbPendingAsset.timestamp),
                     TransferStatus.WAITING_COUNTERPARTY,
-                    TransferKind.RECEIVE,
+                    AppTransferKind.RECEIVE,
                     amount = rgbPendingAsset.amount.toULong(),
                 )
             )
@@ -153,7 +159,15 @@ enum class BitcoinNetwork {
 enum class AppAssetType {
     BITCOIN,
     RGB20,
-    RGB121
+    RGB25;
+
+    fun schemaName(): String {
+        return when (this) {
+            BITCOIN -> ""
+            RGB20 -> "NIA"
+            RGB25 -> "CFA"
+        }
+    }
 }
 
 open class Event<out T>(private val content: T) {
@@ -228,32 +242,49 @@ data class AppOutpoint(val txid: String, val vout: UInt) : Parcelable {
 }
 
 @Parcelize
-data class AppTransferConsignmentEndpoint(
+data class AppTransferTransportEndpoint(
     val endpoint: String,
-    val protocol: ConsignmentTransport,
+    val transportType: TransportType,
     val used: Boolean
 ) : Parcelable {
     constructor(
-        transferConsignmentEndpoint: TransferConsignmentEndpoint
+        transferTransportEndpoint: TransferTransportEndpoint
     ) : this(
-        transferConsignmentEndpoint.endpoint,
-        transferConsignmentEndpoint.protocol,
-        transferConsignmentEndpoint.used
+        transferTransportEndpoint.endpoint,
+        transferTransportEndpoint.transportType,
+        transferTransportEndpoint.used
     )
+}
+
+enum class AppTransferKind {
+    ISSUANCE,
+    RECEIVE,
+    SEND;
+
+    companion object {
+        fun fromRgbLibTransferKind(transferKind: TransferKind): AppTransferKind {
+            return when (transferKind) {
+                TransferKind.ISSUANCE -> ISSUANCE
+                TransferKind.RECEIVE_BLIND -> RECEIVE
+                TransferKind.RECEIVE_WITNESS -> RECEIVE
+                TransferKind.SEND -> SEND
+            }
+        }
+    }
 }
 
 @Parcelize
 data class AppTransfer(
     val date: Date,
     val status: TransferStatus,
-    val kind: TransferKind,
+    val kind: AppTransferKind,
     val amount: ULong? = null,
     val expiration: Long? = null,
     val txid: String? = null,
     val blindedUTXO: String? = null,
-    val unblindedUTXO: AppOutpoint? = null,
+    val receiveUTXO: AppOutpoint? = null,
     val changeUTXO: AppOutpoint? = null,
-    val consignmentEndpoints: List<AppTransferConsignmentEndpoint>? = null,
+    val transportEndpoints: List<AppTransferTransportEndpoint>? = null,
     var internal: Boolean = false,
 ) : Parcelable {
     constructor(
@@ -263,7 +294,8 @@ data class AppTransfer(
         else Date(bdkTransfer.confirmationTime!!.timestamp.toLong() * 1000),
         if (bdkTransfer.confirmationTime == null) TransferStatus.WAITING_CONFIRMATIONS
         else TransferStatus.SETTLED,
-        if (bdkTransfer.received > bdkTransfer.sent) TransferKind.RECEIVE else TransferKind.SEND,
+        if (bdkTransfer.received > bdkTransfer.sent) AppTransferKind.RECEIVE
+        else AppTransferKind.SEND,
         amount = AppUtils.uLongAbsDiff(bdkTransfer.received, bdkTransfer.sent),
         txid = bdkTransfer.txid,
     )
@@ -273,15 +305,14 @@ data class AppTransfer(
     ) : this(
         Date(transfer.updatedAt * 1000),
         transfer.status,
-        transfer.kind,
+        AppTransferKind.fromRgbLibTransferKind(transfer.kind),
         amount = transfer.amount,
         expiration = transfer.expiration,
         txid = transfer.txid,
-        blindedUTXO = transfer.blindedUtxo,
-        unblindedUTXO = transfer.unblindedUtxo?.let { AppOutpoint(it) },
+        blindedUTXO = transfer.recipientId,
+        receiveUTXO = transfer.receiveUtxo?.let { AppOutpoint(it) },
         changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
-        consignmentEndpoints =
-            transfer.consignmentEndpoints.map { AppTransferConsignmentEndpoint(it) }
+        transportEndpoints = transfer.transportEndpoints.map { AppTransferTransportEndpoint(it) }
     )
 
     fun deletable(): Boolean {
@@ -289,7 +320,7 @@ data class AppTransfer(
     }
 
     fun incoming(): Boolean {
-        return listOf(TransferKind.RECEIVE, TransferKind.ISSUANCE).contains(kind)
+        return listOf(AppTransferKind.RECEIVE, AppTransferKind.ISSUANCE).contains(kind)
     }
 }
 

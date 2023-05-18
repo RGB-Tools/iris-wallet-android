@@ -24,3 +24,7 @@
 -keep class org.bitcoindevkit.* { *; }
 -keep class org.rgbtools.* { *; }
 -keepclassmembers class * extends com.sun.jna.* { public *; }
+-keep class com.google.api.services.drive.** { *; }
+-keepclassmembers class * {
+  @com.google.api.client.util.Key <fields>;
+}

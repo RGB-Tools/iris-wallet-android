@@ -51,17 +51,40 @@
             android:id="@+id/firstRunPB"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/firstRunCreateBtn"
+            app:layout_constraintBottom_toTopOf="@+id/firstRunBtnsLL"
             android:layout_marginBottom="@dimen/medium_size"
             style="@style/progress_bar" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/firstRunCreateBtn"
-            android:text="@string/first_run_create"
-            style="@style/main_button"
+        <LinearLayout
+            android:id="@+id/firstRunBtnsLL"
+            android:orientation="horizontal"
+            android:layout_margin="@dimen/big_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:gravity="center"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/firstRunCreateBtn"
+                android:text="@string/first_run_create"
+                android:drawableLeft="@drawable/ic_create_selector"
+                style="@style/detail_button" />
+
+            <Space
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/firstRunRestoreBtn"
+                android:text="@string/first_run_restore"
+                android:drawableLeft="@drawable/ic_restore_selector"
+                style="@style/detail_button" />
+
+        </LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

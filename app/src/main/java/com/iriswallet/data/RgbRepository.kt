@@ -3,6 +3,7 @@ package com.iriswallet.data
 import android.util.Log
 import com.iriswallet.utils.*
 import com.iriswallet.utils.AppTransfer
+import java.io.File
 import org.rgbtools.*
 
 object RgbRepository {
@@ -13,13 +14,23 @@ object RgbRepository {
                 AppContainer.rgbDir.absolutePath,
                 AppContainer.bitcoinNetwork.toRgbLibNetwork(),
                 DatabaseType.SQLITE,
+                1u,
                 AppContainer.bitcoinKeys.xpub,
                 AppContainer.bitcoinKeys.mnemonic,
+                AppConstants.derivationChangeVanilla.toUByte(),
             )
         )
     }
 
-    private val online: Online by lazy { coloredWallet.goOnline(true, AppContainer.electrumURL) }
+    private var online: Online by LazyMutable { goOnline(SharedPreferencesManager.electrumURL) }
+
+    fun backupDo(backupPath: File, mnemonic: String) {
+        coloredWallet.backup(backupPath.absolutePath, mnemonic)
+    }
+
+    fun backupRestore(backupPath: File, mnemonic: String, dataDir: File) {
+        restoreBackup(backupPath.absolutePath, mnemonic, dataDir.absolutePath)
+    }
 
     fun createUTXOs(): UByte {
         return coloredWallet.createUtxos(
@@ -44,29 +55,41 @@ object RgbRepository {
         return changed
     }
 
-    fun getAddress(): String {
-        return coloredWallet.getAddress()
-    }
-
     fun getBalance(assetID: String): Balance {
         return coloredWallet.getAssetBalance(assetID)
     }
 
-    fun getBlindedUTXO(assetID: String? = null, expirationSeconds: UInt): BlindData {
-        return coloredWallet.blind(
-            assetID,
-            null,
-            expirationSeconds,
-            listOf(AppContainer.proxyConsignmentEndpoint)
-        )
+    fun getBlindedUTXO(assetID: String? = null, expirationSeconds: UInt): ReceiveData {
+        val blinded =
+            coloredWallet.blindReceive(
+                assetID,
+                null,
+                expirationSeconds,
+                listOf(SharedPreferencesManager.proxyTransportEndpoint),
+                1u
+            )
+        return blinded
     }
 
     fun getMetadata(assetID: String): Metadata {
-        return coloredWallet.getAssetMetadata(online, assetID)
+        return coloredWallet.getAssetMetadata(assetID)
     }
 
-    fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetRgb20 {
-        return coloredWallet.issueAssetRgb20(
+    private fun goOnline(electrumURL: String): Online {
+        return coloredWallet.goOnline(true, electrumURL)
+    }
+
+    fun goOnlineAgain(electrumURL: String) {
+        val newOnline = goOnline(electrumURL)
+        online = newOnline
+    }
+
+    fun isBackupRequired(): Boolean {
+        return coloredWallet.backupInfo()
+    }
+
+    fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetNia {
+        return coloredWallet.issueAssetNia(
             online,
             ticker,
             name,
@@ -75,30 +98,35 @@ object RgbRepository {
         )
     }
 
-    fun issueAssetRgb121(
+    fun issueAssetRgb25(
         name: String,
         amounts: List<ULong>,
         description: String?,
         filePath: String?
-    ): AssetRgb121 {
-        return coloredWallet.issueAssetRgb121(
+    ): AssetCfa {
+        val desc = if (description.isNullOrBlank()) null else description
+        return coloredWallet.issueAssetCfa(
             online,
             name,
-            description,
+            desc,
             AppConstants.rgbDefaultPrecision,
             amounts,
-            null,
             filePath
         )
     }
 
     fun listAssets(): List<AppAsset> {
         val assets = coloredWallet.listAssets(listOf())
-        val assetsRgb20 = assets.rgb20!!.toList()
+        val assetsRgb20 = assets.nia!!.sortedBy { assetNia -> assetNia.addedAt }
         Log.d(TAG, "RGB 20 assets: $assetsRgb20")
-        val assetsRgb121 = assets.rgb121!!.toList()
-        Log.d(TAG, "RGB 121 assets: $assetsRgb121")
-        return assetsRgb20.map { AppAsset(it) } + assetsRgb121.map { AppAsset(it) }
+        val assetsRgb25 = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
+        Log.d(TAG, "RGB 25 assets: $assetsRgb25")
+        return assetsRgb20.map { AppAsset(it) } + assetsRgb25.map { AppAsset(it) }
+    }
+
+    fun listTransactions(sync: Boolean): List<Transaction> {
+        val onlineOpt = if (sync) online else null
+        return coloredWallet.listTransactions(onlineOpt)
     }
 
     fun listTransfers(asset: AppAsset): List<AppTransfer> {
@@ -106,7 +134,7 @@ object RgbRepository {
     }
 
     fun listUnspent(assetsInfoMap: Map<String, String>): List<UTXO> {
-        val unspents = coloredWallet.listUnspents(false)
+        val unspents = coloredWallet.listUnspents(online, false)
         return unspents.map { unspent ->
             val rgbUnspents =
                 unspent.rgbAllocations.map { RgbUnspent(it, assetsInfoMap[it.assetId]) }
@@ -129,14 +157,15 @@ object RgbRepository {
         asset: AppAsset,
         blindedUTXO: String,
         amount: ULong,
-        consignmentEndpoints: List<String>,
+        transportEndpoints: List<String>,
         feeRate: Float,
     ): String {
         return coloredWallet.send(
             online,
-            mapOf(asset.id to listOf(Recipient(blindedUTXO, amount, consignmentEndpoints))),
+            mapOf(asset.id to listOf(Recipient(blindedUTXO, null, amount, transportEndpoints))),
             false,
             feeRate,
+            1u,
         )
     }
 }

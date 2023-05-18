@@ -2,7 +2,11 @@ package com.iriswallet.ui
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.data.AppRepository
+import com.iriswallet.data.BackupRepository
+import com.iriswallet.data.BdkRepository
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
 import java.io.InputStream
@@ -49,9 +53,9 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val issuedRgb20Asset: LiveData<Event<AppResponse<AppAsset>>>
         get() = _issuedRgb20Asset
 
-    private val _issuedRgb121Asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
-    val issuedRgb121Asset: LiveData<Event<AppResponse<AppAsset>>>
-        get() = _issuedRgb121Asset
+    private val _issuedRgb25Asset = MutableLiveData<Event<AppResponse<AppAsset>>>()
+    val issuedRgb25Asset: LiveData<Event<AppResponse<AppAsset>>>
+        get() = _issuedRgb25Asset
 
     private val _unspents = MutableLiveData<Event<AppResponse<List<UTXO>>>>()
     val unspents: LiveData<Event<AppResponse<List<UTXO>>>>
@@ -69,6 +73,14 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val hidden: LiveData<Event<AppResponse<Boolean>>>
         get() = _hidden
 
+    private val _backup = MutableLiveData<Event<AppResponse<Boolean>>>()
+    val backup: LiveData<Event<AppResponse<Boolean>>>
+        get() = _backup
+
+    private val _restore = MutableLiveData<Event<AppResponse<Boolean>>>()
+    val restore: LiveData<Event<AppResponse<Boolean>>>
+        get() = _restore
+
     var cachedFungibles: List<AppAsset> = listOf()
 
     var cachedCollectibles: List<AppAsset> = listOf()
@@ -79,6 +91,8 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     var refreshingAsset: Boolean = false
     var refreshingAssets: Boolean = false
+
+    var avoidBackup: Boolean = false
 
     internal fun saveState() {
         Log.d(TAG, "Saving state...")
@@ -192,9 +206,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
             _refreshedAssets,
-            successCallback = {
-                refreshingAssets = false
-            },
+            successCallback = { refreshingAssets = false },
             failureCallback = { refreshingAssets = false },
         ) {
             val refreshedAssets = AppRepository.getRefreshedAssets(firstAppRefresh)
@@ -248,20 +260,21 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         asset: AppAsset,
         recipient: String,
         amount: String,
-        consignmentEndpoints: List<String>,
+        transportEndpoints: List<String>,
         feeRate: Float,
     ) {
         tryCallWithTimeout(
             AppConstants.longTimeout,
             _sent,
         ) {
-            val txid = AppRepository.sendAsset(
-                asset,
-                recipient,
-                amount.toULong(),
-                consignmentEndpoints,
-                feeRate
-            )
+            val txid =
+                AppRepository.sendAsset(
+                    asset,
+                    recipient,
+                    amount.toULong(),
+                    transportEndpoints,
+                    feeRate
+                )
             cacheAssets()
             txid
         }
@@ -278,7 +291,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun issueRgb121Asset(
+    fun issueRgb25Asset(
         name: String,
         amounts: List<String>,
         description: String?,
@@ -286,14 +299,15 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     ) {
         tryCallWithTimeout(
             AppConstants.longTimeout,
-            _issuedRgb121Asset,
+            _issuedRgb25Asset,
         ) {
-            val asset = AppRepository.issueRgb121Asset(
-                name,
-                amounts.map { it.toULong() },
-                description,
-                fileStream
-            )
+            val asset =
+                AppRepository.issueRgb25Asset(
+                    name,
+                    amounts.map { it.toULong() },
+                    description,
+                    fileStream
+                )
             cacheAssets()
             asset
         }
@@ -340,6 +354,47 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             val asset = AppRepository.receiveFromRgbFaucet(url, group)
             cacheAssets()
             asset
+        }
+    }
+
+    fun startBackup(gAccount: GoogleSignInAccount) {
+        tryCallWithTimeout(AppConstants.backupRestoreTimeout, _backup) {
+            BackupRepository.doBackup(gAccount)
+        }
+    }
+
+    fun restoreBackup(gAccount: GoogleSignInAccount, restoredMnemonic: String) {
+        tryCallWithTimeout(AppConstants.backupRestoreTimeout, _restore) {
+            BackupRepository.restoreBackup(gAccount, restoredMnemonic)
+        }
+    }
+
+    fun deleteDbDataAfterRgb010Update() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val hiddenAssets = AppContainer.db.hiddenAssetDao().getHiddenAssets()
+            for (hiddenAsset in hiddenAssets) {
+                if (hiddenAsset.id == AppConstants.bitcoinAssetID) continue
+                AppContainer.db.hiddenAssetDao().deleteHiddenAsset(hiddenAsset.id)
+            }
+            AppContainer.db.rgbPendingAssetDao().deleteAll()
+        }
+    }
+
+    fun recoverFunds() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                BdkRepository.recoverFundsFromDerivationPath(
+                    AppConstants.derivationAccountOldRgb,
+                    true
+                )
+                BdkRepository.recoverFundsFromDerivationPath(
+                    AppConstants.derivationAccountVanilla,
+                    false
+                )
+                SharedPreferencesManager.recoveredFunds = true
+            } catch (e: Exception) {
+                Log.e(TAG, "Error recovering funds: $e")
+            }
         }
     }
 }

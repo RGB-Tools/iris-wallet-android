@@ -23,13 +23,14 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
         viewModel.rgbFaucets.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (!response.data.isNullOrEmpty()) {
+                    enableUI()
                     showFaucetGroups(response.data)
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_getting_faucet_data, response.error.message)
+                        enableUI()
                     }
                 }
-                enableUI()
             }
         }
     }
@@ -92,15 +93,16 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
         viewModel.rgbAsset.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.data != null) {
+                    enableUI()
                     val msg = getString(R.string.request_succeeded, response.data.name)
                     Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
                     if (requestedAssetGroup.second == 1) excludeTags.add(requestedAssetGroup.first)
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_receiving_from_faucet, response.error.message)
+                        enableUI()
                     }
                 }
-                enableUI()
             }
         }
     }

@@ -1,18 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.BackupFragment">
 
-    <Button
-        android:id="@+id/backupShowHideMnemonicBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="@dimen/medium_size"
-        android:text="@string/show_mnemonic"
-        android:textColor="@color/white"
-        style="@style/green_button"/>
+    <ProgressBar
+        android:id="@+id/backupPB"
+        style="@style/progress_bar" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_margin="@dimen/big_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/backup_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_marginTop="@dimen/medium_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_margin="@dimen/medium_size"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:text="@string/backup_disclaimer_mnemonic"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/backupShowHideMnemonicBtn"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/small_size"
+                            android:text="@string/show_mnemonic"
+                            android:textColor="@color/white"
+                            android:drawableLeft="@drawable/ic_show"
+                            style="@style/blue_button"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/backupMnemonicCardView"
+                            android:visibility="gone"
+                            app:cardBackgroundColor="@color/dark_dark_blue"
+                            app:cardCornerRadius="5dp"
+                            android:layout_marginTop="@dimen/small_size"
+                            android:gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <GridLayout
+                                android:columnCount="2"
+                                android:useDefaultMargins="true"
+                                android:paddingVertical="@dimen/small_size"
+                                android:paddingHorizontal="@dimen/medium_size"
+                                android:layout_gravity="center"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/backupMnemonic1"
+                                    android:layout_columnWeight="1"
+                                    android:layout_rowWeight="1"
+                                    android:text="@string/mnemonic_pt1"
+                                    android:fontFamily="sans-serif"
+                                    android:typeface="monospace" />
+
+                                <TextView
+                                    android:id="@+id/backupMnemonic2"
+                                    android:layout_columnWeight="1"
+                                    android:layout_rowWeight="1"
+                                    android:text="@string/mnemonic_pt2"
+                                    android:fontFamily="sans-serif"
+                                    android:typeface="monospace" />
+
+                            </GridLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_marginVertical="@dimen/medium_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_margin="@dimen/medium_size"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/backupDataTV"
+                            android:text="@string/backup_disclaimer_data"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/backupConfigureBackupBtn"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="@dimen/small_size"
+                            android:text="@string/configure_backup"
+                            android:textColor="@color/white"
+                            android:drawableLeft="@drawable/ic_settings"
+                            style="@style/blue_button"/>
+
+                        <LinearLayout
+                            android:visibility="gone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/backupConfigured1TV"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/text_medium" />
+
+                            <TextView
+                                android:id="@+id/backupConfigured2TV"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/text_medium"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

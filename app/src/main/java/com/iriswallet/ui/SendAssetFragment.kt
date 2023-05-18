@@ -33,7 +33,7 @@ class SendAssetFragment :
     AppAuthenticationServiceListener {
 
     lateinit var asset: AppAsset
-    private var consignmentEndpoints: List<String> = listOf()
+    private var transportEndpoints: List<String> = listOf()
 
     private var isLoading = false
 
@@ -100,12 +100,14 @@ class SendAssetFragment :
                         i1: Int,
                         i2: Int
                     ) {}
+
                     override fun onTextChanged(
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
                         i2: Int
                     ) {}
+
                     override fun afterTextChanged(editable: Editable) {
                         if (editText.hashCode() == binding.sendAmountET.hashCode())
                             fixETAmount(editText, editable.toString())
@@ -183,7 +185,7 @@ class SendAssetFragment :
             val ticker = getString(R.string.bitcoin_unit)
             binding.sendBalanceTotalLL.detailTickerTV.text = ticker
             binding.sendBalanceSpendableLL.detailTickerTV.text = ticker
-            binding.sendPayToET.hint = getString(R.string.address).lowercase()
+            binding.sendPayToET.hint = getString(R.string.address_or_invoice).lowercase()
             binding.sendAmountET.inputType =
                 InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
         } else {
@@ -260,14 +262,14 @@ class SendAssetFragment :
                 invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()
         )
             throw AppException(getString(R.string.expired_rgb_invoice))
-        if (invoiceData.consignmentEndpoints.isNotEmpty()) {
-            consignmentEndpoints =
-                invoiceData.consignmentEndpoints.filter {
-                    ConsignmentEndpoint(it).protocol() == ConsignmentTransport.RGB_HTTP_JSON_RPC
+        if (invoiceData.transportEndpoints.isNotEmpty()) {
+            transportEndpoints =
+                invoiceData.transportEndpoints.filter {
+                    TransportEndpoint(it).transportType() == TransportType.JSON_RPC
                 }
-            consignmentEndpoints.take(3)
+            transportEndpoints.take(3)
         }
-        return Pair(invoiceData.blindedUtxo, amount)
+        return Pair(invoiceData.recipientId, amount)
     }
 
     private fun checkRgbBlinded(blindedStr: String): Pair<String, String?> {
@@ -349,15 +351,15 @@ class SendAssetFragment :
         if (payTo != validData) {
             if (!detectContent(payTo, toastErr = true)) return
         }
-        if (consignmentEndpoints.isEmpty() && !asset.bitcoin()) {
-            consignmentEndpoints = listOf(AppContainer.proxyConsignmentEndpointDefault)
+        if (transportEndpoints.isEmpty() && !asset.bitcoin()) {
+            transportEndpoints = listOf(AppContainer.proxyTransportEndpointDefault)
             toastMsg(R.string.using_default_consignment_endpoint)
         }
         viewModel.sendAsset(
             asset,
             payTo,
             binding.sendAmountET.text.toString(),
-            consignmentEndpoints,
+            transportEndpoints,
             binding.sendFeeRateET.text.toString().toFloat(),
         )
     }
