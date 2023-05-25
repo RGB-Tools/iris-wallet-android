@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -136,15 +135,6 @@ class MainActivity : AppCompatActivity() {
 
         val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         manager.cancelAll()
-
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!backEnabled) return else navController.navigateUp(appBarConfiguration)
-                }
-            }
-        )
 
         viewModel.refreshedFungibles.observe(this) {
             if (!inMainFragment) it.getContentIfNotHandled()
