@@ -173,7 +173,7 @@ class TransferDetailFragment :
                             transfer.consignmentEndpoints.orEmpty().map {
                                 val uri =
                                     if (
-                                        it.protocol == ConsignmentEndpointProtocol.RGB_HTTP_JSON_RPC
+                                        it.protocol == ConsignmentTransport.RGB_HTTP_JSON_RPC
                                     )
                                         AppConstants.rgbHttpJsonRpcProtocol
                                     else AppConstants.stormProtocol

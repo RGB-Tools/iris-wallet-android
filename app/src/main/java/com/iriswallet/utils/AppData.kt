@@ -230,7 +230,7 @@ data class AppOutpoint(val txid: String, val vout: UInt) : Parcelable {
 @Parcelize
 data class AppTransferConsignmentEndpoint(
     val endpoint: String,
-    val protocol: ConsignmentEndpointProtocol,
+    val protocol: ConsignmentTransport,
     val used: Boolean
 ) : Parcelable {
     constructor(

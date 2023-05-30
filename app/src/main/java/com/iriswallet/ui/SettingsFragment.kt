@@ -29,7 +29,7 @@ import com.iriswallet.data.SharedPreferencesManager.PREFS_PROXY_CONSIGNMENT_ENDP
 import com.iriswallet.data.SharedPreferencesManager.PREFS_SHOW_HIDDEN_ASSETS
 import com.iriswallet.utils.*
 import org.rgbtools.ConsignmentEndpoint
-import org.rgbtools.ConsignmentEndpointProtocol
+import org.rgbtools.ConsignmentTransport
 import org.rgbtools.RgbLibException
 
 class SettingsFragment :
@@ -186,7 +186,7 @@ class ConsignmentEndpointEditTextPreferenceFragment : EditTextPreferenceDialogFr
                             ConsignmentEndpoint(consignmentEndpointET.text.toString())
                         if (
                             consignmentEndpoint.protocol() !=
-                                ConsignmentEndpointProtocol.RGB_HTTP_JSON_RPC
+                                ConsignmentTransport.RGB_HTTP_JSON_RPC
                         )
                             err = true
                     } catch (e: RgbLibException) {

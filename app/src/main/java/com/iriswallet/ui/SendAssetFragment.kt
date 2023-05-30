@@ -271,7 +271,7 @@ class SendAssetFragment :
                         consignmentEndpoints =
                             invoiceData.consignmentEndpoints.filter {
                                 ConsignmentEndpoint(it).protocol() ==
-                                    ConsignmentEndpointProtocol.RGB_HTTP_JSON_RPC
+                                    ConsignmentTransport.RGB_HTTP_JSON_RPC
                             }
                         consignmentEndpoints.take(3)
                     }
