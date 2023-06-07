@@ -23,6 +23,7 @@ android {
     versionCode 46
     versionName '0.1.6'
     ndk {
+      //noinspection ChromeOsAbiSupport
       abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
     }
     testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
