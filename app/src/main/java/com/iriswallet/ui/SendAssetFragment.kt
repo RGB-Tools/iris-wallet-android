@@ -216,76 +216,110 @@ class SendAssetFragment :
             binding.sendAmountET.text.toString().toULong() <= asset.spendableBalance
     }
 
-    private fun detectContent(content: String, toastErr: Boolean = false): Boolean {
-        val (payTo, amount) =
-            if (asset.bitcoin()) {
-                try {
-                    Address(content)
-                    Pair(content, null)
-                } catch (e: BdkException) {
-                    try {
-                        val bitcoinInvoice = Uri.parse(content)
-                        val address = bitcoinInvoice.schemeSpecificPart.split("?")[0]
-                        if (bitcoinInvoice.scheme == "bitcoin") {
-                            Address(address)
-                            val queryParams = bitcoinInvoice.query?.split("&")
-                            var amount: String? = null
-                            if (queryParams != null) {
-                                for (param in queryParams) {
-                                    val parts = param.split("=")
-                                    if (parts[0] == "amount") {
-                                        amount = BigDecimal(parts[1]).movePointRight(8).toString()
-                                        break
-                                    }
-                                }
-                            }
-                            Pair(address, amount)
-                        } else {
-                            throw RuntimeException("invalid bitcoin invoice")
-                        }
-                    } catch (e: Exception) {
-                        if (toastErr) toastMsg(R.string.scanned_invalid_btc)
-                        return false
-                    }
-                }
-            } else {
-                try {
-                    val invoiceData = Invoice(content).invoiceData()
-                    if (invoiceData.assetId != null && invoiceData.assetId != asset.id) {
-                        if (toastErr)
-                            toastError(
-                                getString(R.string.scanned_invalid_asset, invoiceData.assetId)
-                            )
-                        return false
-                    }
-                    val amount =
-                        if (invoiceData.amount != null) invoiceData.amount.toString() else null
-                    if (
-                        invoiceData.expirationTimestamp != null &&
-                            invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()
-                    ) {
-                        if (toastErr) toastMsg(R.string.scanned_expired_invoice)
-                        return false
-                    }
-                    if (invoiceData.consignmentEndpoints.isNotEmpty()) {
-                        consignmentEndpoints =
-                            invoiceData.consignmentEndpoints.filter {
-                                ConsignmentEndpoint(it).protocol() ==
-                                    ConsignmentTransport.RGB_HTTP_JSON_RPC
-                            }
-                        consignmentEndpoints.take(3)
-                    }
-                    Pair(invoiceData.blindedUtxo, amount)
-                } catch (_: RgbLibException) {
-                    try {
-                        BlindedUtxo(content)
-                        Pair(content, null)
-                    } catch (_: RgbLibException) {
-                        if (toastErr) toastMsg(R.string.scanned_invalid_rgb)
-                        return false
+    private fun checkBitcoinAddress(addressStr: String): Pair<String, String?> {
+        val address = Address(addressStr)
+        if (address.network() != AppContainer.bitcoinNetwork.toBdkNetwork())
+            throw AppException(AppContainer.appContext.getString(R.string.invalid_address_network))
+        return Pair(addressStr, null)
+    }
+
+    private fun checkBitcoinInvoice(invoiceStr: String): Pair<String, String?> {
+        val bitcoinInvoice = Uri.parse(invoiceStr)
+        val address = bitcoinInvoice.schemeSpecificPart.split("?")[0]
+        if (bitcoinInvoice.scheme == "bitcoin") {
+            try {
+                checkBitcoinAddress(address)
+            } catch (e: BdkException) {
+                throw AppException(getString(R.string.invalid_btc_invoice_address))
+            }
+            val queryParams = bitcoinInvoice.query?.split("&")
+            if (queryParams != null) {
+                for (param in queryParams) {
+                    val parts = param.split("=")
+                    if (parts[0] == "amount") {
+                        val amount = BigDecimal(parts[1]).movePointRight(8).toString()
+                        return Pair(address, amount)
                     }
                 }
             }
+            return Pair(address, null)
+        } else {
+            throw AppException(
+                AppContainer.appContext.getString(R.string.invalid_btc_invoice_scheme)
+            )
+        }
+    }
+
+    private fun checkRgbInvoice(rgbInvoiceStr: String): Pair<String, String?> {
+        val invoiceData = Invoice(rgbInvoiceStr).invoiceData()
+        if (invoiceData.assetId != null && invoiceData.assetId != asset.id)
+            throw AppException(getString(R.string.asset_id_mismatch, invoiceData.assetId))
+        val amount = if (invoiceData.amount != null) invoiceData.amount.toString() else null
+        if (
+            invoiceData.expirationTimestamp != null &&
+                invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()
+        )
+            throw AppException(getString(R.string.expired_rgb_invoice))
+        if (invoiceData.consignmentEndpoints.isNotEmpty()) {
+            consignmentEndpoints =
+                invoiceData.consignmentEndpoints.filter {
+                    ConsignmentEndpoint(it).protocol() == ConsignmentTransport.RGB_HTTP_JSON_RPC
+                }
+            consignmentEndpoints.take(3)
+        }
+        return Pair(invoiceData.blindedUtxo, amount)
+    }
+
+    private fun checkRgbBlinded(blindedStr: String): Pair<String, String?> {
+        try {
+            BlindedUtxo(blindedStr)
+            return Pair(blindedStr, null)
+        } catch (_: RgbLibException.InvalidBlindedUtxo) {
+            throw AppException(AppContainer.appContext.getString(R.string.invalid_rgb_recipient))
+        }
+    }
+
+    private fun detectContent(content: String, toastErr: Boolean = false): Boolean {
+        val (payTo, amount) =
+            try {
+                if (asset.bitcoin()) {
+                    try {
+                        try {
+                            checkBitcoinAddress(content)
+                        } catch (e: AppException) {
+                            throw e
+                        } catch (_: Exception) {
+                            checkBitcoinInvoice(content)
+                        }
+                    } catch (e: AppException) {
+                        throw e
+                    } catch (_: Exception) {
+                        throw AppException(
+                            AppContainer.appContext.getString(R.string.invalid_btc_recipient)
+                        )
+                    }
+                } else {
+                    try {
+                        try {
+                            checkRgbInvoice(content)
+                        } catch (e: AppException) {
+                            throw e
+                        } catch (_: Exception) {
+                            checkRgbBlinded(content)
+                        }
+                    } catch (e: AppException) {
+                        throw e
+                    } catch (_: Exception) {
+                        throw AppException(
+                            AppContainer.appContext.getString(R.string.invalid_rgb_recipient)
+                        )
+                    }
+                }
+            } catch (e: AppException) {
+                if (toastErr) toastError(e.message!!)
+                return false
+            }
+
         validData = payTo
 
         binding.sendPayToET.setText(payTo)
@@ -313,7 +347,7 @@ class SendAssetFragment :
     override fun authenticated(requestCode: String) {
         val payTo = binding.sendPayToET.text.toString()
         if (payTo != validData) {
-            if (!detectContent(payTo, true)) return
+            if (!detectContent(payTo, toastErr = true)) return
         }
         if (consignmentEndpoints.isEmpty() && !asset.bitcoin()) {
             consignmentEndpoints = listOf(AppContainer.proxyConsignmentEndpointDefault)

@@ -74,10 +74,14 @@
         to operate on RGB with the Iris wallet.</string>
     <string name="invalid_blinded_utxo">Invalid blinded UTXO</string>
     <string name="invalid_consignment_endpoint">Invalid consignment endpoint</string>
-    <string name="scanned_invalid_rgb">Scanned data is neither a blinded UTXO nor an RGB invoice</string>
-    <string name="scanned_invalid_btc">Scanned data is neither a bitcoin address nor invoice</string>
-    <string name="scanned_invalid_asset">Asset ID mismatch, the scanned invoice is for asset "%s"</string>
-    <string name="scanned_expired_invoice">The scanned invoice is expired"</string>
+    <string name="invalid_rgb_recipient">Data is neither a blinded UTXO nor an RGB invoice</string>
+    <string name="invalid_btc_recipient">Data is neither a bitcoin address nor invoice</string>
+    <string name="invalid_btc_invoice_address">The given bitcoin invoice contains an invalid address</string>
+    <string name="asset_id_mismatch">Asset ID mismatch, the given invoice is for asset "%s"</string>
+    <string name="expired_rgb_invoice">The given RGB invoice is expired"</string>
+    <string name="invalid_btc_invoice_scheme">The given bitcoin invoice has an invalid schema</string>
+    <string name="invalid_btc_address">The </string>
+    <string name="invalid_address_network">Address for wrong network</string>
     <string name="using_default_consignment_endpoint">Using default URL for the consignment endpoint
         since no one has been provided in the invoice</string>
     <string name="blinded_utxo_already_used">Blinded UTXO already used</string>
