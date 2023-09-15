@@ -14,12 +14,12 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-  compileSdk 33
+  compileSdk 34
 
   defaultConfig {
     applicationId 'com.iriswallet'
     minSdk 26
-    targetSdk 33
+    targetSdk 34
     versionCode 46
     versionName '0.1.6'
     ndk {
@@ -138,10 +138,10 @@ dependencies {
 
   implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
 
-  implementation 'androidx.core:core-ktx:1.10.0'
+  implementation 'androidx.core:core-ktx:1.12.0'
   implementation 'androidx.core:core-splashscreen:1.0.1'
 
-  implementation 'androidx.fragment:fragment-ktx:1.5.7'
+  implementation 'androidx.fragment:fragment-ktx:1.6.1'
 
   implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
@@ -151,9 +151,9 @@ dependencies {
   implementation "androidx.navigation:navigation-fragment-ktx:$androidx_navigation_version"
   implementation "androidx.navigation:navigation-ui-ktx:$androidx_navigation_version"
 
-  implementation 'androidx.preference:preference-ktx:1.2.0'
+  implementation 'androidx.preference:preference-ktx:1.2.1'
 
-  implementation "androidx.recyclerview:recyclerview:1.3.0"
+  implementation "androidx.recyclerview:recyclerview:1.3.1"
 
   implementation "androidx.room:room-runtime:$room_version"
   annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -167,15 +167,15 @@ dependencies {
   implementation 'androidx.work:work-runtime-ktx:2.8.1'
 
   // Bitcoindevkit
-  implementation 'org.bitcoindevkit:bdk-android:0.28.0'
+  implementation 'org.bitcoindevkit:bdk-android:0.30.0'
 
   // Github
   implementation 'com.github.lelloman:android-identicons:v11'
 
   // Google
-  implementation 'com.google.android.gms:play-services-auth:20.5.0'
+  implementation 'com.google.android.gms:play-services-auth:20.7.0'
 
-  implementation 'com.google.android.material:material:1.9.0'
+  implementation 'com.google.android.material:material:1.10.0'
 
   implementation 'com.google.code.gson:gson:2.10.1'
 
