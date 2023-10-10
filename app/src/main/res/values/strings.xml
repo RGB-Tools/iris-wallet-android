@@ -1,8 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="app_name_signet" tools:ignore="UnusedResources">Iris Wallet Signet</string>
-    <string name="app_name_testnet" tools:ignore="UnusedResources">Iris Wallet Testnet</string>
-    <string name="app_name_mainnet" tools:ignore="UnusedResources">Iris Wallet</string>
+    <string name="app_name_signet" tools:ignore="UnusedResources">Iris Wallet Reckless Signet</string>
+    <string name="app_name_testnet" tools:ignore="UnusedResources">Iris Wallet Reckless Testnet</string>
+    <string name="app_name_mainnet" tools:ignore="UnusedResources">Iris Wallet Reckless</string>
     <string name="failed_transfer">Failed transfer</string>
     <string name="ongoing_transfer">Ongoing transfer</string>
     <string name="not_available" translatable="false">N/A</string>

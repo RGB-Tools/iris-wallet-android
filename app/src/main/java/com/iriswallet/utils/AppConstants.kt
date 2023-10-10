@@ -12,9 +12,9 @@ object AppConstants {
 
     const val backupName = "%s.rgb_backup"
     const val backupServerClientIDDebug =
-        "115452963739-i8bn94t1imp1svaulc0o2osctn0nbpqt.apps.googleusercontent.com"
+        "1083669778297-4do77o15vgt7rpcabs571npevi9aoe3h.apps.googleusercontent.com"
     const val backupServerClientIDRelease =
-        "527013939550-i6gdjjv727eqct5v53j899jimff13pjq.apps.googleusercontent.com"
+        "767215285080-5amp1922sskrcc0k401vl2t19cs2kub5.apps.googleusercontent.com"
     const val backupRestoreTimeout = 120000L
 
     const val maxAssets = 50
