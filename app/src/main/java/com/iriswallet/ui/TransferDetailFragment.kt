@@ -185,7 +185,11 @@ class TransferDetailFragment :
         }
 
         // unblinded UTXO
-        if (asset.bitcoin() || transfer.kind != AppTransferKind.RECEIVE) {
+        if (
+            asset.bitcoin() ||
+                transfer.kind != AppTransferKind.RECEIVE ||
+                transfer.receiveUTXO == null
+        ) {
             binding.transferUnblindedUTXOLabelTV.visibility = View.GONE
             binding.transferUnblindedUTXOTV.visibility = View.GONE
         } else {

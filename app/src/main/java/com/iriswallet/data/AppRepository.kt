@@ -4,6 +4,8 @@ import android.util.Log
 import com.iriswallet.R
 import com.iriswallet.data.db.HiddenAsset
 import com.iriswallet.data.db.RgbPendingAsset
+import com.iriswallet.data.retrofit.Distribution
+import com.iriswallet.data.retrofit.DistributionMode
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.AppAssetType
@@ -223,13 +225,18 @@ object AppRepository {
         }
     }
 
-    private fun startRGBReceiving(asset: AppAsset?): Receiver {
+    private fun startRGBReceiving(asset: AppAsset?, blinded: Boolean = true): Receiver {
         var updateTransfers = true
         if (asset == null) {
             checkMaxAssets()
             updateTransfers = false
         }
-        val blindedData = RgbRepository.getBlindedUTXO(asset?.id, AppConstants.rgbBlindDuration)
+        val blindedData =
+            RgbRepository.getReceiveData(
+                asset?.id,
+                AppConstants.rgbBlindDuration,
+                blinded = blinded
+            )
         runCatching {
                 updateRGBAssets(
                     refresh = false,
@@ -337,10 +344,10 @@ object AppRepository {
         return RgbRepository.getMetadata(asset.id)
     }
 
-    fun genReceiveData(asset: AppAsset?): Receiver {
+    fun genReceiveData(asset: AppAsset?, blinded: Boolean = true): Receiver {
         return if (asset != null && asset.bitcoin())
             Receiver(BdkRepository.getNewAddress(), null, true)
-        else handleMissingFunds { startRGBReceiving(asset) }
+        else handleMissingFunds { startRGBReceiving(asset, blinded = blinded) }
     }
 
     fun sendAsset(
@@ -429,25 +436,32 @@ object AppRepository {
         return assetGroups
     }
 
-    suspend fun receiveFromRgbFaucet(url: String, group: String): RgbAsset {
-        val blindedUtxo = genReceiveData(null).recipient
+    suspend fun receiveFromRgbFaucet(url: String, group: String): Pair<RgbAsset, Distribution> {
+        val witnessInvoice = genReceiveData(null, blinded = false).invoice
         Log.d(TAG, "Requesting RGB asset from faucet '$url' and group '$group'")
-        val asset =
+        val (asset, distribution) =
             RgbFaucetRepository.receiveRgbAsset(
                 url,
                 AppContainer.walletIdentifier,
-                blindedUtxo,
+                witnessInvoice,
                 group
             )
-        Log.d(TAG, "Will receive an RGB asset with ID '${asset.assetID}'")
-        val existingAsset = getCachedAsset(asset.assetID)
-        if (existingAsset == null) {
-            Log.d(TAG, "Asset from faucet is unknown")
-            val rgbPendingAsset = RgbPendingAsset(asset)
-            AppContainer.db.rgbPendingAssetDao().insertRgbPendingAsset(rgbPendingAsset)
-            rgbPendingAssetIDs.add(rgbPendingAsset.assetID)
-            appAssets.add(AppAsset(rgbPendingAsset))
+        when (distribution.modeEnum()) {
+            DistributionMode.STANDARD -> {
+                Log.d(TAG, "Will receive an RGB asset with ID '${asset.assetID}'")
+                val existingAsset = getCachedAsset(asset.assetID)
+                if (existingAsset == null) {
+                    Log.d(TAG, "Asset from faucet is unknown")
+                    val rgbPendingAsset = RgbPendingAsset(asset)
+                    AppContainer.db.rgbPendingAssetDao().insertRgbPendingAsset(rgbPendingAsset)
+                    rgbPendingAssetIDs.add(rgbPendingAsset.assetID)
+                    appAssets.add(AppAsset(rgbPendingAsset))
+                }
+            }
+            DistributionMode.RANDOM -> {
+                Log.d(TAG, "Will probably receive an RGB asset with ID '${asset.assetID}'")
+            }
         }
-        return asset
+        return Pair(asset, distribution)
     }
 }

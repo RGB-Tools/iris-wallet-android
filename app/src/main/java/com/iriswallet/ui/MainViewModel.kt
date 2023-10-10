@@ -7,6 +7,8 @@ import com.iriswallet.data.AppRepository
 import com.iriswallet.data.BackupRepository
 import com.iriswallet.data.BdkRepository
 import com.iriswallet.data.SharedPreferencesManager
+import com.iriswallet.data.retrofit.Distribution
+import com.iriswallet.data.retrofit.DistributionMode
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
 import java.io.InputStream
@@ -65,9 +67,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val rgbFaucets: LiveData<Event<AppResponse<List<RgbFaucet>>>>
         get() = _rgbFaucets
 
-    private val _rgbAsset = MutableLiveData<Event<AppResponse<RgbAsset>>>()
-    val rgbAsset: LiveData<Event<AppResponse<RgbAsset>>>
-        get() = _rgbAsset
+    private val _rgbFaucetResponse =
+        MutableLiveData<Event<AppResponse<Pair<RgbAsset, Distribution>>>>()
+    val rgbFaucetResponse: LiveData<Event<AppResponse<Pair<RgbAsset, Distribution>>>>
+        get() = _rgbFaucetResponse
 
     private val _hidden = MutableLiveData<Event<AppResponse<Boolean>>>()
     val hidden: LiveData<Event<AppResponse<Boolean>>>
@@ -349,11 +352,11 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     fun receiveFromRgbFaucet(url: String, group: String) {
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
-            _rgbAsset,
+            _rgbFaucetResponse,
         ) {
-            val asset = AppRepository.receiveFromRgbFaucet(url, group)
-            cacheAssets()
-            asset
+            val (asset, distribution) = AppRepository.receiveFromRgbFaucet(url, group)
+            if (distribution.modeEnum() == DistributionMode.STANDARD) cacheAssets()
+            Pair(asset, distribution)
         }
     }
 

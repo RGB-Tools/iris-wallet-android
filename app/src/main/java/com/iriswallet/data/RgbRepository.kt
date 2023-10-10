@@ -59,16 +59,31 @@ object RgbRepository {
         return coloredWallet.getAssetBalance(assetID)
     }
 
-    fun getBlindedUTXO(assetID: String? = null, expirationSeconds: UInt): ReceiveData {
-        val blinded =
+    fun getReceiveData(
+        assetID: String? = null,
+        expirationSeconds: UInt,
+        blinded: Boolean = true
+    ): ReceiveData {
+        val minConfirmations = 1.toUByte()
+        val amount = null
+        val transportEndpoints = listOf(SharedPreferencesManager.proxyTransportEndpoint)
+        return if (blinded) {
             coloredWallet.blindReceive(
                 assetID,
-                null,
+                amount,
                 expirationSeconds,
-                listOf(SharedPreferencesManager.proxyTransportEndpoint),
-                1u
+                transportEndpoints,
+                minConfirmations,
             )
-        return blinded
+        } else {
+            coloredWallet.witnessReceive(
+                assetID,
+                amount,
+                expirationSeconds,
+                transportEndpoints,
+                minConfirmations,
+            )
+        }
     }
 
     fun getMetadata(assetID: String): Metadata {

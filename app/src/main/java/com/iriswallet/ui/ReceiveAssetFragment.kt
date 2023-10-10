@@ -28,11 +28,11 @@ class ReceiveAssetFragment :
         binding.receiveInfoLL.visibility = View.GONE
 
         binding.receiveCopyBtn.setOnClickListener {
-            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.recipient)
+            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.invoice)
         }
 
         binding.receiveDataTV.setOnClickListener {
-            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.recipient)
+            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.invoice)
         }
 
         viewModel.recipient.observe(viewLifecycleOwner) {
@@ -70,8 +70,8 @@ class ReceiveAssetFragment :
     private fun showReceiveData(receiveData: Receiver) {
         val labelString = if (receiveData.bitcoin) R.string.address else R.string.invoice
         binding.receiveLabelTV.text = getString(labelString)
-        binding.receiveDataTV.text = receiveData.recipient
-        val bitmap = AppUtils.getQRCodeBitmap(receiveData.recipient, mActivity.windowManager)
+        binding.receiveDataTV.text = receiveData.invoice
+        val bitmap = AppUtils.getQRCodeBitmap(receiveData.invoice, mActivity.windowManager)
         binding.receiveQRCodeImg.setImageBitmap(bitmap)
         if (asset != null)
             binding.receiveExtraInfoTV.text =

@@ -2,22 +2,24 @@ package com.iriswallet.data.retrofit
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
+import com.iriswallet.R
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.AppException
 import retrofit2.Response
 import retrofit2.http.*
 
 interface RgbFaucetApiService {
-    @GET("receive/config/{xpub}")
+    @GET("receive/config/{walletID}")
     suspend fun getConfig(
         @Header("X-Api-Key") apiKey: String,
-        @Path("xpub") xpub: String
+        @Path("walletID") walletID: String
     ): Response<FaucetConfig>
 
-    @GET("receive/asset/{xpub}/{blindedutxo}")
+    @Headers("Content-Type: application/json")
+    @POST("receive/asset")
     suspend fun receiveAsset(
         @Header("X-Api-Key") apiKey: String,
-        @Path("xpub") xpub: String,
-        @Path("blindedutxo") blindedutxo: String,
-        @Query("asset_group") assetGroup: String,
+        @Body receiveAssetBody: ReceiveAssetBody
     ): Response<ReceiveAssetResponse>
 }
 
@@ -33,7 +35,47 @@ data class FaucetConfig(
     val groups: HashMap<String, RgbAssetGroup>,
 )
 
-@Keep data class ReceiveAssetResponse(val asset: RgbAsset?, val error: String?)
+@Keep
+data class ReceiveAssetBody(
+    @SerializedName("wallet_id") val walletID: String,
+    val invoice: String,
+    @SerializedName("asset_group") val assetGroup: String?,
+)
+
+@Keep
+data class ReceiveAssetResponse(
+    val asset: RgbAsset?,
+    val distribution: Distribution?,
+    val error: String?
+)
+
+enum class DistributionMode {
+    STANDARD,
+    RANDOM,
+}
+
+@Keep
+data class Distribution(
+    val mode: Int,
+    @SerializedName("random_params") val randomParams: RandomParams?,
+) {
+    fun modeEnum(): DistributionMode {
+        return when (mode) {
+            1 -> DistributionMode.STANDARD
+            2 -> DistributionMode.RANDOM
+            else ->
+                throw AppException(
+                    AppContainer.appContext.getString(R.string.faucet_unexpected_res)
+                )
+        }
+    }
+}
+
+@Keep
+data class RandomParams(
+    @SerializedName("request_window_open") val requestWindowOpen: String,
+    @SerializedName("request_window_close") val requestWindowClose: String,
+)
 
 @Keep
 data class RgbAsset(

@@ -263,7 +263,10 @@
     <string name="sat_amount">SAT %s</string>
     <string name="rgb_amount">%1$s %2$s</string>
     <string name="transactions">Transactions</string>
-    <string name="request_succeeded">Request succeeded. You will receive an asset named "%s"</string>
+    <string name="faucet_unexpected_res">unexpected response from faucet service</string>
+    <string name="faucet_standard_req_succeeded">Request succeeded. You will receive an asset named "%s"</string>
+    <string name="faucet_random_req_succeeded">Request succeeded. You might receive an asset if you
+        get randomly selected after %s</string>
     <string name="terms_and_conditions">Terms &amp; Conditions</string>
     <string name="terms_not_accepted">You cannot proceed without agreeing to the Terms of Use for
         the Iris Wallet. Wallet data will be erased.</string>

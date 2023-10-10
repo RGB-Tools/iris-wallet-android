@@ -210,7 +210,7 @@ data class RgbFaucet(
 }
 
 data class Receiver(
-    val recipient: String,
+    val invoice: String,
     val expirationSeconds: UInt? = null,
     val bitcoin: Boolean,
 )
