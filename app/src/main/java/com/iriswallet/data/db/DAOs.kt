@@ -13,6 +13,17 @@ interface HiddenAssetDao {
 }
 
 @Dao
+interface RgbCertifiedAssetDao {
+    @Insert fun insertRgbCertifiedAsset(rgbCertifiedAsset: RgbCertifiedAsset)
+
+    @Query("SELECT * FROM RgbCertifiedAsset WHERE assetID = :rgbCertifiedAssetID")
+    fun getRgbCertifiedAsset(rgbCertifiedAssetID: String): RgbCertifiedAsset?
+
+    @Query("DELETE FROM RgbCertifiedAsset WHERE assetID = :rgbCertifiedAssetID")
+    fun deleteRgbCertifiedAsset(rgbCertifiedAssetID: String)
+}
+
+@Dao
 interface RgbPendingAssetDao {
     @Insert fun insertRgbPendingAsset(rgbPendingAsset: RgbPendingAsset)
 

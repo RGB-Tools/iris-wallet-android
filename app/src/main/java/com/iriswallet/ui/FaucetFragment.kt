@@ -38,6 +38,42 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                 }
             }
         }
+
+        viewModel.rgbFaucetResponse.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { response ->
+                if (response.data != null) {
+                    if (requestedAssetGroup.second == 1) excludeTags.add(requestedAssetGroup.first)
+                    val (asset, distribution) = response.data
+                    enableUI()
+                    val msg =
+                        when (distribution.modeEnum()) {
+                            DistributionMode.STANDARD ->
+                                getString(R.string.faucet_standard_req_succeeded, asset.name)
+                            DistributionMode.RANDOM -> {
+                                if (distribution.randomParams == null) {
+                                    getString(R.string.faucet_unexpected_res)
+                                } else {
+                                    val date =
+                                        ZonedDateTime.parse(
+                                            distribution.randomParams.requestWindowClose,
+                                            DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
+                                        ).withZoneSameInstant(ZoneId.systemDefault())
+                                    getString(
+                                        R.string.faucet_random_req_succeeded,
+                                        date.format(DateTimeFormatter.ofPattern("HH:mm, MMM dd"))
+                                    )
+                                }
+                            }
+                        }
+                    Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
+                } else {
+                    handleError(response.error!!) {
+                        toastMsg(R.string.err_receiving_from_faucet, response.error.message)
+                        enableUI()
+                    }
+                }
+            }
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -92,45 +128,6 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                 val faucetName = assetGroupLL.findViewById<TextView>(R.id.faucetName)
                 faucetName.text = faucet.faucetName
                 binding.faucetAssetGroupsLL.addView(assetGroupLL)
-            }
-        }
-
-        viewModel.rgbFaucetResponse.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { response ->
-                if (response.data != null) {
-                    if (requestedAssetGroup.second == 1) excludeTags.add(requestedAssetGroup.first)
-                    val (asset, distribution) = response.data
-                    enableUI()
-                    val msg =
-                        when (distribution.modeEnum()) {
-                            DistributionMode.STANDARD ->
-                                getString(R.string.faucet_standard_req_succeeded, asset.name)
-                            DistributionMode.RANDOM -> {
-                                if (distribution.randomParams == null) {
-                                    getString(R.string.faucet_unexpected_res)
-                                } else {
-                                    val date =
-                                        ZonedDateTime.parse(
-                                                distribution.randomParams.requestWindowClose,
-                                                DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(
-                                                    ZoneOffset.UTC
-                                                )
-                                            )
-                                            .withZoneSameInstant(ZoneId.systemDefault())
-                                    getString(
-                                        R.string.faucet_random_req_succeeded,
-                                        date.format(DateTimeFormatter.ofPattern("HH:mm, MMM dd"))
-                                    )
-                                }
-                            }
-                        }
-                    Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
-                } else {
-                    handleError(response.error!!) {
-                        toastMsg(R.string.err_receiving_from_faucet, response.error.message)
-                        enableUI()
-                    }
-                }
             }
         }
     }

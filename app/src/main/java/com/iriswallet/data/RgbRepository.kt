@@ -136,7 +136,16 @@ object RgbRepository {
         Log.d(TAG, "RGB 20 assets: $assetsRgb20")
         val assetsRgb25 = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
         Log.d(TAG, "RGB 25 assets: $assetsRgb25")
-        return assetsRgb20.map { AppAsset(it) } + assetsRgb25.map { AppAsset(it) }
+        return assetsRgb20.map {
+            val isSavedAsCertified =
+                AppContainer.db.rgbCertifiedAssetDao().getRgbCertifiedAsset(it.assetId) != null
+            AppAsset(it, isSavedAsCertified)
+        } +
+            assetsRgb25.map {
+                val isSavedAsCertified =
+                    AppContainer.db.rgbCertifiedAssetDao().getRgbCertifiedAsset(it.assetId) != null
+                AppAsset(it, isSavedAsCertified)
+            }
     }
 
     fun listTransactions(sync: Boolean): List<Transaction> {

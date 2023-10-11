@@ -171,6 +171,17 @@ class AssetDetailFragment :
             }
         }
 
+        viewModel.certified.observe(viewLifecycleOwner) { (assetID, certified) ->
+            if (assetID == asset.id) {
+                asset.certified = certified
+                if (certified) {
+                    showCertifiedBadge()
+                } else {
+                    hideCertifiedBadge()
+                }
+            }
+        }
+
         mActivity.services.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let {
                 if (!refreshing) binding.detailSendBtn.isEnabled = enableSendBtn()
@@ -185,6 +196,15 @@ class AssetDetailFragment :
         binding.detailTransferRV.adapter = adapter
         setHeader()
         redrawAssetDetails()
+
+        if (!asset.bitcoin()) {
+            if (asset.certified) {
+                showCertifiedBadge()
+            } else {
+                hideCertifiedBadge()
+            }
+            viewModel.checkAssetCertified(asset.id)
+        }
     }
 
     override fun onResume() {
@@ -327,6 +347,19 @@ class AssetDetailFragment :
             intent,
             requestPermissionLauncher = requestPermissionLauncher,
         )
+    }
+
+    private fun showCertifiedBadge() {
+        binding.assetIDTitleTV.setCompoundDrawablesWithIntrinsicBounds(
+            0,
+            0,
+            R.drawable.ic_certified,
+            0
+        )
+    }
+
+    private fun hideCertifiedBadge() {
+        binding.assetIDTitleTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {

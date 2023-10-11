@@ -7,8 +7,10 @@ import com.iriswallet.data.AppRepository
 import com.iriswallet.data.BackupRepository
 import com.iriswallet.data.BdkRepository
 import com.iriswallet.data.SharedPreferencesManager
+import com.iriswallet.data.db.RgbCertifiedAsset
 import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
+import com.iriswallet.data.retrofit.RetrofitModule.assetCertificationService
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.*
 import java.io.InputStream
@@ -75,6 +77,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private val _hidden = MutableLiveData<Event<AppResponse<Boolean>>>()
     val hidden: LiveData<Event<AppResponse<Boolean>>>
         get() = _hidden
+
+    private val _certified = MutableLiveData<Pair<String, Boolean>>()
+    val certified: LiveData<Pair<String, Boolean>>
+        get() = _certified
 
     private val _backup = MutableLiveData<Event<AppResponse<Boolean>>>()
     val backup: LiveData<Event<AppResponse<Boolean>>>
@@ -182,7 +188,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     fun initNewApp() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (AppContainer.btcFaucetURLS != null)
+            if (AppContainer.btcFaucetURL != null)
                 runCatching { AppRepository.receiveFromBitcoinFaucet() }
             getOfflineAssets()
         }
@@ -322,9 +328,9 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             _asset,
             requestID = asset.id,
         ) {
-            val asset = AppRepository.deleteRGBTransfer(asset, transfer)
+            val updatedAsset = AppRepository.deleteRGBTransfer(asset, transfer)
             cacheAssets()
-            asset
+            updatedAsset
         }
     }
 
@@ -341,6 +347,26 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     fun checkCache() {
         viewModelScope.launch(Dispatchers.IO) { if (AppRepository.isCacheDirty) refreshAssets() }
+    }
+
+    fun checkAssetCertified(assetID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val certified = assetCertificationService.isAssetCertified(assetID).code() == 200
+                _certified.postValue(Pair(assetID, certified))
+                val isSavedAsCertified =
+                    AppContainer.db.rgbCertifiedAssetDao().getRgbCertifiedAsset(assetID) != null
+                if (certified && !isSavedAsCertified) {
+                    AppContainer.db
+                        .rgbCertifiedAssetDao()
+                        .insertRgbCertifiedAsset(RgbCertifiedAsset(assetID))
+                } else if (!certified && isSavedAsCertified) {
+                    AppContainer.db.rgbCertifiedAssetDao().deleteRgbCertifiedAsset(assetID)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error trying to check if asset is certified: $e")
+            }
+        }
     }
 
     fun getFaucetAssetGroups() {

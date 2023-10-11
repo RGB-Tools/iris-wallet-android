@@ -86,5 +86,4 @@ data class RgbAsset(
     val precision: Int,
     val ticker: String?,
     val description: String?,
-    @SerializedName("parent_id") val parentID: String?,
 )

@@ -18,6 +18,7 @@ data class AppAsset(
     val type: AppAssetType,
     val id: String,
     var name: String,
+    var certified: Boolean,
     val iface: AssetIface? = null,
     val ticker: String? = null,
     var media: AppMedia? = null,
@@ -29,11 +30,13 @@ data class AppAsset(
     var hidden: Boolean = false,
 ) : Parcelable {
     constructor(
-        rgbAsset: AssetNia
+        rgbAsset: AssetNia,
+        certified: Boolean,
     ) : this(
         AppAssetType.RGB20,
         rgbAsset.assetId,
         rgbAsset.name,
+        certified,
         iface = rgbAsset.assetIface,
         ticker = rgbAsset.ticker,
         spendableBalance = rgbAsset.balance.spendable,
@@ -42,11 +45,13 @@ data class AppAsset(
     )
 
     constructor(
-        rgbAsset: AssetCfa
+        rgbAsset: AssetCfa,
+        certified: Boolean,
     ) : this(
         AppAssetType.RGB25,
         rgbAsset.assetId,
         rgbAsset.name,
+        certified,
         iface = rgbAsset.assetIface,
         media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
@@ -61,6 +66,7 @@ data class AppAsset(
         else AppAssetType.RGB25,
         rgbPendingAsset.assetID,
         rgbPendingAsset.name,
+        rgbPendingAsset.certified,
         iface =
             if (rgbPendingAsset.schema == AppAssetType.RGB20.toString()) AssetIface.RGB20
             else AssetIface.RGB25,

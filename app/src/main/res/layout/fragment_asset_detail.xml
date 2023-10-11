@@ -104,18 +104,20 @@
                             android:layout_height="wrap_content">
 
                             <TextView
-                                android:layout_weight="1"
-                                android:layout_width="0dp"
+                                android:id="@+id/assetIDTitleTV"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:drawablePadding="@dimen/small_size"
                                 android:text="@string/asset_id_label"
                                 android:textColor="@color/light_gray"
-                                android:textSize="@dimen/text_small"/>
+                                android:textSize="@dimen/text_small" />
 
                             <ImageView
                                 android:id="@+id/detailCopyAssetIdBtn"
                                 android:src="@drawable/ic_copy"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:scaleType="fitEnd"
                                 android:contentDescription="@string/copy_desc"/>
 
 

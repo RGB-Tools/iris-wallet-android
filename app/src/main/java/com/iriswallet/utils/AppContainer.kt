@@ -76,7 +76,7 @@ object AppContainer {
         }
     }
 
-    val btcFaucetURLS: String? by lazy {
+    val btcFaucetURL: String? by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> null
             BitcoinNetwork.TESTNET -> AppConstants.btcTestnetFaucetURL

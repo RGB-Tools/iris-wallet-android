@@ -28,3 +28,5 @@
 -keepclassmembers class * {
   @com.google.api.client.util.Key <fields>;
 }
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+-keep,allowobfuscation,allowshrinking class retrofit2.Response

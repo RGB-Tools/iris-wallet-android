@@ -72,6 +72,8 @@ object AppConstants {
             "https://rgb-faucet.iriswallet.com/mainnet/",
         )
 
+    const val assetCertificationServerURL = "https://iriswallet.org"
+
     const val privacyPolicyURL = "https://iriswallet.com/privacy_policy.html"
 
     const val testnetTermsOfServiceURL = "https://iriswallet.com/testnet/terms_of_service.html"

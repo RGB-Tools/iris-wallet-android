@@ -6,6 +6,7 @@ import com.iriswallet.data.db.HiddenAsset
 import com.iriswallet.data.db.RgbPendingAsset
 import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
+import com.iriswallet.data.retrofit.RetrofitModule.assetCertificationService
 import com.iriswallet.data.retrofit.RgbAsset
 import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.AppAssetType
@@ -55,6 +56,7 @@ object AppRepository {
                     AppAssetType.BITCOIN,
                     AppConstants.bitcoinAssetID,
                     AppContainer.bitcoinAssetName,
+                    false,
                     ticker = AppContainer.bitcoinAssetTicker,
                 )
             )
@@ -276,6 +278,7 @@ object AppRepository {
                 AppAssetType.RGB20,
                 contract.assetId,
                 name,
+                false,
                 ticker = ticker,
             )
         appAssets.add(asset)
@@ -307,6 +310,7 @@ object AppRepository {
                 AppAssetType.RGB25,
                 contract.assetId,
                 name,
+                false,
             )
         if (contract.dataPaths.isNotEmpty()) asset.media = AppMedia(contract.dataPaths[0])
         appAssets.add(asset)
@@ -452,7 +456,13 @@ object AppRepository {
                 val existingAsset = getCachedAsset(asset.assetID)
                 if (existingAsset == null) {
                     Log.d(TAG, "Asset from faucet is unknown")
-                    val rgbPendingAsset = RgbPendingAsset(asset)
+                    val certified =
+                        try {
+                            assetCertificationService.isAssetCertified(asset.assetID).code() == 200
+                        } catch (e: Exception) {
+                            false
+                        }
+                    val rgbPendingAsset = RgbPendingAsset(asset, certified)
                     AppContainer.db.rgbPendingAssetDao().insertRgbPendingAsset(rgbPendingAsset)
                     rgbPendingAssetIDs.add(rgbPendingAsset.assetID)
                     appAssets.add(AppAsset(rgbPendingAsset))

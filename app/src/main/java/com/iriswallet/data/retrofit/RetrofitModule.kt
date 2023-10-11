@@ -37,10 +37,15 @@ object RetrofitModule {
     }
 
     val btcFaucetApiService: BtcFaucetApiService by lazy {
-        if (AppContainer.btcFaucetURLS == null)
+        if (AppContainer.btcFaucetURL == null)
             throw IllegalArgumentException("a configured URL is required")
-        retrofit(AppContainer.btcFaucetURLS!!, getHttpClient())
+        retrofit(AppContainer.btcFaucetURL!!, getHttpClient())
             .create(BtcFaucetApiService::class.java)
+    }
+
+    val assetCertificationService: AssetCertificationService by lazy {
+        retrofit(AppConstants.assetCertificationServerURL, getHttpClient())
+            .create(AssetCertificationService::class.java)
     }
 
     fun getRgbFaucetApiService(url: String): RgbFaucetApiService {
