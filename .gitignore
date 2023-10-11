@@ -11,6 +11,9 @@
 .externalNativeBuild
 .cxx
 /app/.classpath
+/app/bitcoinMainnet/
+/app/bitcoinSignet/
+/app/bitcoinTestnet/
 /app/build
 /app/release
 /app/src/main/cpp/secrets.cpp
