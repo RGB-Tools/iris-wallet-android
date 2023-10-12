@@ -2,6 +2,7 @@ package com.iriswallet.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +18,7 @@ class FungiblesAdapter(
     private val fragment: FungiblesFragment,
     private val fungibleSize: Int,
 ) : RecyclerView.Adapter<FungiblesAdapter.ViewHolder>() {
-    var isClickEnabled = true
+    private var isClickEnabled = true
 
     class ViewHolder(val binding: FungibleItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -48,7 +49,14 @@ class FungiblesAdapter(
             )
         }
         viewHolder.itemView.setOnClickListener {
-            if (isClickEnabled) {
+            if (asset.fromFaucet) {
+                Toast.makeText(
+                        fragment.activity,
+                        fragment.getString(R.string.pending_asset_faucet),
+                        Toast.LENGTH_LONG
+                    )
+                    .show()
+            } else if (isClickEnabled) {
                 viewModel.viewingAsset = asset
                 fragment
                     .findNavController()
