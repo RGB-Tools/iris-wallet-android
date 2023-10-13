@@ -128,8 +128,11 @@ class SendAssetFragment :
                     if (detectContent(clipboardData)) {
                         insertedFromClipboard = true
                         v.clearFocus()
+                        (v as EditText).isCursorVisible = false
                     }
                 }
+            } else {
+                (v as EditText).isCursorVisible = true
             }
         }
 
