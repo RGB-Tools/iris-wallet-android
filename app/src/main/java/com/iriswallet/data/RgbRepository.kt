@@ -1,6 +1,7 @@
 package com.iriswallet.data
 
 import android.util.Log
+import com.iriswallet.R
 import com.iriswallet.utils.*
 import com.iriswallet.utils.AppTransfer
 import java.io.File
@@ -184,12 +185,18 @@ object RgbRepository {
         transportEndpoints: List<String>,
         feeRate: Float,
     ): String {
-        return coloredWallet.send(
-            online,
-            mapOf(asset.id to listOf(Recipient(blindedUTXO, null, amount, transportEndpoints))),
-            false,
-            feeRate,
-            1u,
-        )
+        try {
+            return coloredWallet.send(
+                online,
+                mapOf(asset.id to listOf(Recipient(blindedUTXO, null, amount, transportEndpoints))),
+                false,
+                feeRate,
+                1u,
+            )
+        } catch (e: RgbLibException.InvalidTransportEndpoints) {
+            throw AppException(
+                AppContainer.appContext.getString(R.string.invalid_transport_endpoints)
+            )
+        }
     }
 }
