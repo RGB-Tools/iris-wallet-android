@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentFungiblesBinding
-import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.TAG
 
 class FungiblesFragment :
@@ -63,7 +62,7 @@ class FungiblesFragment :
         viewModel.refreshedFungibles.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 enableUI()
-                if (!response.data.isNullOrEmpty()) refreshListAdapter(response.data)
+                if (response.error == null) refreshListAdapter()
             }
         }
         viewModel.refreshedAssets.observe(viewLifecycleOwner) {
@@ -80,7 +79,7 @@ class FungiblesFragment :
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        refreshListAdapter(viewModel.cachedFungibles)
+        refreshListAdapter()
     }
 
     override fun onResume() {
@@ -107,7 +106,8 @@ class FungiblesFragment :
         }
     }
 
-    private fun refreshListAdapter(assets: List<AppAsset>) {
+    private fun refreshListAdapter() {
+        val assets = viewModel.cachedFungibles
         val visibleAssets =
             if (!SharedPreferencesManager.showHiddenAssets) {
                 val assetsToShow = assets.filter { !it.hidden }

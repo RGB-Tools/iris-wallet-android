@@ -25,12 +25,12 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     val refreshedAssets: LiveData<Event<AppResponse<List<AppAsset>>>>
         get() = _refreshedAssets
 
-    private val _refreshedFungibles = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
-    val refreshedFungibles: LiveData<Event<AppResponse<List<AppAsset>>>>
+    private val _refreshedFungibles = MutableLiveData<Event<AppResponse<Void>>>()
+    val refreshedFungibles: LiveData<Event<AppResponse<Void>>>
         get() = _refreshedFungibles
 
-    private val _refreshedCollectibles = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
-    val refreshedCollectibles: LiveData<Event<AppResponse<List<AppAsset>>>>
+    private val _refreshedCollectibles = MutableLiveData<Event<AppResponse<Void>>>()
+    val refreshedCollectibles: LiveData<Event<AppResponse<Void>>>
         get() = _refreshedCollectibles
 
     private val _offlineAssets = MutableLiveData<Event<AppResponse<List<AppAsset>>>>()
@@ -220,8 +220,8 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         ) {
             val refreshedAssets = AppRepository.getRefreshedAssets(firstAppRefresh)
             cacheAssets()
-            _refreshedFungibles.postValue(Event(AppResponse(data = cachedFungibles)))
-            _refreshedCollectibles.postValue(Event(AppResponse(data = cachedCollectibles)))
+            _refreshedFungibles.postValue(Event(AppResponse()))
+            _refreshedCollectibles.postValue(Event(AppResponse()))
             refreshedAssets
         }
     }
