@@ -65,14 +65,15 @@ object AppConstants {
 
     val rgbTestnetFaucetURLs =
         listOf(
-            "https://rgb-faucet.iriswallet.com/testnet/",
+            "https://rgb-faucet.iriswallet.com/testnet-planb2023/",
+            "https://rgb-faucet.iriswallet.com/testnet-random2023/",
         )
     val rgbMainnetFaucetURLs =
         listOf(
-            "https://rgb-faucet.iriswallet.com/mainnet/",
+            "https://rgb-faucet.iriswallet.com/mainnet-random2023/",
         )
 
-    const val assetCertificationServerURL = "https://iriswallet.org"
+    const val assetCertificationServerURL = "https://iriswallet.com"
 
     const val privacyPolicyURL = "https://iriswallet.com/privacy_policy.html"
 
