@@ -111,8 +111,6 @@ class MainActivity : AppCompatActivity() {
             AppContainer.rgbFaucetURLS.isNotEmpty()
         binding.navView.menu.findItem(R.id.issueRgb20AssetFragment).isVisible =
             AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
-        binding.navView.menu.findItem(R.id.issueRgb25AssetFragment).isVisible =
-            AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
 
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
