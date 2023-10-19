@@ -1,5 +1,6 @@
 package com.iriswallet.data
 
+import android.system.Os
 import android.util.Log
 import com.iriswallet.R
 import com.iriswallet.data.db.HiddenAsset
@@ -13,8 +14,8 @@ import com.iriswallet.utils.AppAssetType
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppException
-import com.iriswallet.utils.AppMedia
 import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.Receiver
 import com.iriswallet.utils.RgbFaucet
 import com.iriswallet.utils.TAG
@@ -137,6 +138,8 @@ object AppRepository {
                 assetToUpdate.settledBalance = rgbAsset.settledBalance
                 assetToUpdate.totalBalance = rgbAsset.totalBalance
             }
+            if (nextUpdateTransfers) fixMediaFile(rgbAsset)
+
             updateRGBAsset(
                 assetToUpdate,
                 refresh = firstAppRefresh,
@@ -153,11 +156,13 @@ object AppRepository {
                 if (assetToUpdate == null) {
                     assetToUpdate = rgbAsset
                     appAssets.add(rgbAsset)
+                    fixMediaFile(rgbAsset)
                 } else if (rgbPendingAssetIDs.contains(assetToUpdate.id)) {
                     appAssets.remove(assetToUpdate)
                     removeRgbPendingAsset(assetToUpdate.id)
                     assetToUpdate = rgbAsset
                     appAssets.add(rgbAsset)
+                    fixMediaFile(rgbAsset)
                 } else {
                     continue
                 }
@@ -273,15 +278,9 @@ object AppRepository {
     fun issueRgb20Asset(ticker: String, name: String, amounts: List<ULong>): AppAsset {
         checkMaxAssets()
         val contract = handleMissingFunds { RgbRepository.issueAssetRgb20(ticker, name, amounts) }
-        val asset =
-            AppAsset(
-                AppAssetType.RGB20,
-                contract.assetId,
-                name,
-                false,
-                ticker = ticker,
-            )
+        val asset = AppAsset(contract, false)
         appAssets.add(asset)
+        fixMediaFile(asset)
         updateRGBAsset(asset)
         return asset
     }
@@ -305,15 +304,9 @@ object AppRepository {
             RgbRepository.issueAssetRgb25(name, amounts, description, filePath)
         }
         file?.delete()
-        val asset =
-            AppAsset(
-                AppAssetType.RGB25,
-                contract.assetId,
-                name,
-                false,
-            )
-        if (contract.dataPaths.isNotEmpty()) asset.media = AppMedia(contract.dataPaths[0])
+        val asset = AppAsset(contract, false)
         appAssets.add(asset)
+        fixMediaFile(asset)
         updateRGBAsset(asset)
         return asset
     }
@@ -366,6 +359,22 @@ object AppRepository {
             handleMissingFunds {
                 initiateRgbTransfer(asset, recipient, amount, transportEndpoints, feeRate)
             }
+    }
+
+    private fun fixMediaFile(asset: AppAsset) {
+        if (asset.media != null) {
+            val sanitizedFile = File(asset.media.getSanitizedPath())
+            if (!sanitizedFile.exists()) {
+                sanitizedFile.parentFile?.mkdirs()
+                try {
+                    Os.symlink(asset.media.filePath, sanitizedFile.absolutePath)
+                    Log.d(TAG, "Created symlink for media file")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed creating media file symlink")
+                    AppUtils.copyFile(File(asset.media.filePath), sanitizedFile)
+                }
+            }
+        }
     }
 
     fun getAssets(): List<AppAsset> {

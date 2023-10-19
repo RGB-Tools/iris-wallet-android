@@ -35,6 +35,7 @@ import com.iriswallet.data.SharedPreferencesManager
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.lelloman.identicon.drawable.ClassicIdenticonDrawable
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URL
 import java.security.MessageDigest
@@ -62,6 +63,16 @@ class AppUtils {
                 windowManager.defaultDisplay.getSize(size)
                 (size.x * scale).toInt()
             }
+        }
+
+        fun copyFile(src: File, dst: File) {
+            val inStream = FileInputStream(src)
+            val outStream = FileOutputStream(dst)
+            val inChannel = inStream.channel
+            val outChannel = outStream.channel
+            inChannel.transferTo(0, inChannel.size(), outChannel)
+            inStream.close()
+            outStream.close()
         }
 
         fun deleteAppData() {

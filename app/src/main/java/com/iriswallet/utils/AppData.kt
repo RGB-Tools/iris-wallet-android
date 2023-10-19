@@ -21,7 +21,7 @@ data class AppAsset(
     var certified: Boolean,
     val iface: AssetIface? = null,
     val ticker: String? = null,
-    var media: AppMedia? = null,
+    val media: AppMedia? = null,
     val fromFaucet: Boolean = false,
     var spendableBalance: ULong = 0UL,
     var settledBalance: ULong = 0UL,
@@ -39,6 +39,7 @@ data class AppAsset(
         certified,
         iface = rgbAsset.assetIface,
         ticker = rgbAsset.ticker,
+        media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
         totalBalance = rgbAsset.balance.future,
@@ -130,6 +131,10 @@ data class AppMedia(
         },
         media.mime,
     )
+
+    fun getSanitizedPath(): String {
+        return filePath.replace(":", "")
+    }
 }
 
 data class AppResponse<T>(

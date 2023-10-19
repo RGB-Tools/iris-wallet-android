@@ -6,6 +6,7 @@ import android.graphics.SurfaceTexture
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -282,7 +283,10 @@ class AssetDetailFragment :
                         binding.detailAssetFileCard.visibility = View.GONE
                         binding.detailCollectibleCard.visibility = View.VISIBLE
                         val retriever = MediaMetadataRetriever()
-                        retriever.setDataSource(media.filePath)
+                        retriever.setDataSource(
+                            requireContext(),
+                            Uri.fromFile(File(media.getSanitizedPath()))
+                        )
                         val videoWidth =
                             retriever
                                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
@@ -295,7 +299,11 @@ class AssetDetailFragment :
                                 ?: 0
                         retriever.release()
                         val collectibleVideoThumbnail =
-                            AppUtils.getVideoThumbnail(media.filePath, videoWidth, videoHeight)
+                            AppUtils.getVideoThumbnail(
+                                media.getSanitizedPath(),
+                                videoWidth,
+                                videoHeight
+                            )
                         binding.detailCollectibleImg.setImageBitmap(collectibleVideoThumbnail)
                         textureView =
                             LayoutInflater.from(context)
@@ -365,7 +373,7 @@ class AssetDetailFragment :
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         try {
             mediaPlayer = MediaPlayer()
-            mediaPlayer?.setDataSource(asset.media!!.filePath)
+            mediaPlayer?.setDataSource(asset.media!!.getSanitizedPath())
             mediaPlayer?.prepareAsync()
             mediaPlayer?.setSurface(Surface(surface))
             mediaPlayer?.isLooping = true

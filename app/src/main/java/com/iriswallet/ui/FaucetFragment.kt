@@ -55,9 +55,12 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                                 } else {
                                     val date =
                                         ZonedDateTime.parse(
-                                            distribution.randomParams.requestWindowClose,
-                                            DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
-                                        ).withZoneSameInstant(ZoneId.systemDefault())
+                                                distribution.randomParams.requestWindowClose,
+                                                DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(
+                                                    ZoneOffset.UTC
+                                                )
+                                            )
+                                            .withZoneSameInstant(ZoneId.systemDefault())
                                     getString(
                                         R.string.faucet_random_req_succeeded,
                                         date.format(DateTimeFormatter.ofPattern("HH:mm, MMM dd"))
