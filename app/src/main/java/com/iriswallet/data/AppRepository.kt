@@ -9,6 +9,7 @@ import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
 import com.iriswallet.data.retrofit.RetrofitModule.assetCertificationService
 import com.iriswallet.data.retrofit.RgbAsset
+import com.iriswallet.data.retrofit.RgbAssetGroup
 import com.iriswallet.utils.AppAsset
 import com.iriswallet.utils.AppAssetType
 import com.iriswallet.utils.AppConstants
@@ -22,6 +23,12 @@ import com.iriswallet.utils.TAG
 import com.iriswallet.utils.UTXO
 import java.io.File
 import java.io.InputStream
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import org.rgbtools.RgbLibException
 import org.rgbtools.TransactionType
@@ -232,7 +239,11 @@ object AppRepository {
         }
     }
 
-    private fun startRGBReceiving(asset: AppAsset?, blinded: Boolean = true): Receiver {
+    private fun startRGBReceiving(
+        asset: AppAsset?,
+        blinded: Boolean = true,
+        expirationSeconds: UInt? = null
+    ): Receiver {
         var updateTransfers = true
         if (asset == null) {
             checkMaxAssets()
@@ -241,8 +252,8 @@ object AppRepository {
         val blindedData =
             RgbRepository.getReceiveData(
                 asset?.id,
-                AppConstants.rgbBlindDuration,
-                blinded = blinded
+                expirationSeconds ?: AppConstants.rgbBlindDuration,
+                blinded = blinded,
             )
         runCatching {
                 updateRGBAssets(
@@ -341,10 +352,17 @@ object AppRepository {
         return RgbRepository.getMetadata(asset.id)
     }
 
-    fun genReceiveData(asset: AppAsset?, blinded: Boolean = true): Receiver {
+    fun genReceiveData(
+        asset: AppAsset?,
+        blinded: Boolean = true,
+        expirationSeconds: UInt? = null
+    ): Receiver {
         return if (asset != null && asset.bitcoin())
             Receiver(BdkRepository.getNewAddress(), null, true)
-        else handleMissingFunds { startRGBReceiving(asset, blinded = blinded) }
+        else
+            handleMissingFunds {
+                startRGBReceiving(asset, blinded = blinded, expirationSeconds = expirationSeconds)
+            }
     }
 
     fun sendAsset(
@@ -449,15 +467,35 @@ object AppRepository {
         return assetGroups
     }
 
-    suspend fun receiveFromRgbFaucet(url: String, group: String): Pair<RgbAsset, Distribution> {
-        val witnessInvoice = genReceiveData(null, blinded = false).invoice
-        Log.d(TAG, "Requesting RGB asset from faucet '$url' and group '$group'")
+    suspend fun receiveFromRgbFaucet(
+        url: String,
+        group: Map.Entry<String, RgbAssetGroup>
+    ): Pair<RgbAsset, Distribution> {
+        val configDistribution = group.value.distribution!!
+        val expirationSeconds =
+            when (configDistribution.modeEnum()) {
+                DistributionMode.STANDARD -> null
+                DistributionMode.RANDOM -> {
+                    val now = Instant.now().atZone(ZoneId.of("UTC"))
+                    val windowClose =
+                        ZonedDateTime.parse(
+                            configDistribution.randomParams!!.requestWindowClose,
+                            DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
+                        )
+                    // add 3 hours to give faucet time to send asset
+                    Duration.between(windowClose, now).seconds.toUInt() + 10800U
+                }
+            }
+        val witnessInvoice =
+            genReceiveData(null, blinded = false, expirationSeconds = expirationSeconds).invoice
+        val groupKey = group.key
+        Log.d(TAG, "Requesting RGB asset from faucet '$url' and group '$groupKey'")
         val (asset, distribution) =
             RgbFaucetRepository.receiveRgbAsset(
                 url,
                 AppContainer.walletIdentifier,
                 witnessInvoice,
-                group
+                groupKey
             )
         when (distribution.modeEnum()) {
             DistributionMode.STANDARD -> {

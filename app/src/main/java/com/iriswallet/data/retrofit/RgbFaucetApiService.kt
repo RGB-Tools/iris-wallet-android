@@ -27,6 +27,7 @@ interface RgbFaucetApiService {
 data class RgbAssetGroup(
     @SerializedName("requests_left") val requestsLeft: Int,
     @SerializedName("label") val name: String,
+    val distribution: Distribution?,
 )
 
 @Keep

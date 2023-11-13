@@ -12,6 +12,7 @@ import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
 import com.iriswallet.data.retrofit.RetrofitModule.assetCertificationService
 import com.iriswallet.data.retrofit.RgbAsset
+import com.iriswallet.data.retrofit.RgbAssetGroup
 import com.iriswallet.utils.*
 import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
@@ -375,7 +376,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun receiveFromRgbFaucet(url: String, group: String) {
+    fun receiveFromRgbFaucet(url: String, group: Map.Entry<String, RgbAssetGroup>) {
         tryCallWithTimeout(
             AppConstants.veryLongTimeout,
             _rgbFaucetResponse,

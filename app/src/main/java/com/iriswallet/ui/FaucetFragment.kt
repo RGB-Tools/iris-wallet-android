@@ -125,7 +125,7 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                     requestBtn.setOnClickListener {
                         disableUI()
                         requestedAssetGroup = Pair(tag, assetGroup.value.requestsLeft)
-                        viewModel.receiveFromRgbFaucet(faucet.url, assetGroup.key)
+                        viewModel.receiveFromRgbFaucet(faucet.url, assetGroup)
                     }
                 }
                 val faucetName = assetGroupLL.findViewById<TextView>(R.id.faucetName)
