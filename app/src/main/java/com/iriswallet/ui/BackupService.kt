@@ -2,6 +2,8 @@ package com.iriswallet.ui
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -36,7 +38,15 @@ class BackupService : Service() {
                 R.string.backup_notification_text,
                 intent,
             )
-        startForeground(AppConstants.BACKUP_LOGS_NOTIFICATION_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && notification != null) {
+            startForeground(
+                AppConstants.BACKUP_LOGS_NOTIFICATION_ID,
+                notification,
+                FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(AppConstants.BACKUP_LOGS_NOTIFICATION_ID, notification)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
