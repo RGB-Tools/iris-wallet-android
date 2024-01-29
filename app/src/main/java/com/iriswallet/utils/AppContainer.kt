@@ -52,7 +52,7 @@ object AppContainer {
     val walletIdentifier: String by lazy { bitcoinKeys.xpub.getSha256() }
 
     val rgbDir: File by lazy { getRgbDir(appContext.filesDir) }
-    private val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.xpubFingerprint) }
+    private val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.accountXpubFingerprint) }
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.appDBName)!! }
     val bdkDir: File by lazy { File(appContext.filesDir, AppConstants.bdkDirName) }

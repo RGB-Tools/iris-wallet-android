@@ -42,8 +42,8 @@ object BdkRepository {
         changeNum: Int,
         derivationAccount: Int
     ): String {
-        return "wpkh(${keys.extend(DerivationPath(
-            "m/84'/${AppContainer.bitcoinDerivationPathCoinType}'/${derivationAccount}'/$changeNum"
+        return "tr(${keys.extend(DerivationPath(
+            "m/86'/${AppContainer.bitcoinDerivationPathCoinType}'/${derivationAccount}'/$changeNum"
         )).asString()})"
     }
 

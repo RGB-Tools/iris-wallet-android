@@ -42,7 +42,7 @@ object BackupRepository {
         val keys = restoreKeys(AppContainer.bitcoinNetwork.toRgbLibNetwork(), mnemonic)
         return File(
             AppContainer.appContext.filesDir,
-            AppConstants.backupName.format(keys.xpubFingerprint)
+            AppConstants.backupName.format(keys.accountXpubFingerprint)
         )
     }
 

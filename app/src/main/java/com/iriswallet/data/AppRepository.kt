@@ -1,6 +1,5 @@
 package com.iriswallet.data
 
-import android.system.Os
 import android.util.Log
 import com.iriswallet.R
 import com.iriswallet.data.db.HiddenAsset
@@ -16,7 +15,6 @@ import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppException
 import com.iriswallet.utils.AppTransfer
-import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.Receiver
 import com.iriswallet.utils.RgbFaucet
 import com.iriswallet.utils.TAG
@@ -145,7 +143,6 @@ object AppRepository {
                 assetToUpdate.settledBalance = rgbAsset.settledBalance
                 assetToUpdate.totalBalance = rgbAsset.totalBalance
             }
-            if (nextUpdateTransfers) fixMediaFile(rgbAsset)
 
             updateRGBAsset(
                 assetToUpdate,
@@ -163,13 +160,11 @@ object AppRepository {
                 if (assetToUpdate == null) {
                     assetToUpdate = rgbAsset
                     appAssets.add(rgbAsset)
-                    fixMediaFile(rgbAsset)
                 } else if (rgbPendingAssetIDs.contains(assetToUpdate.id)) {
                     appAssets.remove(assetToUpdate)
                     removeRgbPendingAsset(assetToUpdate.id)
                     assetToUpdate = rgbAsset
                     appAssets.add(rgbAsset)
-                    fixMediaFile(rgbAsset)
                 } else {
                     continue
                 }
@@ -199,13 +194,24 @@ object AppRepository {
             Log.d(TAG, "Calling create UTXOs...")
             val newUTXOs = RgbRepository.createUTXOs()
             Log.d(TAG, "Created $newUTXOs UTXOs")
-        } catch (e: RgbLibException.InsufficientBitcoins) {
-            throw AppException(
-                AppContainer.appContext.getString(
-                    R.string.insufficient_bitcoins_for_rgb,
-                    AppConstants.satsForRgb.toString()
-                )
-            )
+        } catch (e: RgbLibException) {
+            when (e) {
+                is RgbLibException.InsufficientBitcoins -> {
+                    throw AppException(
+                        AppContainer.appContext.getString(
+                            R.string.insufficient_bitcoins_for_rgb,
+                            AppConstants.satsForRgb.toString()
+                        )
+                    )
+                }
+                is RgbLibException.MinFeeNotMet -> {
+                    Log.d(TAG, "Insufficient fees: $e")
+                    throw AppException(
+                        AppContainer.appContext.getString(R.string.insufficient_fees)
+                    )
+                }
+                else -> throw e
+            }
         }
     }
 
@@ -214,21 +220,23 @@ object AppRepository {
             callback()
         } catch (e: RgbLibException) {
             when (e) {
-                is RgbLibException.InsufficientBitcoins ->
+                is RgbLibException.InsufficientBitcoins -> {
                     throw AppException(
                         AppContainer.appContext.getString(
                             R.string.insufficient_bitcoins_for_rgb,
                             AppConstants.satsForRgb.toString()
                         )
                     )
+                }
                 is RgbLibException.InsufficientAllocationSlots -> {
                     createUTXOs(e)
                     updateBitcoinAsset()
                     callback()
                 }
-                is RgbLibException.InvalidBlindedUtxo ->
+                is RgbLibException.InvalidRecipientId,
+                is RgbLibException.InvalidRecipientNetwork ->
                     throw AppException(
-                        AppContainer.appContext.getString(R.string.invalid_blinded_utxo)
+                        AppContainer.appContext.getString(R.string.invalid_recipient_id)
                     )
                 is RgbLibException.RecipientIdAlreadyUsed ->
                     throw AppException(
@@ -274,7 +282,8 @@ object AppRepository {
         feeRate: Float,
     ): String {
         Log.d(TAG, "Initiating transfer for blinded UTXO: $blindedUTXO")
-        val txid = RgbRepository.send(asset, blindedUTXO, amount, transportEndpoints, feeRate)
+        val refreshResult =
+            RgbRepository.send(asset, blindedUTXO, amount, transportEndpoints, feeRate)
         runCatching {
                 updateRGBAssets(
                     refresh = false,
@@ -283,7 +292,7 @@ object AppRepository {
                 )
             }
             .onFailure { isCacheDirty = true }
-        return txid
+        return refreshResult.txid
     }
 
     fun issueRgb20Asset(ticker: String, name: String, amounts: List<ULong>): AppAsset {
@@ -291,7 +300,6 @@ object AppRepository {
         val contract = handleMissingFunds { RgbRepository.issueAssetRgb20(ticker, name, amounts) }
         val asset = AppAsset(contract, false)
         appAssets.add(asset)
-        fixMediaFile(asset)
         updateRGBAsset(asset)
         return asset
     }
@@ -317,7 +325,6 @@ object AppRepository {
         file?.delete()
         val asset = AppAsset(contract, false)
         appAssets.add(asset)
-        fixMediaFile(asset)
         updateRGBAsset(asset)
         return asset
     }
@@ -377,22 +384,6 @@ object AppRepository {
             handleMissingFunds {
                 initiateRgbTransfer(asset, recipient, amount, transportEndpoints, feeRate)
             }
-    }
-
-    private fun fixMediaFile(asset: AppAsset) {
-        if (asset.media != null) {
-            val sanitizedFile = File(asset.media.getSanitizedPath())
-            if (!sanitizedFile.exists()) {
-                sanitizedFile.parentFile?.mkdirs()
-                try {
-                    Os.symlink(asset.media.filePath, sanitizedFile.absolutePath)
-                    Log.d(TAG, "Created symlink for media file")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed creating media file symlink")
-                    AppUtils.copyFile(File(asset.media.filePath), sanitizedFile)
-                }
-            }
-        }
     }
 
     fun getAssets(): List<AppAsset> {

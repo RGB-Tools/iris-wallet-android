@@ -275,12 +275,20 @@ class SendAssetFragment :
         return Pair(invoiceData.recipientId, amount)
     }
 
-    private fun checkRgbBlinded(blindedStr: String): Pair<String, String?> {
+    private fun checkRgbRecipient(recipientID: String): Pair<String, String?> {
         try {
-            BlindedUtxo(blindedStr)
-            return Pair(blindedStr, null)
-        } catch (_: RgbLibException.InvalidBlindedUtxo) {
-            throw AppException(AppContainer.appContext.getString(R.string.invalid_rgb_recipient))
+            RecipientInfo(recipientID)
+            return Pair(recipientID, null)
+        } catch (ex: Exception) {
+            when (ex) {
+                is RgbLibException.InvalidRecipientId,
+                is RgbLibException.InvalidRecipientNetwork -> {
+                    throw AppException(
+                        AppContainer.appContext.getString(R.string.invalid_rgb_recipient)
+                    )
+                }
+                else -> throw ex
+            }
         }
     }
 
@@ -310,7 +318,7 @@ class SendAssetFragment :
                         } catch (e: AppException) {
                             throw e
                         } catch (_: Exception) {
-                            checkRgbBlinded(content)
+                            checkRgbRecipient(content)
                         }
                     } catch (e: AppException) {
                         throw e

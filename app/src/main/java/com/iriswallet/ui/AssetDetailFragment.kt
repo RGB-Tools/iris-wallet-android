@@ -285,7 +285,7 @@ class AssetDetailFragment :
                         val retriever = MediaMetadataRetriever()
                         retriever.setDataSource(
                             requireContext(),
-                            Uri.fromFile(File(media.getSanitizedPath()))
+                            Uri.fromFile(File(media.filePath))
                         )
                         val videoWidth =
                             retriever
@@ -297,11 +297,7 @@ class AssetDetailFragment :
                                 ?.toInt() ?: 0
                         retriever.release()
                         val collectibleVideoThumbnail =
-                            AppUtils.getVideoThumbnail(
-                                media.getSanitizedPath(),
-                                videoWidth,
-                                videoHeight
-                            )
+                            AppUtils.getVideoThumbnail(media.filePath, videoWidth, videoHeight)
                         binding.detailCollectibleImg.setImageBitmap(collectibleVideoThumbnail)
                         textureView =
                             LayoutInflater.from(context)
@@ -371,7 +367,7 @@ class AssetDetailFragment :
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         try {
             mediaPlayer = MediaPlayer()
-            mediaPlayer?.setDataSource(asset.media!!.getSanitizedPath())
+            mediaPlayer?.setDataSource(asset.media!!.filePath)
             mediaPlayer?.prepareAsync()
             mediaPlayer?.setSurface(Surface(surface))
             mediaPlayer?.isLooping = true

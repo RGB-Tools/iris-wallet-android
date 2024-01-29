@@ -59,10 +59,10 @@ class AssetMetadataFragment :
             binding.metadataTickerTV.visibility = View.GONE
             binding.metadataTickerLabelTV.visibility = View.GONE
         } else binding.metadataTickerTV.text = metadata.ticker
-        if (metadata.description.isNullOrBlank()) {
+        if (metadata.details.isNullOrBlank()) {
             binding.metadataDescriptionTV.visibility = View.GONE
             binding.metadataDescriptionLabelTV.visibility = View.GONE
-        } else binding.metadataDescriptionTV.text = metadata.description
+        } else binding.metadataDescriptionTV.text = metadata.details
         binding.metadataScrollView.visibility = View.VISIBLE
     }
 }

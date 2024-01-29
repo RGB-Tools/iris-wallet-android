@@ -82,7 +82,8 @@
     <string name="insufficient_bitcoins">insufficient bitcoins</string>
     <string name="insufficient_bitcoins_for_rgb">insufficient bitcoins. %s SATs are needed in order
         to operate on RGB with the Iris wallet.</string>
-    <string name="invalid_blinded_utxo">Invalid blinded UTXO</string>
+    <string name="insufficient_fees">insufficient fees</string>
+    <string name="invalid_recipient_id">Invalid recipient ID</string>
     <string name="invalid_transport_endpoints">Invalid transport endpoints</string>
     <string name="invalid_consignment_endpoint">Invalid consignment endpoint</string>
     <string name="invalid_rgb_recipient">Data is neither a blinded UTXO nor an RGB invoice</string>

@@ -16,7 +16,7 @@ object RgbRepository {
                 AppContainer.bitcoinNetwork.toRgbLibNetwork(),
                 DatabaseType.SQLITE,
                 1u,
-                AppContainer.bitcoinKeys.xpub,
+                AppContainer.bitcoinKeys.accountXpub,
                 AppContainer.bitcoinKeys.mnemonic,
                 AppConstants.derivationChangeVanilla.toUByte(),
             )
@@ -39,19 +39,20 @@ object RgbRepository {
             false,
             null,
             null,
-            SharedPreferencesManager.feeRate.toFloat()
+            SharedPreferencesManager.feeRate.toFloat(),
+            false,
         )
     }
 
     fun deleteTransfer(transfer: AppTransfer) {
         if (transfer.status != TransferStatus.FAILED)
-            coloredWallet.failTransfers(online, transfer.blindedUTXO, null, false)
-        coloredWallet.deleteTransfers(transfer.blindedUTXO, null, false)
+            coloredWallet.failTransfers(online, transfer.batchTransferIdx, false, false)
+        coloredWallet.deleteTransfers(transfer.batchTransferIdx, false)
     }
 
     fun failAndDeleteOldTransfers(): Boolean {
-        var changed = coloredWallet.failTransfers(online, null, null, true)
-        val deleted = coloredWallet.deleteTransfers(null, null, true)
+        var changed = coloredWallet.failTransfers(online, null, true, false)
+        val deleted = coloredWallet.deleteTransfers(null, true)
         if (deleted) changed = true
         return changed
     }
@@ -151,7 +152,7 @@ object RgbRepository {
 
     fun listTransactions(sync: Boolean): List<Transaction> {
         val onlineOpt = if (sync) online else null
-        return coloredWallet.listTransactions(onlineOpt)
+        return coloredWallet.listTransactions(onlineOpt, !sync)
     }
 
     fun listTransfers(asset: AppAsset): List<AppTransfer> {
@@ -159,7 +160,7 @@ object RgbRepository {
     }
 
     fun listUnspent(assetsInfoMap: Map<String, String>): List<UTXO> {
-        val unspents = coloredWallet.listUnspents(online, false)
+        val unspents = coloredWallet.listUnspents(online, false, false)
         return unspents.map { unspent ->
             val rgbUnspents =
                 unspent.rgbAllocations.map { RgbUnspent(it, assetsInfoMap[it.assetId]) }
@@ -175,7 +176,9 @@ object RgbRepository {
                     RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false)
                 )
             else listOf()
-        return coloredWallet.refresh(online, asset?.id, filter)
+        return coloredWallet.refresh(online, asset?.id, filter, false).values.any {
+            it.updatedStatus != null
+        }
     }
 
     fun send(
@@ -184,7 +187,7 @@ object RgbRepository {
         amount: ULong,
         transportEndpoints: List<String>,
         feeRate: Float,
-    ): String {
+    ): SendResult {
         try {
             return coloredWallet.send(
                 online,
@@ -192,6 +195,7 @@ object RgbRepository {
                 false,
                 feeRate,
                 1u,
+                false,
             )
         } catch (e: RgbLibException.InvalidTransportEndpoints) {
             throw AppException(

@@ -43,7 +43,7 @@ class CollectiblesAdapter(
                 MimeType.VIDEO -> {
                     val width = fragment.resources.getDimensionPixelSize(R.dimen.collectible_size)
                     val collectibleVideoThumbnail =
-                        AppUtils.getVideoThumbnail(media.getSanitizedPath(), width, width)
+                        AppUtils.getVideoThumbnail(media.filePath, width, width)
                     if (collectibleVideoThumbnail == null) Log.e(TAG, "Unhandled error")
                     else viewHolder.binding.collectibleImg.setImageBitmap(collectibleVideoThumbnail)
                 }

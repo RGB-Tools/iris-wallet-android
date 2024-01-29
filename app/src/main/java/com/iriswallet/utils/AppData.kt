@@ -39,7 +39,7 @@ data class AppAsset(
         certified,
         iface = rgbAsset.assetIface,
         ticker = rgbAsset.ticker,
-        media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
+        media = rgbAsset.media?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
         totalBalance = rgbAsset.balance.future,
@@ -54,7 +54,7 @@ data class AppAsset(
         rgbAsset.name,
         certified,
         iface = rgbAsset.assetIface,
-        media = rgbAsset.dataPaths.getOrNull(0)?.let { AppMedia(it) },
+        media = rgbAsset.media?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
         totalBalance = rgbAsset.balance.future,
@@ -131,10 +131,6 @@ data class AppMedia(
         },
         media.mime,
     )
-
-    fun getSanitizedPath(): String {
-        return filePath.replace(":", "")
-    }
 }
 
 data class AppResponse<T>(
@@ -297,6 +293,8 @@ data class AppTransfer(
     val changeUTXO: AppOutpoint? = null,
     val transportEndpoints: List<AppTransferTransportEndpoint>? = null,
     var internal: Boolean = false,
+    val idx: Int? = null,
+    val batchTransferIdx: Int? = null,
 ) : Parcelable {
     constructor(
         bdkTransfer: TransactionDetails
@@ -323,7 +321,9 @@ data class AppTransfer(
         blindedUTXO = transfer.recipientId,
         receiveUTXO = transfer.receiveUtxo?.let { AppOutpoint(it) },
         changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
-        transportEndpoints = transfer.transportEndpoints.map { AppTransferTransportEndpoint(it) }
+        transportEndpoints = transfer.transportEndpoints.map { AppTransferTransportEndpoint(it) },
+        idx = transfer.idx,
+        batchTransferIdx = transfer.batchTransferIdx,
     )
 
     fun deletable(): Boolean {
