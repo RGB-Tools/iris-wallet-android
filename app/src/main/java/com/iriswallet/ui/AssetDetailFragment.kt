@@ -290,13 +290,11 @@ class AssetDetailFragment :
                         val videoWidth =
                             retriever
                                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                                ?.toInt()
-                                ?: 0
+                                ?.toInt() ?: 0
                         val videoHeight =
                             retriever
                                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                                ?.toInt()
-                                ?: 0
+                                ?.toInt() ?: 0
                         retriever.release()
                         val collectibleVideoThumbnail =
                             AppUtils.getVideoThumbnail(
