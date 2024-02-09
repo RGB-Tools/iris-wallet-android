@@ -11,7 +11,7 @@
     <string name="negative_amount" translatable="false">-%s</string>
 
     <!-- character sets -->
-    <string name="uppercase_letters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    <string name="uppercase_letters_and_digits">ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</string>
     <string name="letters_and_digits">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</string>
     <string name="letters_digits_space_and_dash">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -</string>
 

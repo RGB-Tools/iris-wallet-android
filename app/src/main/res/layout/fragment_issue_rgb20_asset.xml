@@ -36,7 +36,7 @@
 
                 <EditText
                     android:id="@+id/tickerInputET"
-                    android:digits="@string/uppercase_letters"
+                    android:digits="@string/uppercase_letters_and_digits"
                     android:hint="@string/short_identifier"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
