@@ -322,6 +322,7 @@ class SendAssetFragment :
                 }
             } catch (e: AppException) {
                 if (toastErr) toastError(e.message!!)
+                enableUI()
                 return false
             }
 
