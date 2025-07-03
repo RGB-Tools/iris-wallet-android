@@ -69,10 +69,10 @@ class SettingsFragment :
             it.inputType = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
             it.selectAll()
             it.filters +=
-                DecimalsInputFilter(
+                IntegerInputFilter(
                     AppConstants.feeRateIntegerPlaces,
-                    AppConstants.feeRateDecimalPlaces,
-                    minValue = AppConstants.minFeeRate,
+                    AppConstants.minFeeRate,
+                    AppConstants.maxFeeRate,
                 )
         }
     }

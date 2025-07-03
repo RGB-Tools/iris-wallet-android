@@ -164,21 +164,7 @@ class TransferDetailFragment :
                 transfer.status == TransferStatus.WAITING_COUNTERPARTY &&
                     transfer.kind == AppTransferKind.RECEIVE
             ) {
-                val invoiceData =
-                    InvoiceData(
-                        recipientId = transfer.blindedUTXO!!,
-                        assetSchema = asset.schema,
-                        amount = null,
-                        assetId = asset.id,
-                        network = AppContainer.bitcoinNetwork.toRgbLibNetwork(),
-                        expirationTimestamp = transfer.expiration,
-                        transportEndpoints =
-                            transfer.transportEndpoints.orEmpty().map {
-                                AppConstants.rgbRpcURI + it.endpoint
-                            },
-                    )
-                val invoice = Invoice.fromInvoiceData(invoiceData)
-                binding.transferInvoiceTV.text = invoice.invoiceString()
+                binding.transferInvoiceTV.text = transfer.invoiceString
                 binding.transferInvoiceLabelTV.visibility = View.VISIBLE
                 binding.transferInvoiceTV.visibility = View.VISIBLE
             }

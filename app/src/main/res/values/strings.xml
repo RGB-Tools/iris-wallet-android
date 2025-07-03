@@ -261,7 +261,7 @@
     <string name="pref_fee_rate_title">Set a default fee rate</string>
     <string name="pref_fee_rate_summary">Set a fee rate to be used as default in all send operations</string>
     <string name="pref_fee_rate_dialog_title">Set a default fee rate in sat/vbyte</string>
-    <string name="pref_fee_rate_dialog_summary">Input a fee rate between 1.0 and 1000.0</string>
+    <string name="pref_fee_rate_dialog_summary">Input a fee rate between 1 and 1000</string>
     <string name="sat_amount">SAT %s</string>
     <string name="rgb_amount">%1$s %2$s</string>
     <string name="transactions">Transactions</string>

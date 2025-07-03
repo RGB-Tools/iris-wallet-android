@@ -205,10 +205,17 @@ data class RgbUnspent(
     val amount: ULong,
     val settled: Boolean,
 ) {
-    constructor(
-        rgbAllocation: RgbAllocation,
-        tickerOrName: String?,
-    ) : this(rgbAllocation.assetId, tickerOrName, rgbAllocation.amount, rgbAllocation.settled)
+    companion object {
+        fun fromAllocation(rgbAllocation: RgbAllocation, tickerOrName: String?): RgbUnspent {
+            val amount = rgbAllocation.assignment.getAmountULong()
+            return RgbUnspent(
+                assetID = rgbAllocation.assetId,
+                tickerOrName = tickerOrName,
+                amount = amount,
+                settled = rgbAllocation.settled,
+            )
+        }
+    }
 }
 
 @Parcelize
@@ -267,6 +274,7 @@ data class AppTransfer(
     var internal: Boolean = false,
     val idx: Int? = null,
     val batchTransferIdx: Int? = null,
+    val invoiceString: String? = null,
 ) : Parcelable {
     constructor(
         transaction: Transaction
@@ -281,22 +289,32 @@ data class AppTransfer(
         txid = transaction.txid,
     )
 
-    constructor(
-        transfer: Transfer
-    ) : this(
-        Date(transfer.updatedAt * 1000),
-        transfer.status,
-        AppTransferKind.fromRgbLibTransferKind(transfer.kind),
-        amount = transfer.amount,
-        expiration = transfer.expiration,
-        txid = transfer.txid,
-        blindedUTXO = transfer.recipientId,
-        receiveUTXO = transfer.receiveUtxo?.let { AppOutpoint(it) },
-        changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
-        transportEndpoints = transfer.transportEndpoints.map { AppTransferTransportEndpoint(it) },
-        idx = transfer.idx,
-        batchTransferIdx = transfer.batchTransferIdx,
-    )
+    companion object {
+        fun fromTransfer(transfer: Transfer): AppTransfer {
+            val amount =
+                if (transfer.kind == TransferKind.SEND) {
+                    transfer.requestedAssignment!!.getAmountULong()
+                } else {
+                    transfer.assignments.sumOf { assignment -> assignment.getAmountULong() }
+                }
+            return AppTransfer(
+                date = Date(transfer.updatedAt * 1000),
+                status = transfer.status,
+                kind = AppTransferKind.fromRgbLibTransferKind(transfer.kind),
+                amount = amount,
+                expiration = transfer.expiration,
+                txid = transfer.txid,
+                blindedUTXO = transfer.recipientId,
+                receiveUTXO = transfer.receiveUtxo?.let { AppOutpoint(it) },
+                changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
+                transportEndpoints =
+                    transfer.transportEndpoints.map { AppTransferTransportEndpoint(it) },
+                idx = transfer.idx,
+                batchTransferIdx = transfer.batchTransferIdx,
+                invoiceString = transfer.invoiceString,
+            )
+        }
+    }
 
     fun deletable(): Boolean {
         return status in listOf(TransferStatus.WAITING_COUNTERPARTY, TransferStatus.FAILED)
@@ -327,5 +345,13 @@ data class UTXO(
 
     fun outpoint(): AppOutpoint {
         return AppOutpoint(txid, vout)
+    }
+}
+
+fun Assignment.getAmountULong(): ULong {
+    return when (this) {
+        is Assignment.Fungible -> this.amount
+        is Assignment.NonFungible -> 1UL
+        else -> 0UL
     }
 }

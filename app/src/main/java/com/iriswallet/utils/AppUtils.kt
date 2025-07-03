@@ -293,17 +293,11 @@ fun String.getSha256(): String {
         .toString()
 }
 
-class DecimalsInputFilter(maxIntegerPlaces: Int, maxDecimalPlaces: Int, minValue: Double? = null) :
-    InputFilter {
-    private val maxIntegerPlaces: Int
-    private val maxDecimalPlaces: Int
-    private val minValue: Double?
-
-    init {
-        this.maxIntegerPlaces = maxIntegerPlaces
-        this.maxDecimalPlaces = maxDecimalPlaces
-        this.minValue = minValue
-    }
+class IntegerInputFilter(
+    private val maxDigits: Int,
+    private val minValue: Int? = null,
+    private val maxValue: Int? = null,
+) : InputFilter {
 
     override fun filter(
         source: CharSequence,
@@ -312,27 +306,22 @@ class DecimalsInputFilter(maxIntegerPlaces: Int, maxDecimalPlaces: Int, minValue
         dest: Spanned,
         dstart: Int,
         dend: Int,
-    ): CharSequence {
-        if (source != "" && !source.matches(Regex("[0-9.]*"))) return ""
-
-        val formattedSource = source.subSequence(start, end).toString()
-        val destPrefix = dest.subSequence(0, dstart).toString()
-        val destSuffix = dest.subSequence(dend, dest.length).toString()
-        val result = destPrefix + formattedSource + destSuffix
-
-        if (result.count { it == '.' } > 1) return ""
-        if (result.startsWith(".")) return minValue.toString().split(".").first().toString()
-        if (minValue != null) {
-            if (result == "" || result.toDouble() < minValue) return minValue.toString()
+    ): CharSequence? {
+        if (source != "" && !source.matches(Regex("[0-9]*"))) return ""
+        val newText =
+            dest.substring(0, dstart) + source.subSequence(start, end) + dest.substring(dend)
+        if (newText.length > maxDigits) return ""
+        if (newText.isEmpty() || newText == "0") return newText
+        return try {
+            val value = newText.toInt()
+            if ((minValue != null && value < minValue) || (maxValue != null && value > maxValue)) {
+                ""
+            } else {
+                null
+            }
+        } catch (_: NumberFormatException) {
+            ""
         }
-
-        val integerPlaces = result.indexOf(".")
-        if (integerPlaces == -1 && result.length > maxIntegerPlaces && source != ".") return ""
-        val decimalPlaces = if (integerPlaces == -1) 0 else result.length - integerPlaces - 1
-        if (integerPlaces > maxIntegerPlaces) return ""
-        if (decimalPlaces > maxDecimalPlaces) return ""
-
-        return source
     }
 }
 

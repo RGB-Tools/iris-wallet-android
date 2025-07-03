@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:theme="@style/AppTheme"
     tools:openDrawer="start"
     tools:context=".ui.MainActivity">

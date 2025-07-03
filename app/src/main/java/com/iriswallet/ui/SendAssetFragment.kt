@@ -137,10 +137,10 @@ class SendAssetFragment :
         binding.sendFeeRateET.hint = AppConstants.defaultFeeRate.toString()
         binding.sendFeeRateET.setText(SharedPreferencesManager.feeRate)
         binding.sendFeeRateET.filters +=
-            DecimalsInputFilter(
+            IntegerInputFilter(
                 AppConstants.feeRateIntegerPlaces,
-                AppConstants.feeRateDecimalPlaces,
-                minValue = AppConstants.minFeeRate,
+                AppConstants.minFeeRate,
+                AppConstants.maxFeeRate,
             )
         binding.sendFeeRateET.setSelectAllOnFocus(true)
 
@@ -265,7 +265,7 @@ class SendAssetFragment :
         val invoiceData = Invoice(rgbInvoiceStr).invoiceData()
         if (invoiceData.assetId != null && invoiceData.assetId != asset.id)
             throw AppException(getString(R.string.asset_id_mismatch, invoiceData.assetId))
-        val amount = if (invoiceData.amount != null) invoiceData.amount.toString() else null
+        val amount = invoiceData.assignment.getAmountULong().toString()
         if (
             invoiceData.expirationTimestamp != null &&
                 invoiceData.expirationTimestamp!! * 1000L <= System.currentTimeMillis()

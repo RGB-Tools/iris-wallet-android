@@ -1,5 +1,7 @@
 package com.iriswallet.utils
 
+import org.rgbtools.AssetSchema
+
 // Constants shared across the whole app
 object AppConstants {
     const val appDBName = "iris_wallet_db"
@@ -23,10 +25,11 @@ object AppConstants {
     const val uLongMaxAmount: ULong = 18446744073709551615UL
     const val issueMaxAmount = uLongMaxAmount
     const val maxMediaBytes = 5 * 1024 * 1024
-    const val defaultFeeRate = 1.5F
-    const val minFeeRate = 1.0
-    const val feeRateIntegerPlaces = 3
-    const val feeRateDecimalPlaces = 2
+    const val defaultFeeRate = 2
+    const val minFeeRate = 1
+    const val maxFeeRate = 1000
+    const val feeRateIntegerPlaces = 4
+    val supportedSchemas = listOf(AssetSchema.CFA, AssetSchema.NIA)
 
     const val coloredWallet = "colored"
     const val vanillaWallet = "vanilla"

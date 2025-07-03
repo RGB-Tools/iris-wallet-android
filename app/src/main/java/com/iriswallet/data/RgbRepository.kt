@@ -19,7 +19,9 @@ object RgbRepository {
                 AppContainer.bitcoinKeys.accountXpubVanilla,
                 AppContainer.bitcoinKeys.accountXpubColored,
                 AppContainer.bitcoinKeys.mnemonic,
+                AppContainer.bitcoinKeys.masterFingerprint,
                 AppConstants.derivationChangeVanilla.toUByte(),
+                AppConstants.supportedSchemas,
             )
         )
     }
@@ -81,12 +83,11 @@ object RgbRepository {
         blinded: Boolean = true,
     ): ReceiveData {
         val minConfirmations = 1.toUByte()
-        val amount = null
         val transportEndpoints = listOf(SharedPreferencesManager.proxyTransportEndpoint)
         return if (blinded) {
             wallet.blindReceive(
                 assetID,
-                amount,
+                Assignment.Any,
                 expirationSeconds,
                 transportEndpoints,
                 minConfirmations,
@@ -94,7 +95,7 @@ object RgbRepository {
         } else {
             wallet.witnessReceive(
                 assetID,
-                amount,
+                Assignment.Any,
                 expirationSeconds,
                 transportEndpoints,
                 minConfirmations,
@@ -157,14 +158,16 @@ object RgbRepository {
     }
 
     fun listTransfers(asset: AppAsset): List<AppTransfer> {
-        return wallet.listTransfers(asset.id).map { AppTransfer(it) }
+        return wallet.listTransfers(asset.id).map { AppTransfer.fromTransfer(it) }
     }
 
     fun listUnspent(assetsInfoMap: Map<String, String>): List<UTXO> {
         val unspents = wallet.listUnspents(online, settledOnly = false, skipSync = false)
         return unspents.map { unspent ->
             val rgbUnspents =
-                unspent.rgbAllocations.map { RgbUnspent(it, assetsInfoMap[it.assetId]) }
+                unspent.rgbAllocations.map {
+                    RgbUnspent.fromAllocation(it, assetsInfoMap[it.assetId])
+                }
             UTXO(unspent, rgbUnspents)
         }
     }
@@ -202,9 +205,14 @@ object RgbRepository {
         feeRate: ULong,
     ): SendResult {
         try {
+            val assignment =
+                if (asset.schema == AssetSchema.UDA) Assignment.NonFungible
+                else Assignment.Fungible(amount)
             return wallet.send(
                 online,
-                mapOf(asset.id to listOf(Recipient(blindedUTXO, null, amount, transportEndpoints))),
+                mapOf(
+                    asset.id to listOf(Recipient(blindedUTXO, null, assignment, transportEndpoints))
+                ),
                 false,
                 feeRate,
                 1u,
