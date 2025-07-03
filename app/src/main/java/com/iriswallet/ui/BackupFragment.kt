@@ -41,7 +41,7 @@ class BackupFragment :
                     Toast.makeText(
                             activity,
                             getString(R.string.backup_completed),
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         )
                         .show()
                     enableUI()
@@ -62,7 +62,7 @@ class BackupFragment :
                     R.drawable.ic_hide,
                     0,
                     0,
-                    0
+                    0,
                 )
                 val mnemonicWords =
                     AppContainer.storedMnemonic.split(' ').mapIndexed { index, s ->
@@ -79,7 +79,7 @@ class BackupFragment :
                     R.drawable.ic_show,
                     0,
                     0,
-                    0
+                    0,
                 )
                 binding.backupMnemonicCardView.visibility = View.GONE
             }
@@ -95,7 +95,7 @@ class BackupFragment :
                 StyleSpan(Typeface.BOLD),
                 message.length - gAccountEmail!!.length,
                 message.length,
-                0
+                0,
             )
             binding.backupDataTV.text = spannable
         } else {

@@ -72,7 +72,7 @@ class SettingsFragment :
                 DecimalsInputFilter(
                     AppConstants.feeRateIntegerPlaces,
                     AppConstants.feeRateDecimalPlaces,
-                    minValue = AppConstants.minFeeRate
+                    minValue = AppConstants.minFeeRate,
                 )
         }
     }
@@ -89,7 +89,7 @@ class SettingsFragment :
 
     override fun onPreferenceDisplayDialog(
         caller: PreferenceFragmentCompat,
-        pref: Preference
+        pref: Preference,
     ): Boolean {
         if (pref is EditTextPreference && pref.key == PREFS_PROXY_CONSIGNMENT_ENDPOINT) {
             showCustomEditTextDialog(pref.key, TransportEndpointEditTextPreferenceFragment)
@@ -168,7 +168,7 @@ class SettingsFragment :
 
     private fun <T> showCustomEditTextDialog(
         prefKey: String,
-        customClass: CustomEditTextPreferenceDialogFragmentCompat<T>
+        customClass: CustomEditTextPreferenceDialogFragmentCompat<T>,
     ) {
         val f = customClass.newInstance(prefKey) as EditTextPreferenceDialogFragmentCompat
         // see https://issuetracker.google.com/issues/181793702
@@ -216,13 +216,13 @@ class TransportEndpointEditTextPreferenceFragment : EditTextPreferenceDialogFrag
                         ForegroundColorSpan(Color.RED),
                         existingMessage.length,
                         updatedMessage.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
                     )
                     spannable.setSpan(
                         StyleSpan(Typeface.ITALIC),
                         existingMessage.length,
                         updatedMessage.length,
-                        0
+                        0,
                     )
                     dialogMessageTV.text = spannable
                 }
@@ -282,13 +282,13 @@ class ElectrumURLEditTextPreferenceFragment : EditTextPreferenceDialogFragmentCo
                         ForegroundColorSpan(Color.RED),
                         existingMessage.length,
                         updatedMessage.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
                     )
                     spannable.setSpan(
                         StyleSpan(Typeface.ITALIC),
                         existingMessage.length,
                         updatedMessage.length,
-                        0
+                        0,
                     )
                     dialogMessageTV.text = spannable
                 }

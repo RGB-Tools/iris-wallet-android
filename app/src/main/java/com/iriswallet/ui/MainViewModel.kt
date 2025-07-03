@@ -143,7 +143,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private inline fun callWithTimeout(
         timeout: Long,
         noinline timeoutCallback: () -> Unit,
-        crossinline callback: suspend () -> Unit
+        crossinline callback: suspend () -> Unit,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val job = viewModelScope.launch(Dispatchers.IO) { callback() }
@@ -161,7 +161,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         requestID: String? = null,
         noinline successCallback: ((data: T) -> Unit)? = null,
         noinline failureCallback: (() -> Unit)? = null,
-        crossinline callback: suspend () -> T
+        crossinline callback: suspend () -> T,
     ) {
         callWithTimeout(
             timeout,
@@ -170,11 +170,11 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
                     Event(
                         AppResponse(
                             requestID = requestID,
-                            error = AppError(type = AppErrorType.TIMEOUT_EXCEPTION)
+                            error = AppError(type = AppErrorType.TIMEOUT_EXCEPTION),
                         )
                     )
                 )
-            }
+            },
         ) {
             try {
                 val data = callback()
@@ -201,10 +201,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun getOfflineAssets() {
-        tryCallWithTimeout(
-            AppConstants.longTimeout,
-            _offlineAssets,
-        ) {
+        tryCallWithTimeout(AppConstants.longTimeout, _offlineAssets) {
             val assets = AppRepository.getAssets()
             cacheAssets()
             assets
@@ -241,10 +238,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun getAssetMetadata(asset: AppAsset) {
-        tryCallWithTimeout(
-            AppConstants.shortTimeout,
-            _metadata,
-        ) {
+        tryCallWithTimeout(AppConstants.shortTimeout, _metadata) {
             AppRepository.getAssetMetadata(asset)
         }
     }
@@ -256,10 +250,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun genReceiveData(asset: AppAsset?) {
-        tryCallWithTimeout(
-            AppConstants.shortTimeout,
-            _recipient,
-        ) {
+        tryCallWithTimeout(AppConstants.shortTimeout, _recipient) {
             val data = AppRepository.genReceiveData(asset)
             cacheAssets()
             data
@@ -273,17 +264,14 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         transportEndpoints: List<String>,
         feeRate: Float,
     ) {
-        tryCallWithTimeout(
-            AppConstants.longTimeout,
-            _sent,
-        ) {
+        tryCallWithTimeout(AppConstants.longTimeout, _sent) {
             val txid =
                 AppRepository.sendAsset(
                     asset,
                     recipient,
                     amount.toULong(),
                     transportEndpoints,
-                    feeRate
+                    feeRate,
                 )
             cacheAssets()
             txid
@@ -291,10 +279,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun issueRgb20Asset(ticker: String, name: String, amounts: List<String>) {
-        tryCallWithTimeout(
-            AppConstants.longTimeout,
-            _issuedRgb20Asset,
-        ) {
+        tryCallWithTimeout(AppConstants.longTimeout, _issuedRgb20Asset) {
             val asset = AppRepository.issueRgb20Asset(ticker, name, amounts.map { it.toULong() })
             cacheAssets()
             asset
@@ -305,18 +290,15 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         name: String,
         amounts: List<String>,
         description: String?,
-        fileStream: InputStream?
+        fileStream: InputStream?,
     ) {
-        tryCallWithTimeout(
-            AppConstants.longTimeout,
-            _issuedRgb25Asset,
-        ) {
+        tryCallWithTimeout(AppConstants.longTimeout, _issuedRgb25Asset) {
             val asset =
                 AppRepository.issueRgb25Asset(
                     name,
                     amounts.map { it.toULong() },
                     description,
-                    fileStream
+                    fileStream,
                 )
             cacheAssets()
             asset
@@ -324,11 +306,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun deleteTransfer(asset: AppAsset, transfer: AppTransfer) {
-        tryCallWithTimeout(
-            AppConstants.shortTimeout,
-            _asset,
-            requestID = asset.id,
-        ) {
+        tryCallWithTimeout(AppConstants.shortTimeout, _asset, requestID = asset.id) {
             val updatedAsset = AppRepository.deleteRGBTransfer(asset, transfer)
             cacheAssets()
             updatedAsset
@@ -336,10 +314,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun handleAssetVisibility(assetID: String) {
-        tryCallWithTimeout(
-            AppConstants.shortTimeout,
-            _hidden,
-        ) {
+        tryCallWithTimeout(AppConstants.shortTimeout, _hidden) {
             val hidden = AppRepository.handleAssetVisibility(assetID)
             cacheAssets()
             hidden
@@ -377,10 +352,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun receiveFromRgbFaucet(url: String, group: Map.Entry<String, RgbAssetGroup>) {
-        tryCallWithTimeout(
-            AppConstants.veryLongTimeout,
-            _rgbFaucetResponse,
-        ) {
+        tryCallWithTimeout(AppConstants.veryLongTimeout, _rgbFaucetResponse) {
             val (asset, distribution) = AppRepository.receiveFromRgbFaucet(url, group)
             if (distribution.modeEnum() == DistributionMode.STANDARD) cacheAssets()
             Pair(asset, distribution)
@@ -415,11 +387,11 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             try {
                 BdkRepository.recoverFundsFromDerivationPath(
                     AppConstants.derivationAccountOldRgb,
-                    true
+                    true,
                 )
                 BdkRepository.recoverFundsFromDerivationPath(
                     AppConstants.derivationAccountVanilla,
-                    false
+                    false,
                 )
                 SharedPreferencesManager.recoveredFunds = true
             } catch (e: Exception) {

@@ -53,7 +53,7 @@ class FungiblesAdapter(
                 Toast.makeText(
                         fragment.activity,
                         fragment.getString(R.string.pending_asset_faucet),
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG,
                     )
                     .show()
             } else if (isClickEnabled) {

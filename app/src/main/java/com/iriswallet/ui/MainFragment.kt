@@ -46,7 +46,7 @@ class MainFragment :
                         Toast.makeText(
                                 activity,
                                 getString(R.string.back_disabled),
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
                         return
@@ -59,16 +59,16 @@ class MainFragment :
                     Toast.makeText(
                             activity,
                             getString(R.string.back_again_to_exit),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                         .show()
                     Handler(Looper.getMainLooper())
                         .postDelayed(
                             { doubleBackToExitPressedOnce = false },
-                            AppConstants.waitDoubleBackTime
+                            AppConstants.waitDoubleBackTime,
                         )
                 }
-            }
+            },
         )
 
         mActivity.binding.navView.menu.findItem(R.id.backupFragment).setOnMenuItemClickListener {

@@ -42,7 +42,7 @@ class BackupService : Service() {
             startForeground(
                 AppConstants.BACKUP_LOGS_NOTIFICATION_ID,
                 notification,
-                FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
         } else {
             startForeground(AppConstants.BACKUP_LOGS_NOTIFICATION_ID, notification)

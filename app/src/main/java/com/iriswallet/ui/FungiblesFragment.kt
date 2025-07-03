@@ -50,7 +50,7 @@ class FungiblesFragment :
                 }
             },
             viewLifecycleOwner,
-            Lifecycle.State.RESUMED
+            Lifecycle.State.RESUMED,
         )
 
         binding.fungiblesRV.layoutManager = LinearLayoutManager(activity)
@@ -119,7 +119,7 @@ class FungiblesFragment :
             } else assets
         Log.d(
             TAG,
-            "Refreshing fungibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
+            "Refreshing fungibles view with ${visibleAssets.size} (out of ${assets.size}) assets...",
         )
         adapter = FungiblesAdapter(visibleAssets, viewModel, this, fungibleSize!!)
         adapter.stateRestorationPolicy =

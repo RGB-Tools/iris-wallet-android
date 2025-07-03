@@ -16,7 +16,7 @@ import androidx.room.migration.AutoMigrationSpec
             AutoMigration(
                 from = 2,
                 to = 3,
-                spec = AppDatabase.DropAutomaticTransactionsMigration::class
+                spec = AppDatabase.DropAutomaticTransactionsMigration::class,
             ),
             AutoMigration(from = 3, to = 4, spec = AppDatabase.DropParentIDMigration::class),
         ],

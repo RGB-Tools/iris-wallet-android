@@ -58,12 +58,12 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
                                                 distribution.randomParams.requestWindowClose,
                                                 DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(
                                                     ZoneOffset.UTC
-                                                )
+                                                ),
                                             )
                                             .withZoneSameInstant(ZoneId.systemDefault())
                                     getString(
                                         R.string.faucet_random_req_succeeded,
-                                        date.format(DateTimeFormatter.ofPattern("HH:mm, MMM dd"))
+                                        date.format(DateTimeFormatter.ofPattern("HH:mm, MMM dd")),
                                     )
                                 }
                             }

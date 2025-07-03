@@ -22,7 +22,7 @@ object RgbFaucetRepository {
         url: String,
         walletIdentifier: String,
         invoice: String,
-        group: String
+        group: String,
     ): Pair<RgbAsset, Distribution> {
         val receiveAssetBody = ReceiveAssetBody(walletIdentifier, invoice, group)
         val receiveRgbAssetResponse =

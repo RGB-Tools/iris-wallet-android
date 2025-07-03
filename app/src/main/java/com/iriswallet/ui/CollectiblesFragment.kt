@@ -50,7 +50,7 @@ class CollectiblesFragment :
                 }
             },
             viewLifecycleOwner,
-            Lifecycle.State.RESUMED
+            Lifecycle.State.RESUMED,
         )
 
         binding.collectiblesRV.layoutManager = GridLayoutManager(activity, 2)
@@ -119,7 +119,7 @@ class CollectiblesFragment :
             } else assets
         Log.d(
             TAG,
-            "Refreshing collectibles view with ${visibleAssets.size} (out of ${assets.size}) assets..."
+            "Refreshing collectibles view with ${visibleAssets.size} (out of ${assets.size}) assets...",
         )
         adapter = CollectiblesAdapter(visibleAssets, viewModel, this, collectibleSize!!)
         adapter.stateRestorationPolicy =

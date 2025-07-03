@@ -34,7 +34,7 @@ class AboutPageFragment :
             binding.aboutPrivacyPolicyTV,
             Pattern.compile(getString(R.string.privacy_policy_link)),
             null,
-            null
+            null,
         ) { _, _ ->
             AppConstants.privacyPolicyURL
         }
@@ -43,7 +43,7 @@ class AboutPageFragment :
             binding.aboutTermsOfServiceTV,
             Pattern.compile(getString(R.string.terms_of_service_link)),
             null,
-            null
+            null,
         ) { _, _ ->
             AppContainer.termsAndConditionsURL
         }
@@ -52,13 +52,13 @@ class AboutPageFragment :
             val fileName =
                 AppConstants.rgbDownloadLogsFileName.format(
                     System.currentTimeMillis(),
-                    BuildConfig.VERSION_NAME
+                    BuildConfig.VERSION_NAME,
                 )
             AppUtils.saveFileToDownloads(
                 requireContext(),
                 AppContainer.rgbLogsFile.toURI().toString(),
                 fileName,
-                "text/plain"
+                "text/plain",
             )
             showDownloadedNotification()
             Toast.makeText(activity, getString(R.string.downloaded_logs), Toast.LENGTH_LONG).show()

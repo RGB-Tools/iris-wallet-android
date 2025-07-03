@@ -83,7 +83,7 @@ data class AppAsset(
                     AppTransferKind.RECEIVE,
                     amount = rgbPendingAsset.amount.toULong(),
                 )
-            )
+            ),
     )
 
     fun bitcoin(): Boolean {
@@ -115,11 +115,7 @@ data class AppError(
 class AppException(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
 @Parcelize
-data class AppMedia(
-    val filePath: String,
-    val mime: MimeType,
-    val mimeString: String,
-) : Parcelable {
+data class AppMedia(val filePath: String, val mime: MimeType, val mimeString: String) : Parcelable {
     constructor(
         media: Media
     ) : this(
@@ -198,7 +194,7 @@ open class Event<out T>(private val content: T) {
 enum class MimeType {
     IMAGE,
     VIDEO,
-    OTHER
+    OTHER,
 }
 
 data class RgbFaucet(
@@ -208,19 +204,11 @@ data class RgbFaucet(
 ) {
     constructor(
         faucetConfig: FaucetConfig,
-        url: String
-    ) : this(
-        faucetConfig.name,
-        faucetConfig.groups,
-        url,
-    )
+        url: String,
+    ) : this(faucetConfig.name, faucetConfig.groups, url)
 }
 
-data class Receiver(
-    val invoice: String,
-    val expirationSeconds: UInt? = null,
-    val bitcoin: Boolean,
-)
+data class Receiver(val invoice: String, val expirationSeconds: UInt? = null, val bitcoin: Boolean)
 
 data class RgbUnspent(
     val assetID: String?,
@@ -231,12 +219,7 @@ data class RgbUnspent(
     constructor(
         rgbAllocation: RgbAllocation,
         tickerOrName: String?,
-    ) : this(
-        rgbAllocation.assetId,
-        tickerOrName,
-        rgbAllocation.amount,
-        rgbAllocation.settled,
-    )
+    ) : this(rgbAllocation.assetId, tickerOrName, rgbAllocation.amount, rgbAllocation.settled)
 }
 
 @Parcelize
@@ -252,14 +235,14 @@ data class AppOutpoint(val txid: String, val vout: UInt) : Parcelable {
 data class AppTransferTransportEndpoint(
     val endpoint: String,
     val transportType: TransportType,
-    val used: Boolean
+    val used: Boolean,
 ) : Parcelable {
     constructor(
         transferTransportEndpoint: TransferTransportEndpoint
     ) : this(
         transferTransportEndpoint.endpoint,
         transferTransportEndpoint.transportType,
-        transferTransportEndpoint.used
+        transferTransportEndpoint.used,
     )
 }
 
@@ -340,7 +323,7 @@ data class UTXO(
     val vout: UInt,
     val satAmount: ULong,
     var walletName: String? = null,
-    var rgbUnspents: List<RgbUnspent>
+    var rgbUnspents: List<RgbUnspent>,
 ) {
     constructor(
         unspent: LocalUtxo
@@ -360,18 +343,10 @@ data class UTXO(
         unspent.utxo.outpoint.vout,
         unspent.utxo.btcAmount,
         AppConstants.coloredWallet,
-        rgbUnspents
+        rgbUnspents,
     )
 
-    constructor(
-        outpoint: AppOutpoint
-    ) : this(
-        outpoint.txid,
-        outpoint.vout,
-        0UL,
-        null,
-        listOf(),
-    )
+    constructor(outpoint: AppOutpoint) : this(outpoint.txid, outpoint.vout, 0UL, null, listOf())
 
     fun outpoint(): AppOutpoint {
         return AppOutpoint(txid, vout)

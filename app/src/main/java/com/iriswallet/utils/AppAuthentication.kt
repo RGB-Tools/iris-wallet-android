@@ -35,7 +35,7 @@ class AppAuthenticationService(private val fragment: Fragment) {
                         appAuthenticationServiceListener.handleAuthError(
                             requestCode,
                             errString.toString().replaceFirstChar(Char::lowercase),
-                            errorCode
+                            errorCode,
                         )
                     }
 
@@ -53,10 +53,10 @@ class AppAuthenticationService(private val fragment: Fragment) {
                             fragment
                                 .getString(R.string.auth_failed)
                                 .replaceFirstChar(Char::lowercase),
-                            FAILED_AUTH
+                            FAILED_AUTH,
                         )
                     }
-                }
+                },
             )
         biometricManager = BiometricManager.from(fragment.requireActivity().applicationContext)
 
@@ -75,7 +75,7 @@ class AppAuthenticationService(private val fragment: Fragment) {
                 appAuthenticationServiceListener.handleAuthError(
                     requestCode,
                     fragment.getString(R.string.auth_failed).replaceFirstChar(Char::lowercase),
-                    USER_DISABLED_AUTH
+                    USER_DISABLED_AUTH,
                 )
                 return
             }

@@ -58,7 +58,7 @@ object AppConstants {
             "https://testnet-faucet.mempool.co/",
             "https://bitcoinfaucet.uo1.net/",
             "https://coinfaucet.eu/en/btc-testnet/",
-            "https://testnet-faucet.com/btc-testnet/"
+            "https://testnet-faucet.com/btc-testnet/",
         )
 
     const val btcTestnetFaucetURL = "https://btc-faucet.iriswallet.com"
@@ -68,10 +68,7 @@ object AppConstants {
             "https://rgb-faucet.iriswallet.com/testnet-planb2023/",
             "https://rgb-faucet.iriswallet.com/testnet-random2023/",
         )
-    val rgbMainnetFaucetURLs =
-        listOf(
-            "https://rgb-faucet.iriswallet.com/mainnet-random2023/",
-        )
+    val rgbMainnetFaucetURLs = listOf("https://rgb-faucet.iriswallet.com/mainnet-random2023/")
 
     const val assetCertificationServerURL = "https://iriswallet.com"
 

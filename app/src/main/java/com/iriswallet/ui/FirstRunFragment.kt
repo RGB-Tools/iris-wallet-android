@@ -118,13 +118,13 @@ class FirstRunFragment :
         val lp =
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.WRAP_CONTENT,
             )
         val margin =
             TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     resources.getDimension(R.dimen.small_size),
-                    resources.displayMetrics
+                    resources.displayMetrics,
                 )
                 .toInt()
         lp.setMargins(margin, 0, margin, 0)
@@ -144,7 +144,7 @@ class FirstRunFragment :
                         end: Int,
                         dest: Spanned,
                         dstart: Int,
-                        dend: Int
+                        dend: Int,
                     ): CharSequence {
                         return source.toString().lowercase(Locale.getDefault())
                     }

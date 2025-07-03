@@ -40,7 +40,7 @@ object BdkRepository {
     private fun calculateDescriptor(
         keys: DescriptorSecretKey,
         changeNum: Int,
-        derivationAccount: Int
+        derivationAccount: Int,
     ): String {
         return "tr(${keys.extend(DerivationPath(
             "m/86'/${AppContainer.bitcoinDerivationPathCoinType}'/${derivationAccount}'/$changeNum"
@@ -52,30 +52,25 @@ object BdkRepository {
             calculateDescriptor(
                 keys,
                 AppConstants.derivationChangeVanilla,
-                AppConstants.derivationAccountVanilla
+                AppConstants.derivationAccountVanilla,
             )
         return getWalletFromDescriptors(
             DatabaseConfig.Sqlite(
                 SqliteDbConfiguration(AppContainer.bdkDBVanillaPath.absolutePath)
             ),
             descriptor,
-            null
+            null,
         )
     }
 
     private fun getWalletFromDescriptors(
         dbConfig: DatabaseConfig,
         descriptor: String,
-        changeDescriptor: String?
+        changeDescriptor: String?,
     ): Wallet {
         val bdkNetwork = AppContainer.bitcoinNetwork.toBdkNetwork()
         val changeDesc = changeDescriptor?.let { Descriptor(it, bdkNetwork) }
-        return Wallet(
-            Descriptor(descriptor, bdkNetwork),
-            changeDesc,
-            bdkNetwork,
-            dbConfig,
-        )
+        return Wallet(Descriptor(descriptor, bdkNetwork), changeDesc, bdkNetwork, dbConfig)
     }
 
     fun getBalance(): Balance {

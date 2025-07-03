@@ -87,7 +87,7 @@ class SendAssetFragment :
                 }
             },
             viewLifecycleOwner,
-            Lifecycle.State.RESUMED
+            Lifecycle.State.RESUMED,
         )
 
         editableFields = arrayOf(binding.sendPayToET, binding.sendAmountET, binding.sendFeeRateET)
@@ -98,14 +98,14 @@ class SendAssetFragment :
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun onTextChanged(
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun afterTextChanged(editable: Editable) {
@@ -142,7 +142,7 @@ class SendAssetFragment :
             DecimalsInputFilter(
                 AppConstants.feeRateIntegerPlaces,
                 AppConstants.feeRateDecimalPlaces,
-                minValue = AppConstants.minFeeRate
+                minValue = AppConstants.minFeeRate,
             )
         binding.sendFeeRateET.setSelectAllOnFocus(true)
 
@@ -158,7 +158,7 @@ class SendAssetFragment :
                     Toast.makeText(
                             activity,
                             getString(R.string.sent_txid, response.data),
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         )
                         .show()
                     viewModel.refreshAssetDetail(asset)
@@ -352,7 +352,7 @@ class SendAssetFragment :
                     Toast.makeText(
                             activity,
                             getString(R.string.cancelled_scan_permissions),
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         )
                         .show()
             } else detectContent(result.contents, toastErr = true)

@@ -34,7 +34,7 @@ class TermsAndConditionsFragment :
                 binding.tacTV,
                 Pattern.compile(getString(R.string.privacy_policy_link)),
                 null,
-                null
+                null,
             ) { _, _ ->
                 AppConstants.privacyPolicyURL
             }

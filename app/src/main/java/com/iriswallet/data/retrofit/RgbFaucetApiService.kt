@@ -12,14 +12,14 @@ interface RgbFaucetApiService {
     @GET("receive/config/{walletID}")
     suspend fun getConfig(
         @Header("X-Api-Key") apiKey: String,
-        @Path("walletID") walletID: String
+        @Path("walletID") walletID: String,
     ): Response<FaucetConfig>
 
     @Headers("Content-Type: application/json")
     @POST("receive/asset")
     suspend fun receiveAsset(
         @Header("X-Api-Key") apiKey: String,
-        @Body receiveAssetBody: ReceiveAssetBody
+        @Body receiveAssetBody: ReceiveAssetBody,
     ): Response<ReceiveAssetResponse>
 }
 
@@ -30,11 +30,7 @@ data class RgbAssetGroup(
     val distribution: Distribution?,
 )
 
-@Keep
-data class FaucetConfig(
-    val name: String,
-    val groups: HashMap<String, RgbAssetGroup>,
-)
+@Keep data class FaucetConfig(val name: String, val groups: HashMap<String, RgbAssetGroup>)
 
 @Keep
 data class ReceiveAssetBody(
@@ -47,7 +43,7 @@ data class ReceiveAssetBody(
 data class ReceiveAssetResponse(
     val asset: RgbAsset?,
     val distribution: Distribution?,
-    val error: String?
+    val error: String?,
 )
 
 enum class DistributionMode {

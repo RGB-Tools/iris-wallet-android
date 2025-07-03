@@ -28,14 +28,14 @@ class IssueRgb20AssetFragment :
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun onTextChanged(
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun afterTextChanged(editable: Editable) {
@@ -43,7 +43,7 @@ class IssueRgb20AssetFragment :
                             fixETAmount(
                                 editText,
                                 editable.toString(),
-                                maxULongAmount = AppConstants.issueMaxAmount
+                                maxULongAmount = AppConstants.issueMaxAmount,
                             )
                         binding.issueBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.amountInputET)
@@ -59,7 +59,7 @@ class IssueRgb20AssetFragment :
             viewModel.issueRgb20Asset(
                 binding.tickerInputET.text.toString(),
                 binding.nameInputET.text.toString(),
-                listOf(binding.amountInputET.text.toString())
+                listOf(binding.amountInputET.text.toString()),
             )
         }
 

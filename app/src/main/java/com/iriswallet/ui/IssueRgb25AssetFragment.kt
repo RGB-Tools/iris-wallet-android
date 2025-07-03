@@ -78,14 +78,14 @@ class IssueRgb25AssetFragment :
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun onTextChanged(
                         charSequence: CharSequence,
                         i: Int,
                         i1: Int,
-                        i2: Int
+                        i2: Int,
                     ) {}
 
                     override fun afterTextChanged(editable: Editable) {
@@ -93,7 +93,7 @@ class IssueRgb25AssetFragment :
                             fixETAmount(
                                 editText,
                                 editable.toString(),
-                                maxULongAmount = AppConstants.issueMaxAmount
+                                maxULongAmount = AppConstants.issueMaxAmount,
                             )
                         binding.issueBtn.isEnabled = enableIssueBtn()
                     }

@@ -5,15 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.iriswallet.data.retrofit.RgbAsset
 
-@Entity
-data class HiddenAsset(
-    @PrimaryKey val id: String,
-)
+@Entity data class HiddenAsset(@PrimaryKey val id: String)
 
-@Entity
-data class RgbCertifiedAsset(
-    @PrimaryKey val assetID: String,
-)
+@Entity data class RgbCertifiedAsset(@PrimaryKey val assetID: String)
 
 @Entity
 data class RgbPendingAsset(

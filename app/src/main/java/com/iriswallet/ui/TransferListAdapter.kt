@@ -18,7 +18,7 @@ import org.rgbtools.TransferStatus
 class TransferListAdapter(
     private val dataSet: ArrayList<AppTransfer>,
     private val viewModel: MainViewModel,
-    private val fragment: AssetDetailFragment
+    private val fragment: AssetDetailFragment,
 ) : RecyclerView.Adapter<TransferListAdapter.ViewHolder>() {
     private var isClickEnabled = true
 
@@ -29,7 +29,7 @@ class TransferListAdapter(
             TransferListItemBinding.inflate(
                 LayoutInflater.from(viewGroup.context),
                 viewGroup,
-                false
+                false,
             )
         return ViewHolder(bind)
     }
@@ -55,7 +55,7 @@ class TransferListAdapter(
             viewHolder.binding.transferItemAmountTV.setTextColor(
                 ContextCompat.getColor(
                     viewHolder.binding.transferItemAmountTV.context,
-                    R.color.color_green
+                    R.color.color_green,
                 )
             )
             amount = viewHolder.itemView.context.getString(R.string.positive_amount, amount)
@@ -63,7 +63,7 @@ class TransferListAdapter(
             viewHolder.binding.transferItemAmountTV.setTextColor(
                 ContextCompat.getColor(
                     viewHolder.binding.transferItemAmountTV.context,
-                    R.color.color_red
+                    R.color.color_red,
                 )
             )
             amount = viewHolder.itemView.context.getString(R.string.negative_amount, amount)
@@ -100,14 +100,11 @@ class TransferListAdapter(
         notifyDataSetChanged()
     }
 
-    private fun handleIncompleteTransfer(
-        viewHolder: ViewHolder,
-        transfer: AppTransfer,
-    ) {
+    private fun handleIncompleteTransfer(viewHolder: ViewHolder, transfer: AppTransfer) {
         viewHolder.binding.transferItemAmountTV.setTextColor(
             ContextCompat.getColor(
                 viewHolder.binding.transferItemAmountTV.context,
-                R.color.color_gray
+                R.color.color_gray,
             )
         )
         viewHolder.binding.transferItemDateTV.text =

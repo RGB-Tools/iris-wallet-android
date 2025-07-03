@@ -63,7 +63,7 @@ class TransferDetailFragment :
                 }
             },
             viewLifecycleOwner,
-            Lifecycle.State.RESUMED
+            Lifecycle.State.RESUMED,
         )
     }
 

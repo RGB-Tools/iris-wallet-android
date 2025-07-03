@@ -29,7 +29,7 @@ object BackupRepository {
         val credential =
             GoogleAccountCredential.usingOAuth2(
                 AppContainer.appContext,
-                listOf(DriveScopes.DRIVE_FILE)
+                listOf(DriveScopes.DRIVE_FILE),
             )
         credential.selectedAccount = signInAccount.account!!
         driveClient =
@@ -42,7 +42,7 @@ object BackupRepository {
         val keys = restoreKeys(AppContainer.bitcoinNetwork.toRgbLibNetwork(), mnemonic)
         return File(
             AppContainer.appContext.filesDir,
-            AppConstants.backupName.format(keys.accountXpubFingerprint)
+            AppConstants.backupName.format(keys.accountXpubFingerprint),
         )
     }
 

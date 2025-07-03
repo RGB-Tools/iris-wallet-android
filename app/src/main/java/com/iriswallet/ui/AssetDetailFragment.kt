@@ -77,13 +77,13 @@ class AssetDetailFragment :
                                 requireContext(),
                                 mediaFile,
                                 AppConstants.rgbDownloadMediaFileName.format(asset.id),
-                                asset.media!!.mimeString
+                                asset.media!!.mimeString,
                             )
                             showDownloadedNotification()
                             Toast.makeText(
                                     activity,
                                     getString(R.string.downloaded_media),
-                                    Toast.LENGTH_LONG
+                                    Toast.LENGTH_LONG,
                                 )
                                 .show()
                             true
@@ -113,7 +113,7 @@ class AssetDetailFragment :
                 }
             },
             viewLifecycleOwner,
-            Lifecycle.State.RESUMED
+            Lifecycle.State.RESUMED,
         )
 
         binding.detailTransferRV.layoutManager = LinearLayoutManager(mActivity)
@@ -285,7 +285,7 @@ class AssetDetailFragment :
                         val retriever = MediaMetadataRetriever()
                         retriever.setDataSource(
                             requireContext(),
-                            Uri.fromFile(File(media.filePath))
+                            Uri.fromFile(File(media.filePath)),
                         )
                         val videoWidth =
                             retriever
@@ -356,7 +356,7 @@ class AssetDetailFragment :
             0,
             0,
             R.drawable.ic_certified,
-            0
+            0,
         )
     }
 

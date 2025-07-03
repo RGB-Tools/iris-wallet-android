@@ -8,12 +8,8 @@ interface BtcFaucetApiService {
     @GET("receive/{address}")
     suspend fun receiveBitcoins(
         @Header("X-Api-Key") apiKey: String,
-        @Path("address") address: String
+        @Path("address") address: String,
     ): Response<ReceiveBitcoinsResponse>
 }
 
-@Keep
-data class ReceiveBitcoinsResponse(
-    val txid: String?,
-    val error: String?,
-)
+@Keep data class ReceiveBitcoinsResponse(val txid: String?, val error: String?)

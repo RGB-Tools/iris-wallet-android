@@ -54,7 +54,7 @@ object SharedPreferencesManager {
         get() =
             settingsSharedPreferences.getString(
                 PREFS_ELECTRUM_URL,
-                AppContainer.electrumURLDefault
+                AppContainer.electrumURLDefault,
             )!!
         set(value) {
             settingsSharedPreferences.edit()?.putString(PREFS_ELECTRUM_URL, value)?.apply()
@@ -64,7 +64,7 @@ object SharedPreferencesManager {
         get() =
             settingsSharedPreferences.getString(
                 PREFS_FEE_RATE,
-                AppConstants.defaultFeeRate.toString()
+                AppConstants.defaultFeeRate.toString(),
             )!!
         set(value) {
             settingsSharedPreferences.edit()?.putString(PREFS_FEE_RATE, value)?.apply()
@@ -95,7 +95,7 @@ object SharedPreferencesManager {
         get() =
             settingsSharedPreferences.getString(
                 PREFS_PROXY_CONSIGNMENT_ENDPOINT,
-                AppContainer.proxyTransportEndpointDefault
+                AppContainer.proxyTransportEndpointDefault,
             )!!
         set(value) {
             settingsSharedPreferences

@@ -23,9 +23,9 @@ class IrisWallet : Application() {
                     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                     .build(),
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
             ),
-            PreferenceManager.getDefaultSharedPreferences(this)
+            PreferenceManager.getDefaultSharedPreferences(this),
         )
         AppContainer.storedMnemonic = SharedPreferencesManager.mnemonic
     }

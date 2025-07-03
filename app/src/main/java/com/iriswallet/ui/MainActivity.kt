@@ -136,14 +136,14 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(
                                 baseContext,
                                 getString(R.string.back_disabled),
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
                         return
                     }
                     navController.popBackStack()
                 }
-            }
+            },
         )
 
         viewModel.refreshedFungibles.observe(this) {

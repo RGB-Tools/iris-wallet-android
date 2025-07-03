@@ -23,10 +23,7 @@ class ConnectivityService : Service() {
     private lateinit var scheduleExecutor: ScheduledFuture<*>
 
     private val serviceURLs: List<String> by lazy {
-        listOf(
-            SharedPreferencesManager.electrumURL,
-            AppContainer.proxyURL,
-        )
+        listOf(SharedPreferencesManager.electrumURL, AppContainer.proxyURL)
     }
 
     private var serviceMap: Map<String, Boolean> = mapOf()

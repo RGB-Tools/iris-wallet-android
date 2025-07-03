@@ -47,7 +47,7 @@ class AppUtils {
     companion object {
         private fun calculateAvailableWidth(
             windowManager: WindowManager,
-            scale: Double = 1.0
+            scale: Double = 1.0,
         ): Int {
             if (scale > 1.0 || scale < 0.1)
                 throw IllegalArgumentException("QR code scale cannot be outside the range 0.1-1.0")
@@ -98,7 +98,7 @@ class AppUtils {
         fun getAssetIdIdenticon(
             assetID: String,
             width: Int,
-            height: Int
+            height: Int,
         ): ClassicIdenticonDrawable {
             val errCorrection = 200
             val correctedWidth = width + errCorrection
@@ -109,7 +109,7 @@ class AppUtils {
         fun getQRCodeBitmap(
             data: String,
             windowManager: WindowManager,
-            scale: Double = 1.0
+            scale: Double = 1.0,
         ): Bitmap? {
             val width = calculateAvailableWidth(windowManager, scale)
             val hints: MutableMap<EncodeHintType, Any> = EnumMap(EncodeHintType::class.java)
@@ -132,7 +132,7 @@ class AppUtils {
             else
                 ThumbnailUtils.createVideoThumbnail(
                     filePath,
-                    MediaStore.Images.Thumbnails.MINI_KIND
+                    MediaStore.Images.Thumbnails.MINI_KIND,
                 )
         }
 
@@ -163,7 +163,7 @@ class AppUtils {
                         Environment.getExternalStoragePublicDirectory(
                             Environment.DIRECTORY_DOWNLOADS
                         ),
-                        fileName
+                        fileName,
                     )
                 URL(url).openStream().use { input ->
                     FileOutputStream(target).use { output -> input.copyTo(output) }
@@ -186,7 +186,7 @@ class AppUtils {
                 NotificationChannel(
                         channelId,
                         context.getString(channelNameId),
-                        NotificationManager.IMPORTANCE_DEFAULT
+                        NotificationManager.IMPORTANCE_DEFAULT,
                     )
                     .apply { description = context.getString(channelDescriptionId) }
             val notificationManager: NotificationManager =
@@ -198,7 +198,7 @@ class AppUtils {
                     context,
                     0,
                     intent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
             val builder =
                 NotificationCompat.Builder(context, channelId)
@@ -215,7 +215,7 @@ class AppUtils {
                     if (
                         ActivityCompat.checkSelfPermission(
                             context,
-                            Manifest.permission.POST_NOTIFICATIONS
+                            Manifest.permission.POST_NOTIFICATIONS,
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
                         if (requestPermissionLauncher != null) {
@@ -234,13 +234,13 @@ class AppUtils {
 
         fun askForNotificationsPermission(
             context: Context,
-            requestPermissionLauncher: ActivityResultLauncher<String>
+            requestPermissionLauncher: ActivityResultLauncher<String>,
         ): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (
                     ActivityCompat.checkSelfPermission(
                         context,
-                        Manifest.permission.POST_NOTIFICATIONS
+                        Manifest.permission.POST_NOTIFICATIONS,
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
                     Log.d(TAG, "Requesting notification permissions...")
@@ -273,7 +273,7 @@ class AppUtils {
                     context.getString(
                         R.string.app_exception_msg,
                         errMsg,
-                        extraMsg.replaceFirstChar(Char::lowercase)
+                        extraMsg.replaceFirstChar(Char::lowercase),
                     )
             return errMsg
         }
@@ -318,7 +318,7 @@ class DecimalsInputFilter(maxIntegerPlaces: Int, maxDecimalPlaces: Int, minValue
         end: Int,
         dest: Spanned,
         dstart: Int,
-        dend: Int
+        dend: Int,
     ): CharSequence {
         if (source != "" && !source.matches(Regex("[0-9.]*"))) return ""
 

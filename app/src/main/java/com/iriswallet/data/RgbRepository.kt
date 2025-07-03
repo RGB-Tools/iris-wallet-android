@@ -64,7 +64,7 @@ object RgbRepository {
     fun getReceiveData(
         assetID: String? = null,
         expirationSeconds: UInt,
-        blinded: Boolean = true
+        blinded: Boolean = true,
     ): ReceiveData {
         val minConfirmations = 1.toUByte()
         val amount = null
@@ -111,7 +111,7 @@ object RgbRepository {
             ticker,
             name,
             AppConstants.rgbDefaultPrecision,
-            amounts
+            amounts,
         )
     }
 
@@ -119,7 +119,7 @@ object RgbRepository {
         name: String,
         amounts: List<ULong>,
         description: String?,
-        filePath: String?
+        filePath: String?,
     ): AssetCfa {
         val desc = if (description.isNullOrBlank()) null else description
         return coloredWallet.issueAssetCfa(
@@ -128,7 +128,7 @@ object RgbRepository {
             desc,
             AppConstants.rgbDefaultPrecision,
             amounts,
-            filePath
+            filePath,
         )
     }
 
@@ -173,7 +173,7 @@ object RgbRepository {
             if (light)
                 listOf(
                     RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, true),
-                    RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false)
+                    RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false),
                 )
             else listOf()
         return coloredWallet.refresh(online, asset?.id, filter, false).values.any {

@@ -148,7 +148,7 @@ object AppRepository {
                 assetToUpdate,
                 refresh = firstAppRefresh,
                 updateTransfers = nextUpdateTransfers,
-                updateTransfersFilter = updateTransfersFilter
+                updateTransfersFilter = updateTransfersFilter,
             )
         }
         if (firstAppRefresh) {
@@ -172,7 +172,7 @@ object AppRepository {
                     assetToUpdate,
                     refresh = false,
                     updateTransfers = true,
-                    updateTransfersFilter = updateTransfersFilter
+                    updateTransfersFilter = updateTransfersFilter,
                 )
             }
         }
@@ -200,7 +200,7 @@ object AppRepository {
                     throw AppException(
                         AppContainer.appContext.getString(
                             R.string.insufficient_bitcoins_for_rgb,
-                            AppConstants.satsForRgb.toString()
+                            AppConstants.satsForRgb.toString(),
                         )
                     )
                 }
@@ -224,7 +224,7 @@ object AppRepository {
                     throw AppException(
                         AppContainer.appContext.getString(
                             R.string.insufficient_bitcoins_for_rgb,
-                            AppConstants.satsForRgb.toString()
+                            AppConstants.satsForRgb.toString(),
                         )
                     )
                 }
@@ -250,7 +250,7 @@ object AppRepository {
     private fun startRGBReceiving(
         asset: AppAsset?,
         blinded: Boolean = true,
-        expirationSeconds: UInt? = null
+        expirationSeconds: UInt? = null,
     ): Receiver {
         var updateTransfers = true
         if (asset == null) {
@@ -267,7 +267,7 @@ object AppRepository {
                 updateRGBAssets(
                     refresh = false,
                     updateTransfers = updateTransfers,
-                    updateTransfersFilter = asset?.id
+                    updateTransfersFilter = asset?.id,
                 )
             }
             .onFailure { isCacheDirty = true }
@@ -288,7 +288,7 @@ object AppRepository {
                 updateRGBAssets(
                     refresh = false,
                     updateTransfers = true,
-                    updateTransfersFilter = asset.id
+                    updateTransfersFilter = asset.id,
                 )
             }
             .onFailure { isCacheDirty = true }
@@ -308,7 +308,7 @@ object AppRepository {
         name: String,
         amounts: List<ULong>,
         description: String?,
-        fileStream: InputStream?
+        fileStream: InputStream?,
     ): AppAsset {
         checkMaxAssets()
         var filePath: String? = null
@@ -336,7 +336,7 @@ object AppRepository {
                 updateRGBAssets(
                     refresh = false,
                     updateTransfers = true,
-                    updateTransfersFilter = asset.id
+                    updateTransfersFilter = asset.id,
                 )
             }
             .onFailure { isCacheDirty = true }
@@ -362,7 +362,7 @@ object AppRepository {
     fun genReceiveData(
         asset: AppAsset?,
         blinded: Boolean = true,
-        expirationSeconds: UInt? = null
+        expirationSeconds: UInt? = null,
     ): Receiver {
         return if (asset != null && asset.bitcoin())
             Receiver(BdkRepository.getNewAddress(), null, true)
@@ -460,7 +460,7 @@ object AppRepository {
 
     suspend fun receiveFromRgbFaucet(
         url: String,
-        group: Map.Entry<String, RgbAssetGroup>
+        group: Map.Entry<String, RgbAssetGroup>,
     ): Pair<RgbAsset, Distribution> {
         val configDistribution = group.value.distribution!!
         val expirationSeconds =
@@ -471,7 +471,7 @@ object AppRepository {
                     val windowClose =
                         ZonedDateTime.parse(
                             configDistribution.randomParams!!.requestWindowClose,
-                            DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
+                            DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC),
                         )
                     // add 3 hours to give faucet time to send asset
                     Duration.between(windowClose, now).seconds.toUInt() + 10800U
@@ -486,7 +486,7 @@ object AppRepository {
                 url,
                 AppContainer.walletIdentifier,
                 witnessInvoice,
-                groupKey
+                groupKey,
             )
         when (distribution.modeEnum()) {
             DistributionMode.STANDARD -> {
