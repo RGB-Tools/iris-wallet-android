@@ -149,7 +149,7 @@
     <string name="sample_issued_supply">18446744073709551615</string>
     <string name="sample_precision">0</string>
     <string name="sample_asset_description">A very cool asset</string>
-    <string name="sample_fee_rate">1.5</string>
+    <string name="sample_fee_rate">2</string>
     <string name="mnemonic_pt1">01. season\n02. dumb\n03. romance\n04. december\n05. blood\n06. toy</string>
     <string name="mnemonic_pt2">07. dinner\n08. robot\n09. weird\n10. rabbit\n11. cook\n12. immense</string>
 

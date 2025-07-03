@@ -40,13 +40,11 @@ object AppRepository {
     private var rgbPendingAssetIDs: MutableList<String> = mutableListOf()
 
     fun getCachedFungibles(): List<AppAsset> {
-        return appAssets.filter {
-            listOf(AppAssetType.BITCOIN, AppAssetType.RGB20).contains(it.type)
-        }
+        return appAssets.filter { listOf(AppAssetType.BITCOIN, AppAssetType.NIA).contains(it.type) }
     }
 
     fun getCachedCollectibles(): List<AppAsset> {
-        return appAssets.filter { it.type == AppAssetType.RGB25 }
+        return appAssets.filter { it.type == AppAssetType.CFA }
     }
 
     internal fun getCachedAsset(assetID: String): AppAsset? {
@@ -279,7 +277,7 @@ object AppRepository {
         blindedUTXO: String,
         amount: ULong,
         transportEndpoints: List<String>,
-        feeRate: Float,
+        feeRate: ULong,
     ): String {
         Log.d(TAG, "Initiating transfer for blinded UTXO: $blindedUTXO")
         val refreshResult =
@@ -377,9 +375,10 @@ object AppRepository {
         recipient: String,
         amount: ULong,
         transportEndpoints: List<String>,
-        feeRate: Float,
+        feeRate: ULong,
     ): String {
-        return if (asset.bitcoin()) BdkRepository.sendToAddress(recipient, amount, feeRate)
+        return if (asset.bitcoin())
+            BdkRepository.sendToAddress(recipient, amount, feeRate.toFloat())
         else
             handleMissingFunds {
                 initiateRgbTransfer(asset, recipient, amount, transportEndpoints, feeRate)

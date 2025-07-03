@@ -16,7 +16,8 @@ object RgbRepository {
                 AppContainer.bitcoinNetwork.toRgbLibNetwork(),
                 DatabaseType.SQLITE,
                 1u,
-                AppContainer.bitcoinKeys.accountXpub,
+                AppContainer.bitcoinKeys.accountXpubVanilla,
+                AppContainer.bitcoinKeys.accountXpubColored,
                 AppContainer.bitcoinKeys.mnemonic,
                 AppConstants.derivationChangeVanilla.toUByte(),
             )
@@ -39,19 +40,25 @@ object RgbRepository {
             false,
             null,
             null,
-            SharedPreferencesManager.feeRate.toFloat(),
+            SharedPreferencesManager.feeRate.toULong(),
             false,
         )
     }
 
     fun deleteTransfer(transfer: AppTransfer) {
         if (transfer.status != TransferStatus.FAILED)
-            coloredWallet.failTransfers(online, transfer.batchTransferIdx, false, false)
+            coloredWallet.failTransfers(
+                online,
+                transfer.batchTransferIdx,
+                noAssetOnly = false,
+                skipSync = false,
+            )
         coloredWallet.deleteTransfers(transfer.batchTransferIdx, false)
     }
 
     fun failAndDeleteOldTransfers(): Boolean {
-        var changed = coloredWallet.failTransfers(online, null, true, false)
+        var changed =
+            coloredWallet.failTransfers(online, null, noAssetOnly = true, skipSync = false)
         val deleted = coloredWallet.deleteTransfers(null, true)
         if (deleted) changed = true
         return changed
@@ -106,13 +113,7 @@ object RgbRepository {
     }
 
     fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetNia {
-        return coloredWallet.issueAssetNia(
-            online,
-            ticker,
-            name,
-            AppConstants.rgbDefaultPrecision,
-            amounts,
-        )
+        return coloredWallet.issueAssetNia(ticker, name, AppConstants.rgbDefaultPrecision, amounts)
     }
 
     fun issueAssetRgb25(
@@ -123,7 +124,6 @@ object RgbRepository {
     ): AssetCfa {
         val desc = if (description.isNullOrBlank()) null else description
         return coloredWallet.issueAssetCfa(
-            online,
             name,
             desc,
             AppConstants.rgbDefaultPrecision,
@@ -134,16 +134,16 @@ object RgbRepository {
 
     fun listAssets(): List<AppAsset> {
         val assets = coloredWallet.listAssets(listOf())
-        val assetsRgb20 = assets.nia!!.sortedBy { assetNia -> assetNia.addedAt }
-        Log.d(TAG, "RGB 20 assets: $assetsRgb20")
-        val assetsRgb25 = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
-        Log.d(TAG, "RGB 25 assets: $assetsRgb25")
-        return assetsRgb20.map {
+        val assetsNia = assets.nia!!.sortedBy { assetNia -> assetNia.addedAt }
+        Log.d(TAG, "NIA assets: $assetsNia")
+        val assetsCfa = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
+        Log.d(TAG, "CFA assets: $assetsCfa")
+        return assetsNia.map {
             val isSavedAsCertified =
                 AppContainer.db.rgbCertifiedAssetDao().getRgbCertifiedAsset(it.assetId) != null
             AppAsset(it, isSavedAsCertified)
         } +
-            assetsRgb25.map {
+            assetsCfa.map {
                 val isSavedAsCertified =
                     AppContainer.db.rgbCertifiedAssetDao().getRgbCertifiedAsset(it.assetId) != null
                 AppAsset(it, isSavedAsCertified)
@@ -160,7 +160,7 @@ object RgbRepository {
     }
 
     fun listUnspent(assetsInfoMap: Map<String, String>): List<UTXO> {
-        val unspents = coloredWallet.listUnspents(online, false, false)
+        val unspents = coloredWallet.listUnspents(online, settledOnly = false, skipSync = false)
         return unspents.map { unspent ->
             val rgbUnspents =
                 unspent.rgbAllocations.map { RgbUnspent(it, assetsInfoMap[it.assetId]) }
@@ -186,7 +186,7 @@ object RgbRepository {
         blindedUTXO: String,
         amount: ULong,
         transportEndpoints: List<String>,
-        feeRate: Float,
+        feeRate: ULong,
     ): SendResult {
         try {
             return coloredWallet.send(
@@ -197,7 +197,7 @@ object RgbRepository {
                 1u,
                 false,
             )
-        } catch (e: RgbLibException.InvalidTransportEndpoints) {
+        } catch (_: RgbLibException.InvalidTransportEndpoints) {
             throw AppException(
                 AppContainer.appContext.getString(R.string.invalid_transport_endpoints)
             )

@@ -19,7 +19,7 @@ data class AppAsset(
     val id: String,
     var name: String,
     var certified: Boolean,
-    val iface: AssetIface? = null,
+    val schema: AssetSchema? = null,
     val ticker: String? = null,
     val media: AppMedia? = null,
     val fromFaucet: Boolean = false,
@@ -33,11 +33,11 @@ data class AppAsset(
         rgbAsset: AssetNia,
         certified: Boolean,
     ) : this(
-        AppAssetType.RGB20,
+        AppAssetType.NIA,
         rgbAsset.assetId,
         rgbAsset.name,
         certified,
-        iface = rgbAsset.assetIface,
+        schema = AssetSchema.NIA,
         ticker = rgbAsset.ticker,
         media = rgbAsset.media?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
@@ -49,11 +49,11 @@ data class AppAsset(
         rgbAsset: AssetCfa,
         certified: Boolean,
     ) : this(
-        AppAssetType.RGB25,
+        AppAssetType.CFA,
         rgbAsset.assetId,
         rgbAsset.name,
         certified,
-        iface = rgbAsset.assetIface,
+        schema = AssetSchema.CFA,
         media = rgbAsset.media?.let { AppMedia(it) },
         spendableBalance = rgbAsset.balance.spendable,
         settledBalance = rgbAsset.balance.settled,
@@ -63,14 +63,14 @@ data class AppAsset(
     constructor(
         rgbPendingAsset: RgbPendingAsset
     ) : this(
-        if (rgbPendingAsset.schema == AppAssetType.RGB20.schemaName()) AppAssetType.RGB20
-        else AppAssetType.RGB25,
+        if (rgbPendingAsset.schema == AppAssetType.NIA.schemaName()) AppAssetType.NIA
+        else AppAssetType.CFA,
         rgbPendingAsset.assetID,
         rgbPendingAsset.name,
         rgbPendingAsset.certified,
-        iface =
-            if (rgbPendingAsset.schema == AppAssetType.RGB20.toString()) AssetIface.RGB20
-            else AssetIface.RGB25,
+        schema =
+            if (rgbPendingAsset.schema == AppAssetType.NIA.toString()) AssetSchema.NIA
+            else AssetSchema.CFA,
         ticker = rgbPendingAsset.ticker,
         media = null,
         fromFaucet = true,
@@ -161,14 +161,14 @@ enum class BitcoinNetwork {
 
 enum class AppAssetType {
     BITCOIN,
-    RGB20,
-    RGB25;
+    NIA,
+    CFA;
 
     fun schemaName(): String {
         return when (this) {
             BITCOIN -> ""
-            RGB20 -> "NIA"
-            RGB25 -> "CFA"
+            NIA -> "NIA"
+            CFA -> "CFA"
         }
     }
 }
@@ -345,8 +345,6 @@ data class UTXO(
         AppConstants.coloredWallet,
         rgbUnspents,
     )
-
-    constructor(outpoint: AppOutpoint) : this(outpoint.txid, outpoint.vout, 0UL, null, listOf())
 
     fun outpoint(): AppOutpoint {
         return AppOutpoint(txid, vout)

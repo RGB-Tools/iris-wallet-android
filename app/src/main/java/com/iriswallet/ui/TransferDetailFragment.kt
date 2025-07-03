@@ -167,7 +167,7 @@ class TransferDetailFragment :
                 val invoiceData =
                     InvoiceData(
                         recipientId = transfer.blindedUTXO!!,
-                        assetIface = asset.iface,
+                        assetSchema = asset.schema,
                         amount = null,
                         assetId = asset.id,
                         network = AppContainer.bitcoinNetwork.toRgbLibNetwork(),

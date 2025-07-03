@@ -48,7 +48,7 @@ class AssetMetadataFragment :
     }
 
     private fun showMetadata(metadata: org.rgbtools.Metadata) {
-        binding.metadataTypeTV.text = metadata.assetIface.toString()
+        binding.metadataTypeTV.text = metadata.assetSchema.toString()
         binding.metadataIssuedSupplyTV.text = metadata.issuedSupply.toString()
         binding.metadataDateTV.text =
             SimpleDateFormat(AppConstants.transferDateFmt, Locale.US)

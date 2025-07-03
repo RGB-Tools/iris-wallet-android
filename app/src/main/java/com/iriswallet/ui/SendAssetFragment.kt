@@ -372,7 +372,7 @@ class SendAssetFragment :
             payTo,
             binding.sendAmountET.text.toString(),
             transportEndpoints,
-            binding.sendFeeRateET.text.toString().toFloat(),
+            binding.sendFeeRateET.text.toString().toULong(),
         )
     }
 

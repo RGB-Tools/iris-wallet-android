@@ -81,7 +81,8 @@
                         android:hint="@string/sample_fee_rate"
                         android:imeOptions="actionDone"
                         android:importantForAutofill="no"
-                        android:inputType="numberDecimal" />
+                        android:digits="0123456789"
+                        android:inputType="number" />
                 </LinearLayout>
 
             </RelativeLayout>

@@ -262,7 +262,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         recipient: String,
         amount: String,
         transportEndpoints: List<String>,
-        feeRate: Float,
+        feeRate: ULong,
     ) {
         tryCallWithTimeout(AppConstants.longTimeout, _sent) {
             val txid =

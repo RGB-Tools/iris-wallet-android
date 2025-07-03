@@ -269,7 +269,7 @@ class AssetDetailFragment :
     private fun setHeader() {
         val media = asset.media
         var showMedia = false
-        if (asset.type == AppAssetType.RGB25) {
+        if (asset.type == AppAssetType.CFA) {
             if (media != null) {
                 showMedia = true
                 when (media.mime) {
