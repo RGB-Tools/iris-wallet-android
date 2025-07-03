@@ -1,6 +1,5 @@
 package com.iriswallet.ui
 
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -11,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
@@ -24,8 +24,6 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import java.math.BigDecimal
-import org.bitcoindevkit.Address
-import org.bitcoindevkit.BdkException
 import org.rgbtools.*
 
 class SendAssetFragment :
@@ -222,19 +220,27 @@ class SendAssetFragment :
     }
 
     private fun checkBitcoinAddress(addressStr: String): Pair<String, String?> {
-        val address = Address(addressStr)
-        if (address.network() != AppContainer.bitcoinNetwork.toBdkNetwork())
-            throw AppException(AppContainer.appContext.getString(R.string.invalid_address_network))
-        return Pair(addressStr, null)
+        try {
+            Address(addressStr, AppContainer.bitcoinNetwork.toRgbLibNetwork())
+            return Pair(addressStr, null)
+        } catch (e: RgbLibException) {
+            if (e is RgbLibException.InvalidAddress && e.message.contains("another network")) {
+                throw AppException(
+                    AppContainer.appContext.getString(R.string.invalid_address_network)
+                )
+            } else {
+                throw e
+            }
+        }
     }
 
     private fun checkBitcoinInvoice(invoiceStr: String): Pair<String, String?> {
-        val bitcoinInvoice = Uri.parse(invoiceStr)
+        val bitcoinInvoice = invoiceStr.toUri()
         val address = bitcoinInvoice.schemeSpecificPart.split("?")[0]
         if (bitcoinInvoice.scheme == "bitcoin") {
             try {
                 checkBitcoinAddress(address)
-            } catch (e: BdkException) {
+            } catch (_: Exception) {
                 throw AppException(getString(R.string.invalid_btc_invoice_address))
             }
             val queryParams = bitcoinInvoice.query?.split("&")

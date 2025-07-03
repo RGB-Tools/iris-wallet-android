@@ -38,7 +38,6 @@ object AppContainer {
         }
 
     var storedMnemonic = ""
-    val mnemonicPassword = null
     val bitcoinKeys: Keys by lazy {
         if (storedMnemonic.isBlank()) {
             val keys = generateKeys(bitcoinNetwork.toRgbLibNetwork())
@@ -57,10 +56,6 @@ object AppContainer {
     }
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.appDBName)!! }
-    val bdkDir: File by lazy { File(appContext.filesDir, AppConstants.bdkDirName) }
-    val bdkDBVanillaPath: File by lazy {
-        File(bdkDir, AppConstants.bdkDBName.format(AppConstants.vanillaWallet))
-    }
 
     val clipboard: ClipboardManager by lazy {
         appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -142,14 +137,6 @@ object AppContainer {
                 BitcoinNetwork.MAINNET -> ""
             }
         "${AppConstants.bitcoinAssetName}$network"
-    }
-
-    val bitcoinDerivationPathCoinType: Int by lazy {
-        when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> 1
-            BitcoinNetwork.TESTNET -> 1
-            BitcoinNetwork.MAINNET -> 0
-        }
     }
 
     val bitcoinLogoID: Int by lazy {

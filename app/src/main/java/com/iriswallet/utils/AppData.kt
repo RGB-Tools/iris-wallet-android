@@ -7,9 +7,6 @@ import com.iriswallet.data.retrofit.FaucetConfig
 import com.iriswallet.data.retrofit.RgbAssetGroup
 import java.util.*
 import kotlinx.parcelize.Parcelize
-import org.bitcoindevkit.LocalUtxo
-import org.bitcoindevkit.Network
-import org.bitcoindevkit.TransactionDetails
 import org.rgbtools.*
 import org.rgbtools.BitcoinNetwork
 
@@ -139,14 +136,6 @@ enum class BitcoinNetwork {
     SIGNET,
     TESTNET,
     MAINNET;
-
-    fun toBdkNetwork(): Network {
-        return when (this) {
-            SIGNET -> Network.SIGNET
-            TESTNET -> Network.TESTNET
-            MAINNET -> Network.BITCOIN
-        }
-    }
 
     fun toRgbLibNetwork(): BitcoinNetwork {
         return when (this) {
@@ -280,16 +269,16 @@ data class AppTransfer(
     val batchTransferIdx: Int? = null,
 ) : Parcelable {
     constructor(
-        bdkTransfer: TransactionDetails
+        transaction: Transaction
     ) : this(
-        if (bdkTransfer.confirmationTime == null) Date(System.currentTimeMillis())
-        else Date(bdkTransfer.confirmationTime!!.timestamp.toLong() * 1000),
-        if (bdkTransfer.confirmationTime == null) TransferStatus.WAITING_CONFIRMATIONS
+        transaction.confirmationTime?.let { Date(it.timestamp.toLong().times(1000)) }
+            ?: Date(System.currentTimeMillis()),
+        if (transaction.confirmationTime == null) TransferStatus.WAITING_CONFIRMATIONS
         else TransferStatus.SETTLED,
-        if (bdkTransfer.received > bdkTransfer.sent) AppTransferKind.RECEIVE
+        if (transaction.received > transaction.sent) AppTransferKind.RECEIVE
         else AppTransferKind.SEND,
-        amount = AppUtils.uLongAbsDiff(bdkTransfer.received, bdkTransfer.sent),
-        txid = bdkTransfer.txid,
+        amount = AppUtils.uLongAbsDiff(transaction.received, transaction.sent),
+        txid = transaction.txid,
     )
 
     constructor(
@@ -322,19 +311,9 @@ data class UTXO(
     val txid: String,
     val vout: UInt,
     val satAmount: ULong,
-    var walletName: String? = null,
+    var walletName: String,
     var rgbUnspents: List<RgbUnspent>,
 ) {
-    constructor(
-        unspent: LocalUtxo
-    ) : this(
-        unspent.outpoint.txid,
-        unspent.outpoint.vout,
-        unspent.txout.value,
-        AppConstants.vanillaWallet,
-        listOf(),
-    )
-
     constructor(
         unspent: Unspent,
         rgbUnspents: List<RgbUnspent>,
@@ -342,7 +321,7 @@ data class UTXO(
         unspent.utxo.outpoint.txid,
         unspent.utxo.outpoint.vout,
         unspent.utxo.btcAmount,
-        AppConstants.coloredWallet,
+        if (unspent.utxo.colorable) AppConstants.coloredWallet else AppConstants.vanillaWallet,
         rgbUnspents,
     )
 

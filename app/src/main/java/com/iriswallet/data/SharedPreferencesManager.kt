@@ -16,9 +16,7 @@ object SharedPreferencesManager {
     const val PREFS_HIDE_EXHAUSTED_ASSETS = "hide_exhausted_assets"
     const val PREFS_FEE_RATE = "fee_rate"
     private const val PREFS_BACKUP_CONFIGURED = "backup_configured"
-    private const val PREFS_BACKUP_REQUIRED = "backup_required"
     private const val PREFS_UPDATED_TO_RGB_0_10 = "updated_to_rgb_0_10"
-    private const val PREFS_RECOVERED_FUNDS = "recovered_funds"
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var encryptedSharedPreferences: SharedPreferences
@@ -123,11 +121,5 @@ object SharedPreferencesManager {
         get() = sharedPreferences.getBoolean(PREFS_UPDATED_TO_RGB_0_10, false)
         set(value) {
             sharedPreferences.edit()?.putBoolean(PREFS_UPDATED_TO_RGB_0_10, value)?.apply()
-        }
-
-    var recoveredFunds: Boolean
-        get() = sharedPreferences.getBoolean(PREFS_RECOVERED_FUNDS, false)
-        set(value) {
-            sharedPreferences.edit()?.putBoolean(PREFS_RECOVERED_FUNDS, value)?.apply()
         }
 }

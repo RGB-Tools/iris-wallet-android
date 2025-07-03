@@ -67,9 +67,9 @@ object AppRepository {
         }
         val bitcoinAsset = appAssets[0]
 
-        if (refresh) BdkRepository.syncWithBlockchain()
+        if (refresh) RgbRepository.sync()
 
-        val transfers = BdkRepository.listTransfers().toMutableList()
+        val transfers = RgbRepository.listVanillaTransfers().toMutableList()
         val autoTXs =
             RgbRepository.listTransactions(refresh)
                 .filter { it.transactionType == TransactionType.CREATE_UTXOS }
@@ -77,11 +77,11 @@ object AppRepository {
         transfers.filter { it.txid in autoTXs }.forEach { it.internal = true }
         bitcoinAsset.transfers = transfers
 
-        val balance = BdkRepository.getBalance()
-        Log.d(TAG, "BDK balance: $balance")
-        bitcoinAsset.spendableBalance = balance.total
-        bitcoinAsset.settledBalance = balance.total
-        bitcoinAsset.totalBalance = balance.total
+        val balance = RgbRepository.getVanillaBalance()
+        Log.d(TAG, "Vanilla balance: $balance")
+        bitcoinAsset.spendableBalance = balance.vanilla.spendable
+        bitcoinAsset.settledBalance = balance.vanilla.settled
+        bitcoinAsset.totalBalance = balance.vanilla.future
     }
 
     private fun updateRGBAsset(
@@ -363,7 +363,7 @@ object AppRepository {
         expirationSeconds: UInt? = null,
     ): Receiver {
         return if (asset != null && asset.bitcoin())
-            Receiver(BdkRepository.getNewAddress(), null, true)
+            Receiver(RgbRepository.getNewAddress(), null, true)
         else
             handleMissingFunds {
                 startRGBReceiving(asset, blinded = blinded, expirationSeconds = expirationSeconds)
@@ -377,8 +377,7 @@ object AppRepository {
         transportEndpoints: List<String>,
         feeRate: ULong,
     ): String {
-        return if (asset.bitcoin())
-            BdkRepository.sendToAddress(recipient, amount, feeRate.toFloat())
+        return if (asset.bitcoin()) RgbRepository.sendToAddress(recipient, amount, feeRate)
         else
             handleMissingFunds {
                 initiateRgbTransfer(asset, recipient, amount, transportEndpoints, feeRate)
@@ -428,19 +427,13 @@ object AppRepository {
     fun getBitcoinUnspents(): List<UTXO> {
         val assetsInfoMap =
             appAssets.associate { it.id to if (it.ticker.isNullOrBlank()) it.name else it.ticker }
-        val bdkUnspents = BdkRepository.listUnspent()
-        val bdkOutpoints = bdkUnspents.map { it.outpoint() }
-        val rgbUnspentsFiltered =
-            RgbRepository.listUnspent(assetsInfoMap).filter {
-                !bdkOutpoints.contains(it.outpoint())
-            }
-        val unspentList = bdkUnspents + rgbUnspentsFiltered
+        val unspentList = RgbRepository.listUnspent(assetsInfoMap)
         Log.d(TAG, "Unspent list: $unspentList")
         return unspentList
     }
 
     suspend fun receiveFromBitcoinFaucet(): String {
-        val address = BdkRepository.getNewAddress()
+        val address = RgbRepository.getNewAddress()
         Log.d(TAG, "Requesting bitcoins from faucet to address '$address'")
         return BtcFaucetRepository.receiveBitcoins(address)
     }
@@ -496,7 +489,7 @@ object AppRepository {
                     val certified =
                         try {
                             assetCertificationService.isAssetCertified(asset.assetID).code() == 200
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             false
                         }
                     val rgbPendingAsset = RgbPendingAsset(asset, certified)

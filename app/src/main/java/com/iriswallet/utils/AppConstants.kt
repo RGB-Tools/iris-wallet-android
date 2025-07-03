@@ -3,7 +3,6 @@ package com.iriswallet.utils
 // Constants shared across the whole app
 object AppConstants {
     const val appDBName = "iris_wallet_db"
-    const val bdkDirName = ".bdk"
     const val rgbDirName = ".rgb"
     const val rgbDownloadLogsFileName = "iris-logs-%s-%s.txt"
     const val rgbDownloadMediaFileName = "media_%s"
@@ -33,8 +32,6 @@ object AppConstants {
     const val vanillaWallet = "vanilla"
 
     const val derivationChangeVanilla = 1
-    const val derivationAccountVanilla = 0
-    const val derivationAccountOldRgb = 827166
 
     const val bitcoinAssetID = "BTC"
     const val bitcoinAssetName = "bitcoin"
@@ -76,11 +73,6 @@ object AppConstants {
 
     const val testnetTermsOfServiceURL = "https://iriswallet.com/testnet/terms_of_service.html"
     const val mainnetTermsOfServiceURL = "https://iriswallet.com/mainnet/terms_of_service.html"
-
-    const val bdkTimeout = 5
-    const val bdkRetry = 3
-    const val bdkStopGap = 20
-    const val bdkDBName = "bdk_db_%s"
 
     const val httpConnectTimeout = 3L
     const val httpReadWriteTimeout = 60L

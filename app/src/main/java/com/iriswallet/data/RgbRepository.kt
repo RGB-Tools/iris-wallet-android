@@ -9,7 +9,7 @@ import org.rgbtools.*
 
 object RgbRepository {
 
-    private val coloredWallet: Wallet by lazy {
+    private val wallet: Wallet by lazy {
         Wallet(
             WalletData(
                 AppContainer.rgbDir.absolutePath,
@@ -27,7 +27,7 @@ object RgbRepository {
     private var online: Online by LazyMutable { goOnline(SharedPreferencesManager.electrumURL) }
 
     fun backupDo(backupPath: File, mnemonic: String) {
-        coloredWallet.backup(backupPath.absolutePath, mnemonic)
+        wallet.backup(backupPath.absolutePath, mnemonic)
     }
 
     fun backupRestore(backupPath: File, mnemonic: String, dataDir: File) {
@@ -35,7 +35,7 @@ object RgbRepository {
     }
 
     fun createUTXOs(): UByte {
-        return coloredWallet.createUtxos(
+        return wallet.createUtxos(
             online,
             false,
             null,
@@ -47,25 +47,32 @@ object RgbRepository {
 
     fun deleteTransfer(transfer: AppTransfer) {
         if (transfer.status != TransferStatus.FAILED)
-            coloredWallet.failTransfers(
+            wallet.failTransfers(
                 online,
                 transfer.batchTransferIdx,
                 noAssetOnly = false,
                 skipSync = false,
             )
-        coloredWallet.deleteTransfers(transfer.batchTransferIdx, false)
+        wallet.deleteTransfers(transfer.batchTransferIdx, false)
     }
 
     fun failAndDeleteOldTransfers(): Boolean {
-        var changed =
-            coloredWallet.failTransfers(online, null, noAssetOnly = true, skipSync = false)
-        val deleted = coloredWallet.deleteTransfers(null, true)
+        var changed = wallet.failTransfers(online, null, noAssetOnly = true, skipSync = false)
+        val deleted = wallet.deleteTransfers(null, true)
         if (deleted) changed = true
         return changed
     }
 
     fun getBalance(assetID: String): Balance {
-        return coloredWallet.getAssetBalance(assetID)
+        return wallet.getAssetBalance(assetID)
+    }
+
+    fun getNewAddress(): String {
+        return wallet.getAddress()
+    }
+
+    fun getVanillaBalance(): BtcBalance {
+        return wallet.getBtcBalance(online, skipSync = false)
     }
 
     fun getReceiveData(
@@ -77,7 +84,7 @@ object RgbRepository {
         val amount = null
         val transportEndpoints = listOf(SharedPreferencesManager.proxyTransportEndpoint)
         return if (blinded) {
-            coloredWallet.blindReceive(
+            wallet.blindReceive(
                 assetID,
                 amount,
                 expirationSeconds,
@@ -85,7 +92,7 @@ object RgbRepository {
                 minConfirmations,
             )
         } else {
-            coloredWallet.witnessReceive(
+            wallet.witnessReceive(
                 assetID,
                 amount,
                 expirationSeconds,
@@ -96,11 +103,11 @@ object RgbRepository {
     }
 
     fun getMetadata(assetID: String): Metadata {
-        return coloredWallet.getAssetMetadata(assetID)
+        return wallet.getAssetMetadata(assetID)
     }
 
     private fun goOnline(electrumURL: String): Online {
-        return coloredWallet.goOnline(true, electrumURL)
+        return wallet.goOnline(true, electrumURL)
     }
 
     fun goOnlineAgain(electrumURL: String) {
@@ -109,11 +116,11 @@ object RgbRepository {
     }
 
     fun isBackupRequired(): Boolean {
-        return coloredWallet.backupInfo()
+        return wallet.backupInfo()
     }
 
     fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetNia {
-        return coloredWallet.issueAssetNia(ticker, name, AppConstants.rgbDefaultPrecision, amounts)
+        return wallet.issueAssetNia(ticker, name, AppConstants.rgbDefaultPrecision, amounts)
     }
 
     fun issueAssetRgb25(
@@ -123,17 +130,11 @@ object RgbRepository {
         filePath: String?,
     ): AssetCfa {
         val desc = if (description.isNullOrBlank()) null else description
-        return coloredWallet.issueAssetCfa(
-            name,
-            desc,
-            AppConstants.rgbDefaultPrecision,
-            amounts,
-            filePath,
-        )
+        return wallet.issueAssetCfa(name, desc, AppConstants.rgbDefaultPrecision, amounts, filePath)
     }
 
     fun listAssets(): List<AppAsset> {
-        val assets = coloredWallet.listAssets(listOf())
+        val assets = wallet.listAssets(listOf())
         val assetsNia = assets.nia!!.sortedBy { assetNia -> assetNia.addedAt }
         Log.d(TAG, "NIA assets: $assetsNia")
         val assetsCfa = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
@@ -152,20 +153,32 @@ object RgbRepository {
 
     fun listTransactions(sync: Boolean): List<Transaction> {
         val onlineOpt = if (sync) online else null
-        return coloredWallet.listTransactions(onlineOpt, !sync)
+        return wallet.listTransactions(onlineOpt, !sync)
     }
 
     fun listTransfers(asset: AppAsset): List<AppTransfer> {
-        return coloredWallet.listTransfers(asset.id).map { AppTransfer(it) }
+        return wallet.listTransfers(asset.id).map { AppTransfer(it) }
     }
 
     fun listUnspent(assetsInfoMap: Map<String, String>): List<UTXO> {
-        val unspents = coloredWallet.listUnspents(online, settledOnly = false, skipSync = false)
+        val unspents = wallet.listUnspents(online, settledOnly = false, skipSync = false)
         return unspents.map { unspent ->
             val rgbUnspents =
                 unspent.rgbAllocations.map { RgbUnspent(it, assetsInfoMap[it.assetId]) }
             UTXO(unspent, rgbUnspents)
         }
+    }
+
+    fun listVanillaTransfers(): List<AppTransfer> {
+        val transactions =
+            wallet.listTransactions(online, skipSync = false).filter {
+                it.transactionType != TransactionType.RGB_SEND
+            }
+        return transactions
+            .filter { it.confirmationTime != null }
+            .sortedBy { it.confirmationTime!!.timestamp }
+            .map { AppTransfer(it) } +
+            transactions.filter { it.confirmationTime == null }.map { AppTransfer(it) }
     }
 
     fun refresh(asset: AppAsset? = null, light: Boolean = false): Boolean {
@@ -176,7 +189,7 @@ object RgbRepository {
                     RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false),
                 )
             else listOf()
-        return coloredWallet.refresh(online, asset?.id, filter, false).values.any {
+        return wallet.refresh(online, asset?.id, filter, false).values.any {
             it.updatedStatus != null
         }
     }
@@ -189,7 +202,7 @@ object RgbRepository {
         feeRate: ULong,
     ): SendResult {
         try {
-            return coloredWallet.send(
+            return wallet.send(
                 online,
                 mapOf(asset.id to listOf(Recipient(blindedUTXO, null, amount, transportEndpoints))),
                 false,
@@ -202,5 +215,17 @@ object RgbRepository {
                 AppContainer.appContext.getString(R.string.invalid_transport_endpoints)
             )
         }
+    }
+
+    fun sendToAddress(address: String, amount: ULong, feeRate: ULong): String {
+        try {
+            return wallet.sendBtc(online, address, amount, feeRate, skipSync = false)
+        } catch (_: RgbLibException) {
+            throw AppException(AppContainer.appContext.getString(R.string.insufficient_bitcoins))
+        }
+    }
+
+    fun sync() {
+        wallet.sync(online)
     }
 }

@@ -29,11 +29,7 @@ class RoutingFragment :
             SharedPreferencesManager.proxyTransportEndpoint =
                 AppContainer.proxyTransportEndpointDefault
             AppUtils.deleteRgbData()
-            AppUtils.deleteBdkData()
             viewModel.deleteDbDataAfterRgb010Update()
-            viewModel.recoverFunds()
-        } else if (!SharedPreferencesManager.recoveredFunds) {
-            viewModel.recoverFunds()
         }
     }
 

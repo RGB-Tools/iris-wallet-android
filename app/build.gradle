@@ -167,10 +167,6 @@ dependencies {
 
   implementation 'androidx.work:work-runtime-ktx:2.10.2'
 
-  // Bitcoindevkit
-  //noinspection Aligned16KB
-  implementation 'org.bitcoindevkit:bdk-android:0.30.0'
-
   // Github
   implementation 'com.github.lelloman:android-identicons:v11'
 

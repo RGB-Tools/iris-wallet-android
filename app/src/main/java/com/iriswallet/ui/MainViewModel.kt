@@ -5,8 +5,6 @@ import androidx.lifecycle.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.data.AppRepository
 import com.iriswallet.data.BackupRepository
-import com.iriswallet.data.BdkRepository
-import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.db.RgbCertifiedAsset
 import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
@@ -379,24 +377,6 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
                 AppContainer.db.hiddenAssetDao().deleteHiddenAsset(hiddenAsset.id)
             }
             AppContainer.db.rgbPendingAssetDao().deleteAll()
-        }
-    }
-
-    fun recoverFunds() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                BdkRepository.recoverFundsFromDerivationPath(
-                    AppConstants.derivationAccountOldRgb,
-                    true,
-                )
-                BdkRepository.recoverFundsFromDerivationPath(
-                    AppConstants.derivationAccountVanilla,
-                    false,
-                )
-                SharedPreferencesManager.recoveredFunds = true
-            } catch (e: Exception) {
-                Log.e(TAG, "Error recovering funds: $e")
-            }
         }
     }
 }

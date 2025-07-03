@@ -77,16 +77,9 @@ class AppUtils {
 
         fun deleteAppData() {
             Log.i(TAG, "Deleting app data...")
-            deleteBdkData()
             deleteRgbData()
             AppContainer.dbPath.delete()
             SharedPreferencesManager.clearAll()
-        }
-
-        fun deleteBdkData() {
-            Log.i(TAG, "Deleting bdk data...")
-            AppContainer.bdkDir.deleteRecursively()
-            AppContainer.bdkDir.mkdir()
         }
 
         fun deleteRgbData() {

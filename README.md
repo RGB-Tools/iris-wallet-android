@@ -4,8 +4,8 @@ Iris Wallet manages RGB assets from issuance to spending and receiving,
 wrapping all functionality in a familiar-looking wallet application and
 abstracting away as many technical details as possible.
 
-The RGB functionality is provided by [rgb-lib] via [rgb-lib-kotlin], while the
-Bitcoin functionality is provided by [bdk-kotlin].
+The RGB and Bitcoin functionality is provided by [rgb-lib] via
+[rgb-lib-kotlin].
 
 
 ## Variants
@@ -122,6 +122,5 @@ As an example, to sign the testnet variant using the key store located in
 jarsigner -keystore ~/android-keystores/iriswallet.jks app/build/outputs/bundle/bitcoinTestnetRelease/app-bitcoinTestnet-release.aab upload
 ```
 
-[bdk-kotlin]: https://github.com/bitcoindevkit/bdk-kotlin
 [rgb-lib]: https://github.com/RGB-Tools/rgb-lib
 [rgb-lib-kotlin]: https://github.com/RGB-Tools/rgb-lib-kotlin
