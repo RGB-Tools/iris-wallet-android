@@ -122,5 +122,22 @@ As an example, to sign the testnet variant using the key store located in
 jarsigner -keystore ~/android-keystores/iriswallet.jks app/build/outputs/bundle/bitcoinTestnetRelease/app-bitcoinTestnet-release.aab upload
 ```
 
+### Page alignment
+
+Google Play requires 16KB page alignment for apps targeting Android 15+.
+
+The android app and all native libraries need to be built with 16KB page
+alignment.
+
+To check for alignment issues, first build an APK (`Build > Generate App
+Bundles or APKs > Build APK`), then click `analyze` on the popup.
+Alternatively, use `Build > Analyze APK ...` and select the desired APK file.
+
+The `Alignment` column should report no issues for an APK that correctly
+supports 16KB pages.
+
+To test that the app runs fine on a 16KB-page device, an AVD running the
+`Pre-release 16KB Page Size` system image variant can be used.
+
 [rgb-lib]: https://github.com/RGB-Tools/rgb-lib
 [rgb-lib-kotlin]: https://github.com/RGB-Tools/rgb-lib-kotlin
