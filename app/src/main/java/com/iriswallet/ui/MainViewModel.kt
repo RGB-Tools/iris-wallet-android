@@ -368,15 +368,4 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             BackupRepository.restoreBackup(gAccount, restoredMnemonic)
         }
     }
-
-    fun deleteDbDataAfterRgb010Update() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val hiddenAssets = AppContainer.db.hiddenAssetDao().getHiddenAssets()
-            for (hiddenAsset in hiddenAssets) {
-                if (hiddenAsset.id == AppConstants.BITCOIN_ASSET_ID) continue
-                AppContainer.db.hiddenAssetDao().deleteHiddenAsset(hiddenAsset.id)
-            }
-            AppContainer.db.rgbPendingAssetDao().deleteAll()
-        }
-    }
 }

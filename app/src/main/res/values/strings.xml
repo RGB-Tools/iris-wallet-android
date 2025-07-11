@@ -317,12 +317,4 @@
     <string name="backup_not_configured">Backup not yet configured!</string>
     <string name="backup_completed">Backup successfully completed!</string>
     <string name="err_doing_backup">Error doing backup</string>
-    <string name="after_update_disclaimer">This update contains breaking changes due to the update
-    of the RGB protocol from version 0.9 to 0.10.\n\n
-    You will not see your RGB assets anymore but we will move any existing bitcoin funds from the
-    old wallet to the new one (WARNING: it could take a while before funds become visible, refresh
-    the wallet to update the balance).\n\n
-    The faucet has also been updated in order to send assets back to the users that requested them in the past.
-    Make sure the RGB wallet has enough funds to create some UTXOs and then go to the faucet to request
-    the assets back.</string>
 </resources>

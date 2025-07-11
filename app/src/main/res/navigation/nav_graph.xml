@@ -27,11 +27,6 @@
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"/>
         <action
-            android:id="@+id/action_routingFragment_to_afterUpdateFragment"
-            app:destination="@id/afterUpdateFragment"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"/>
-        <action
             android:id="@+id/action_routingFragment_to_mainFragment"
             app:destination="@id/mainFragment"
             app:popUpTo="@id/nav_graph"
@@ -59,16 +54,6 @@
         app:popUpToInclusive="true">
         <action
             android:id="@+id/action_termsAndConditionsFragment_to_mainFragment"
-            app:popUpToInclusive="true"
-            app:destination="@id/mainFragment"
-            app:popUpTo="@id/nav_graph" />
-    </fragment>
-    <fragment
-        android:id="@+id/afterUpdateFragment"
-        android:name="com.iriswallet.ui.AfterUpdateFragment"
-        tools:layout="@layout/fragment_after_update">
-        <action
-            android:id="@+id/action_afterUpdateFragment_to_mainFragment"
             app:popUpToInclusive="true"
             app:destination="@id/mainFragment"
             app:popUpTo="@id/nav_graph" />

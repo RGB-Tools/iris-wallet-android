@@ -1,7 +1,10 @@
 package com.iriswallet.utils
 
 import android.Manifest
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -38,7 +41,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 import java.security.MessageDigest
-import java.util.*
+import java.util.EnumMap
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

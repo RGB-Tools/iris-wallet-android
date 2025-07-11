@@ -14,7 +14,6 @@ import android.widget.LinearLayout
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.R
-import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentFirstRunBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppUtils
@@ -37,7 +36,6 @@ class FirstRunFragment :
         super.onCreate(savedInstanceState)
         // prevent mixing creation/restore with possible stale data
         AppUtils.deleteAppData()
-        SharedPreferencesManager.updatedToRgb010 = true
         googleDriveService = GoogleSignInService(this)
     }
 
