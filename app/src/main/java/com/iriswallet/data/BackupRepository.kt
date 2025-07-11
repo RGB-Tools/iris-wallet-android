@@ -42,7 +42,7 @@ object BackupRepository {
         val keys = restoreKeys(AppContainer.bitcoinNetwork.toRgbLibNetwork(), mnemonic)
         return File(
             AppContainer.appContext.filesDir,
-            AppConstants.backupName.format(keys.masterFingerprint),
+            AppConstants.BACKUP_NAME.format(keys.masterFingerprint),
         )
     }
 
@@ -94,7 +94,7 @@ object BackupRepository {
         Log.d(TAG, "Restoring wallet from backup file...")
         try {
             RgbRepository.backupRestore(backupFile, mnemonic, AppContainer.rgbDir)
-        } catch (e: RgbLibException.WrongPassword) {
+        } catch (_: RgbLibException.WrongPassword) {
             throw AppException(AppContainer.appContext.getString(R.string.invalid_mnemonic))
         }
 

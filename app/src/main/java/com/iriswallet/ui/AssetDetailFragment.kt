@@ -76,7 +76,7 @@ class AssetDetailFragment :
                             AppUtils.saveFileToDownloads(
                                 requireContext(),
                                 mediaFile,
-                                AppConstants.rgbDownloadMediaFileName.format(asset.id),
+                                AppConstants.RGB_DOWNLOAD_MEDIA_FILE_NAME.format(asset.id),
                                 asset.media!!.mimeString,
                             )
                             showDownloadedNotification()
@@ -132,7 +132,7 @@ class AssetDetailFragment :
         }
 
         binding.detailCopyAssetIdBtn.setOnClickListener {
-            toClipboard(AppConstants.assetIdClipLabel, asset.id)
+            toClipboard(AppConstants.ASSET_ID_CLIP_LABEL, asset.id)
         }
 
         binding.detailSwipeRefresh.setOnRefreshListener { refreshAsset() }

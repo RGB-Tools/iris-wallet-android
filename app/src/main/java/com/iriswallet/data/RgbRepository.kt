@@ -20,7 +20,7 @@ object RgbRepository {
                 AppContainer.bitcoinKeys.accountXpubColored,
                 AppContainer.bitcoinKeys.mnemonic,
                 AppContainer.bitcoinKeys.masterFingerprint,
-                AppConstants.derivationChangeVanilla.toUByte(),
+                AppConstants.DERIVATION_CHANGE_VANILLA.toUByte(),
                 AppConstants.supportedSchemas,
             )
         )
@@ -121,7 +121,7 @@ object RgbRepository {
     }
 
     fun issueAssetRgb20(ticker: String, name: String, amounts: List<ULong>): AssetNia {
-        return wallet.issueAssetNia(ticker, name, AppConstants.rgbDefaultPrecision, amounts)
+        return wallet.issueAssetNia(ticker, name, AppConstants.RGB_DEFAULT_PRECISION, amounts)
     }
 
     fun issueAssetRgb25(
@@ -131,7 +131,13 @@ object RgbRepository {
         filePath: String?,
     ): AssetCfa {
         val desc = if (description.isNullOrBlank()) null else description
-        return wallet.issueAssetCfa(name, desc, AppConstants.rgbDefaultPrecision, amounts, filePath)
+        return wallet.issueAssetCfa(
+            name,
+            desc,
+            AppConstants.RGB_DEFAULT_PRECISION,
+            amounts,
+            filePath,
+        )
     }
 
     fun listAssets(): List<AppAsset> {

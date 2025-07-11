@@ -43,7 +43,7 @@ class IssueRgb20AssetFragment :
                             fixETAmount(
                                 editText,
                                 editable.toString(),
-                                maxULongAmount = AppConstants.issueMaxAmount,
+                                maxULongAmount = AppConstants.ISSUE_MAX_AMOUNT,
                             )
                         binding.issueBtn.isEnabled =
                             allETsFilled(editableFields) && isETPositive(binding.amountInputET)

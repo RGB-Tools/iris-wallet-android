@@ -70,9 +70,9 @@ class SettingsFragment :
             it.selectAll()
             it.filters +=
                 IntegerInputFilter(
-                    AppConstants.feeRateIntegerPlaces,
-                    AppConstants.minFeeRate,
-                    AppConstants.maxFeeRate,
+                    AppConstants.FEE_RATE_INTEGER_PLACES,
+                    AppConstants.MIN_FEE_RATE,
+                    AppConstants.MAX_FEE_RATE,
                 )
         }
     }

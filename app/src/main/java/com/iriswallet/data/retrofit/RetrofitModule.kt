@@ -24,9 +24,9 @@ object RetrofitModule {
     private fun getHttpClient(): OkHttpClient {
         val client =
             OkHttpClient.Builder()
-                .readTimeout(AppConstants.httpReadWriteTimeout, TimeUnit.SECONDS)
-                .writeTimeout(AppConstants.httpReadWriteTimeout, TimeUnit.SECONDS)
-                .connectTimeout(AppConstants.httpConnectTimeout, TimeUnit.SECONDS)
+                .readTimeout(AppConstants.HTTP_READ_WRITE_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(AppConstants.HTTP_READ_WRITE_TIMEOUT, TimeUnit.SECONDS)
+                .connectTimeout(AppConstants.HTTP_CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
         if (BuildConfig.DEBUG) {
             val loggingInterceptor = HttpLoggingInterceptor()
@@ -44,7 +44,7 @@ object RetrofitModule {
     }
 
     val assetCertificationService: AssetCertificationService by lazy {
-        retrofit(AppConstants.assetCertificationServerURL, getHttpClient())
+        retrofit(AppConstants.ASSET_CERTIFICATION_SERVER_URL, getHttpClient())
             .create(AssetCertificationService::class.java)
     }
 

@@ -15,10 +15,10 @@ class IrisWallet : Application() {
         super.onCreate()
         AppContainer.initObject(applicationContext)
         SharedPreferencesManager.initObject(
-            getSharedPreferences(AppConstants.sharedPreferencesName, Context.MODE_PRIVATE),
+            getSharedPreferences(AppConstants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE),
             EncryptedSharedPreferences.create(
                 this,
-                AppConstants.encryptedSharedPreferencesName,
+                AppConstants.ENCRYPTED_SHARED_PREFERENCES_NAME,
                 MasterKey.Builder(this, MasterKey.DEFAULT_MASTER_KEY_ALIAS)
                     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                     .build(),

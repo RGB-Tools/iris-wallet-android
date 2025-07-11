@@ -65,7 +65,7 @@ class MainFragment :
                     Handler(Looper.getMainLooper())
                         .postDelayed(
                             { doubleBackToExitPressedOnce = false },
-                            AppConstants.waitDoubleBackTime,
+                            AppConstants.WAIT_DOUBLE_BACK_TIME,
                         )
                 }
             },

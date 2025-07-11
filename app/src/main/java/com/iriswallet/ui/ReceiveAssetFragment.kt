@@ -28,11 +28,11 @@ class ReceiveAssetFragment :
         binding.receiveInfoLL.visibility = View.GONE
 
         binding.receiveCopyBtn.setOnClickListener {
-            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.invoice)
+            toClipboard(AppConstants.RECEIVE_DATA_CLIP_LABEL, receiveData!!.invoice)
         }
 
         binding.receiveDataTV.setOnClickListener {
-            toClipboard(AppConstants.receiveDataClipLabel, receiveData!!.invoice)
+            toClipboard(AppConstants.RECEIVE_DATA_CLIP_LABEL, receiveData!!.invoice)
         }
 
         viewModel.recipient.observe(viewLifecycleOwner) {

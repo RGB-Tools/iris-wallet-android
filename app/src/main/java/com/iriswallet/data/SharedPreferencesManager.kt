@@ -1,6 +1,7 @@
 package com.iriswallet.data
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 
@@ -33,19 +34,19 @@ object SharedPreferencesManager {
     }
 
     fun clearAll() {
-        sharedPreferences.edit().clear().apply()
-        encryptedSharedPreferences.edit().clear().apply()
-        settingsSharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
+        encryptedSharedPreferences.edit { clear() }
+        settingsSharedPreferences.edit { clear() }
     }
 
     fun removeOldKeys() {
-        settingsSharedPreferences.edit().remove(OLD_PREFS_PROXY_URL).apply()
+        settingsSharedPreferences.edit { remove(OLD_PREFS_PROXY_URL) }
     }
 
     var backupConfigured: Boolean
         get() = sharedPreferences.getBoolean(PREFS_BACKUP_CONFIGURED, false)
         set(value) {
-            sharedPreferences.edit()?.putBoolean(PREFS_BACKUP_CONFIGURED, value)?.apply()
+            sharedPreferences.edit { putBoolean(PREFS_BACKUP_CONFIGURED, value)?.apply() }
         }
 
     var electrumURL: String
@@ -55,38 +56,39 @@ object SharedPreferencesManager {
                 AppContainer.electrumURLDefault,
             )!!
         set(value) {
-            settingsSharedPreferences.edit()?.putString(PREFS_ELECTRUM_URL, value)?.apply()
+            settingsSharedPreferences.edit { putString(PREFS_ELECTRUM_URL, value)?.apply() }
         }
 
     var feeRate: String
         get() =
             settingsSharedPreferences.getString(
                 PREFS_FEE_RATE,
-                AppConstants.defaultFeeRate.toString(),
+                AppConstants.DEFAULT_FEE_RATE.toString(),
             )!!
         set(value) {
-            settingsSharedPreferences.edit()?.putString(PREFS_FEE_RATE, value)?.apply()
+            settingsSharedPreferences.edit { putString(PREFS_FEE_RATE, value)?.apply() }
         }
 
     var mnemonic: String
         get() = encryptedSharedPreferences.getString(PREFS_MNEMONIC, "") ?: ""
         set(value) {
-            encryptedSharedPreferences.edit()?.putString(PREFS_MNEMONIC, value)?.apply()
+            encryptedSharedPreferences.edit { putString(PREFS_MNEMONIC, value)?.apply() }
         }
 
     var pinActionsConfigured: Boolean
         get() = settingsSharedPreferences.getBoolean(PREFS_PIN_ACTIONS_CONFIGURED, false)
         set(value) {
-            settingsSharedPreferences
-                .edit()
-                ?.putBoolean(PREFS_PIN_ACTIONS_CONFIGURED, value)
-                ?.apply()
+            settingsSharedPreferences.edit {
+                putBoolean(PREFS_PIN_ACTIONS_CONFIGURED, value)?.apply()
+            }
         }
 
     var pinLoginConfigured: Boolean
         get() = settingsSharedPreferences.getBoolean(PREFS_PIN_LOGIN_CONFIGURED, false)
         set(value) {
-            settingsSharedPreferences.edit()?.putBoolean(PREFS_PIN_LOGIN_CONFIGURED, value)?.apply()
+            settingsSharedPreferences.edit {
+                putBoolean(PREFS_PIN_LOGIN_CONFIGURED, value)?.apply()
+            }
         }
 
     var proxyTransportEndpoint: String
@@ -96,30 +98,28 @@ object SharedPreferencesManager {
                 AppContainer.proxyTransportEndpointDefault,
             )!!
         set(value) {
-            settingsSharedPreferences
-                .edit()
-                ?.putString(PREFS_PROXY_CONSIGNMENT_ENDPOINT, value)
-                ?.apply()
+            settingsSharedPreferences.edit {
+                putString(PREFS_PROXY_CONSIGNMENT_ENDPOINT, value)?.apply()
+            }
         }
 
     var showHiddenAssets: Boolean
         get() = settingsSharedPreferences.getBoolean(PREFS_SHOW_HIDDEN_ASSETS, false)
         set(value) {
-            settingsSharedPreferences.edit()?.putBoolean(PREFS_SHOW_HIDDEN_ASSETS, value)?.apply()
+            settingsSharedPreferences.edit { putBoolean(PREFS_SHOW_HIDDEN_ASSETS, value)?.apply() }
         }
 
     var hideExhaustedAssets: Boolean
         get() = settingsSharedPreferences.getBoolean(PREFS_HIDE_EXHAUSTED_ASSETS, false)
         set(value) {
-            settingsSharedPreferences
-                .edit()
-                ?.putBoolean(PREFS_HIDE_EXHAUSTED_ASSETS, value)
-                ?.apply()
+            settingsSharedPreferences.edit {
+                putBoolean(PREFS_HIDE_EXHAUSTED_ASSETS, value)?.apply()
+            }
         }
 
     var updatedToRgb010: Boolean
         get() = sharedPreferences.getBoolean(PREFS_UPDATED_TO_RGB_0_10, false)
         set(value) {
-            sharedPreferences.edit()?.putBoolean(PREFS_UPDATED_TO_RGB_0_10, value)?.apply()
+            sharedPreferences.edit { putBoolean(PREFS_UPDATED_TO_RGB_0_10, value)?.apply() }
         }
 }

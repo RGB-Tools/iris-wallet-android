@@ -36,7 +36,7 @@ class TermsAndConditionsFragment :
                 null,
                 null,
             ) { _, _ ->
-                AppConstants.privacyPolicyURL
+                AppConstants.PRIVACY_POLICY_URL
             }
         }
         scrollViewListener =

@@ -138,7 +138,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
     fun fixETAmount(
         editText: EditText,
         amountString: String,
-        maxULongAmount: ULong = AppConstants.uLongMaxAmount,
+        maxULongAmount: ULong = AppConstants.U_LONG_MAX_AMOUNT,
     ) {
         if (amountString.isNotEmpty()) {
             var fixed = amountString

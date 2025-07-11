@@ -36,7 +36,7 @@ class AboutPageFragment :
             null,
             null,
         ) { _, _ ->
-            AppConstants.privacyPolicyURL
+            AppConstants.PRIVACY_POLICY_URL
         }
 
         Linkify.addLinks(
@@ -50,7 +50,7 @@ class AboutPageFragment :
 
         binding.aboutDownloadLogsBtn.setOnClickListener {
             val fileName =
-                AppConstants.rgbDownloadLogsFileName.format(
+                AppConstants.RGB_DOWNLOAD_LOGS_FILE_NAME.format(
                     System.currentTimeMillis(),
                     BuildConfig.VERSION_NAME,
                 )

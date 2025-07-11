@@ -58,7 +58,7 @@ object AppRepository {
             appAssets.add(
                 AppAsset(
                     AppAssetType.BITCOIN,
-                    AppConstants.bitcoinAssetID,
+                    AppConstants.BITCOIN_ASSET_ID,
                     AppContainer.bitcoinAssetName,
                     false,
                     ticker = AppContainer.bitcoinAssetTicker,
@@ -182,7 +182,7 @@ object AppRepository {
     }
 
     private fun checkMaxAssets() {
-        if (appAssets.size >= AppConstants.maxAssets)
+        if (appAssets.size >= AppConstants.MAX_ASSETS)
             throw AppException(AppContainer.appContext.getString(R.string.reached_max_assets))
     }
 
@@ -198,7 +198,7 @@ object AppRepository {
                     throw AppException(
                         AppContainer.appContext.getString(
                             R.string.insufficient_bitcoins_for_rgb,
-                            AppConstants.satsForRgb.toString(),
+                            AppConstants.SATS_FOR_RGB.toString(),
                         )
                     )
                 }
@@ -222,7 +222,7 @@ object AppRepository {
                     throw AppException(
                         AppContainer.appContext.getString(
                             R.string.insufficient_bitcoins_for_rgb,
-                            AppConstants.satsForRgb.toString(),
+                            AppConstants.SATS_FOR_RGB.toString(),
                         )
                     )
                 }
@@ -258,7 +258,7 @@ object AppRepository {
         val blindedData =
             RgbRepository.getReceiveData(
                 asset?.id,
-                expirationSeconds ?: AppConstants.rgbBlindDuration,
+                expirationSeconds ?: AppConstants.RGB_BLIND_DURATION,
                 blinded = blinded,
             )
         runCatching {
@@ -269,7 +269,7 @@ object AppRepository {
                 )
             }
             .onFailure { isCacheDirty = true }
-        return Receiver(blindedData.invoice, AppConstants.rgbBlindDuration, false)
+        return Receiver(blindedData.invoice, AppConstants.RGB_BLIND_DURATION, false)
     }
 
     private fun initiateRgbTransfer(

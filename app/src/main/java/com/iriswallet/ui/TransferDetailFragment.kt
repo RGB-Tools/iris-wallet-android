@@ -150,7 +150,7 @@ class TransferDetailFragment :
         }
 
         binding.transferDateTV.text =
-            SimpleDateFormat(AppConstants.transferFullDateFmt, Locale.US).format(transfer.date)
+            SimpleDateFormat(AppConstants.TRANSFER_FULL_DATE_FMT, Locale.US).format(transfer.date)
 
         binding.transferInvoiceLabelTV.visibility = View.GONE
         binding.transferInvoiceTV.visibility = View.GONE

@@ -51,7 +51,7 @@ class AssetMetadataFragment :
         binding.metadataTypeTV.text = metadata.assetSchema.toString()
         binding.metadataIssuedSupplyTV.text = metadata.issuedSupply.toString()
         binding.metadataDateTV.text =
-            SimpleDateFormat(AppConstants.transferDateFmt, Locale.US)
+            SimpleDateFormat(AppConstants.TRANSFER_DATE_FMT, Locale.US)
                 .format(metadata.timestamp * 1000)
         binding.metadataNameTV.text = metadata.name
         binding.metadataPrecisionTV.text = metadata.precision.toString()

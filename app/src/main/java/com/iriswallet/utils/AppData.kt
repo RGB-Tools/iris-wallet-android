@@ -339,7 +339,7 @@ data class UTXO(
         unspent.utxo.outpoint.txid,
         unspent.utxo.outpoint.vout,
         unspent.utxo.btcAmount,
-        if (unspent.utxo.colorable) AppConstants.coloredWallet else AppConstants.vanillaWallet,
+        if (unspent.utxo.colorable) AppConstants.COLORED_WALLET else AppConstants.VANILLA_WALLET,
         rgbUnspents,
     )
 

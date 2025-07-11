@@ -38,7 +38,7 @@ class IssueRgb25AssetFragment :
                     toastMsg(R.string.err_retrieving_file_length)
                     return@registerForActivityResult
                 }
-                if (fileDescriptor.length >= AppConstants.maxMediaBytes) {
+                if (fileDescriptor.length >= AppConstants.MAX_MEDIA_BYTES) {
                     Log.d(TAG, "Media file too big: ${fileDescriptor.length}")
                     toastMsg(R.string.file_too_big)
                     return@registerForActivityResult
@@ -48,7 +48,7 @@ class IssueRgb25AssetFragment :
                 assert(mediaFileStream != null)
                 assert(mediaFileStream!!.markSupported())
                 mediaFileStream!!.mark(
-                    AppConstants.maxMediaBytes
+                    AppConstants.MAX_MEDIA_BYTES
                 ) // mark current position (begin) of stream
 
                 binding.issueUploadFileBtn.text = getString(R.string.change_file_button)
@@ -93,7 +93,7 @@ class IssueRgb25AssetFragment :
                             fixETAmount(
                                 editText,
                                 editable.toString(),
-                                maxULongAmount = AppConstants.issueMaxAmount,
+                                maxULongAmount = AppConstants.ISSUE_MAX_AMOUNT,
                             )
                         binding.issueBtn.isEnabled = enableIssueBtn()
                     }

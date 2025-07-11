@@ -199,7 +199,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun getOfflineAssets() {
-        tryCallWithTimeout(AppConstants.longTimeout, _offlineAssets) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _offlineAssets) {
             val assets = AppRepository.getAssets()
             cacheAssets()
             assets
@@ -209,7 +209,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     fun refreshAssets(firstAppRefresh: Boolean = false) {
         refreshingAssets = true
         tryCallWithTimeout(
-            AppConstants.veryLongTimeout,
+            AppConstants.VERY_LONG_TIMEOUT,
             _refreshedAssets,
             successCallback = { refreshingAssets = false },
             failureCallback = { refreshingAssets = false },
@@ -225,7 +225,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     fun refreshAssetDetail(asset: AppAsset) {
         refreshingAsset = true
         tryCallWithTimeout(
-            AppConstants.veryLongTimeout,
+            AppConstants.VERY_LONG_TIMEOUT,
             _asset,
             requestID = asset.id,
             successCallback = { refreshingAsset = false },
@@ -236,19 +236,19 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun getAssetMetadata(asset: AppAsset) {
-        tryCallWithTimeout(AppConstants.shortTimeout, _metadata) {
+        tryCallWithTimeout(AppConstants.SHORT_TIMEOUT, _metadata) {
             AppRepository.getAssetMetadata(asset)
         }
     }
 
     fun getBitcoinUnspents() {
-        tryCallWithTimeout(AppConstants.shortTimeout, _unspents) {
+        tryCallWithTimeout(AppConstants.SHORT_TIMEOUT, _unspents) {
             AppRepository.getBitcoinUnspents()
         }
     }
 
     fun genReceiveData(asset: AppAsset?) {
-        tryCallWithTimeout(AppConstants.shortTimeout, _recipient) {
+        tryCallWithTimeout(AppConstants.SHORT_TIMEOUT, _recipient) {
             val data = AppRepository.genReceiveData(asset)
             cacheAssets()
             data
@@ -262,7 +262,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         transportEndpoints: List<String>,
         feeRate: ULong,
     ) {
-        tryCallWithTimeout(AppConstants.longTimeout, _sent) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _sent) {
             val txid =
                 AppRepository.sendAsset(
                     asset,
@@ -277,7 +277,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun issueRgb20Asset(ticker: String, name: String, amounts: List<String>) {
-        tryCallWithTimeout(AppConstants.longTimeout, _issuedRgb20Asset) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _issuedRgb20Asset) {
             val asset = AppRepository.issueRgb20Asset(ticker, name, amounts.map { it.toULong() })
             cacheAssets()
             asset
@@ -290,7 +290,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         description: String?,
         fileStream: InputStream?,
     ) {
-        tryCallWithTimeout(AppConstants.longTimeout, _issuedRgb25Asset) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _issuedRgb25Asset) {
             val asset =
                 AppRepository.issueRgb25Asset(
                     name,
@@ -304,7 +304,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun deleteTransfer(asset: AppAsset, transfer: AppTransfer) {
-        tryCallWithTimeout(AppConstants.shortTimeout, _asset, requestID = asset.id) {
+        tryCallWithTimeout(AppConstants.SHORT_TIMEOUT, _asset, requestID = asset.id) {
             val updatedAsset = AppRepository.deleteRGBTransfer(asset, transfer)
             cacheAssets()
             updatedAsset
@@ -312,7 +312,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun handleAssetVisibility(assetID: String) {
-        tryCallWithTimeout(AppConstants.shortTimeout, _hidden) {
+        tryCallWithTimeout(AppConstants.SHORT_TIMEOUT, _hidden) {
             val hidden = AppRepository.handleAssetVisibility(assetID)
             cacheAssets()
             hidden
@@ -344,13 +344,13 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun getFaucetAssetGroups() {
-        tryCallWithTimeout(AppConstants.longTimeout, _rgbFaucets) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _rgbFaucets) {
             AppRepository.getRgbFaucetAssetGroups()
         }
     }
 
     fun receiveFromRgbFaucet(url: String, group: Map.Entry<String, RgbAssetGroup>) {
-        tryCallWithTimeout(AppConstants.veryLongTimeout, _rgbFaucetResponse) {
+        tryCallWithTimeout(AppConstants.VERY_LONG_TIMEOUT, _rgbFaucetResponse) {
             val (asset, distribution) = AppRepository.receiveFromRgbFaucet(url, group)
             if (distribution.modeEnum() == DistributionMode.STANDARD) cacheAssets()
             Pair(asset, distribution)
@@ -358,13 +358,13 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun startBackup(gAccount: GoogleSignInAccount) {
-        tryCallWithTimeout(AppConstants.backupRestoreTimeout, _backup) {
+        tryCallWithTimeout(AppConstants.BACKUP_RESTORE_TIMEOUT, _backup) {
             BackupRepository.doBackup(gAccount)
         }
     }
 
     fun restoreBackup(gAccount: GoogleSignInAccount, restoredMnemonic: String) {
-        tryCallWithTimeout(AppConstants.backupRestoreTimeout, _restore) {
+        tryCallWithTimeout(AppConstants.BACKUP_RESTORE_TIMEOUT, _restore) {
             BackupRepository.restoreBackup(gAccount, restoredMnemonic)
         }
     }
@@ -373,7 +373,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val hiddenAssets = AppContainer.db.hiddenAssetDao().getHiddenAssets()
             for (hiddenAsset in hiddenAssets) {
-                if (hiddenAsset.id == AppConstants.bitcoinAssetID) continue
+                if (hiddenAsset.id == AppConstants.BITCOIN_ASSET_ID) continue
                 AppContainer.db.hiddenAssetDao().deleteHiddenAsset(hiddenAsset.id)
             }
             AppContainer.db.rgbPendingAssetDao().deleteAll()

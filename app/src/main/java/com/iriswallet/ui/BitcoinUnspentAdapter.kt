@@ -46,7 +46,7 @@ class BitcoinUnspentAdapter(private val dataSet: List<UTXO>) :
             viewHolder.itemView.context.startActivity(intent)
         }
 
-        if (unspent.walletName == AppConstants.vanillaWallet)
+        if (unspent.walletName == AppConstants.VANILLA_WALLET)
             viewHolder.binding.unspentWalletImg.setImageDrawable(viewHolder.bitcoinLogo)
         else viewHolder.binding.unspentWalletImg.setImageDrawable(viewHolder.rgbLogo)
 

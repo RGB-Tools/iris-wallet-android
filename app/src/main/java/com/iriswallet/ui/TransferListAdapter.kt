@@ -77,9 +77,11 @@ class TransferListAdapter(
             TransferStatus.FAILED -> handleIncompleteTransfer(viewHolder, transfer)
             TransferStatus.SETTLED -> {
                 viewHolder.binding.transferItemDateTV.text =
-                    SimpleDateFormat(AppConstants.transferDateFmt, Locale.US).format(transfer.date)
+                    SimpleDateFormat(AppConstants.TRANSFER_DATE_FMT, Locale.US)
+                        .format(transfer.date)
                 viewHolder.binding.transferItemTimeTV.text =
-                    SimpleDateFormat(AppConstants.transferTimeFmt, Locale.US).format(transfer.date)
+                    SimpleDateFormat(AppConstants.TRANSFER_TIME_FMT, Locale.US)
+                        .format(transfer.date)
             }
         }
         viewHolder.itemView.setOnClickListener {

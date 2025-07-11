@@ -23,9 +23,9 @@ object AppContainer {
 
     val backupServerClientID: String by lazy {
         if (BuildConfig.DEBUG) {
-            AppConstants.backupServerClientIDDebug
+            AppConstants.BACKUP_SERVER_CLIENT_ID_DEBUG
         } else {
-            AppConstants.backupServerClientIDRelease
+            AppConstants.BACKUP_SERVER_CLIENT_ID_RELEASE
         }
     }
 
@@ -53,14 +53,14 @@ object AppContainer {
     val rgbDir: File by lazy { getRgbDir(appContext.filesDir) }
     private val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.masterFingerprint) }
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
-    internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.appDBName)!! }
+    internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.APP_DB_NAME)!! }
 
     val clipboard: ClipboardManager by lazy {
         appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     }
 
     val db by lazy {
-        Room.databaseBuilder(appContext, AppDatabase::class.java, AppConstants.appDBName).build()
+        Room.databaseBuilder(appContext, AppDatabase::class.java, AppConstants.APP_DB_NAME).build()
     }
 
     val btcHelpFaucetURLS: List<String> by lazy {
@@ -74,24 +74,24 @@ object AppContainer {
     val btcFaucetURL: String? by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> null
-            BitcoinNetwork.TESTNET -> AppConstants.btcTestnetFaucetURL
+            BitcoinNetwork.TESTNET -> AppConstants.BTC_TESTNET_FAUCET_URL
             BitcoinNetwork.MAINNET -> null
         }
     }
 
     val explorerURL: String by lazy {
         when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> AppConstants.signetExplorerURL
-            BitcoinNetwork.TESTNET -> AppConstants.testnetExplorerURL
-            BitcoinNetwork.MAINNET -> AppConstants.mainnetExplorerURL
+            BitcoinNetwork.SIGNET -> AppConstants.SIGNET_EXPLORER_URL
+            BitcoinNetwork.TESTNET -> AppConstants.TESTNET_EXPLORER_URL
+            BitcoinNetwork.MAINNET -> AppConstants.MAINNET_EXPLORER_URL
         }
     }
 
     val electrumURLDefault: String by lazy {
         when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> AppConstants.signetElectrumURL
-            BitcoinNetwork.TESTNET -> AppConstants.testnetElectrumURL
-            BitcoinNetwork.MAINNET -> AppConstants.mainnetElectrumURL
+            BitcoinNetwork.SIGNET -> AppConstants.SIGNET_ELECTRUM_URL
+            BitcoinNetwork.TESTNET -> AppConstants.TESTNET_ELECTRUM_URL
+            BitcoinNetwork.MAINNET -> AppConstants.MAINNET_ELECTRUM_URL
         }
     }
 
@@ -106,14 +106,14 @@ object AppContainer {
     val proxyURL: String
         get() {
             val endpoint = SharedPreferencesManager.proxyTransportEndpoint
-            return if (endpoint.startsWith(AppConstants.rgbTLSRpcURI)) {
-                "https://" + endpoint.removePrefix(AppConstants.rgbTLSRpcURI)
+            return if (endpoint.startsWith(AppConstants.RGB_TLS_RPC_URI)) {
+                "https://" + endpoint.removePrefix(AppConstants.RGB_TLS_RPC_URI)
             } else {
-                "http://" + endpoint.removePrefix(AppConstants.rgbRpcURI)
+                "http://" + endpoint.removePrefix(AppConstants.RGB_RPC_URI)
             }
         }
 
-    val proxyTransportEndpointDefault: String by lazy { AppConstants.proxyTransportEndpoint }
+    val proxyTransportEndpointDefault: String by lazy { AppConstants.PROXY_TRANSPORT_ENDPOINT }
 
     val bitcoinAssetTicker: String by lazy {
         val prefix =
@@ -122,7 +122,7 @@ object AppContainer {
                 BitcoinNetwork.TESTNET -> "t"
                 BitcoinNetwork.MAINNET -> ""
             }
-        prefix + AppConstants.bitcoinAssetID
+        prefix + AppConstants.BITCOIN_ASSET_ID
     }
 
     val bitcoinAssetName: String by lazy {
@@ -134,7 +134,7 @@ object AppContainer {
                 .lowercase()})"
                 BitcoinNetwork.MAINNET -> ""
             }
-        "${AppConstants.bitcoinAssetName}$network"
+        "${AppConstants.BITCOIN_ASSET_NAME}$network"
     }
 
     val bitcoinLogoID: Int by lazy {
@@ -155,9 +155,9 @@ object AppContainer {
 
     val termsAndConditionsURL: String by lazy {
         when (bitcoinNetwork) {
-            BitcoinNetwork.SIGNET -> AppConstants.testnetTermsOfServiceURL
-            BitcoinNetwork.TESTNET -> AppConstants.testnetTermsOfServiceURL
-            BitcoinNetwork.MAINNET -> AppConstants.mainnetTermsOfServiceURL
+            BitcoinNetwork.SIGNET -> AppConstants.TESTNET_TERMS_OF_SERVICE_URL
+            BitcoinNetwork.TESTNET -> AppConstants.TESTNET_TERMS_OF_SERVICE_URL
+            BitcoinNetwork.MAINNET -> AppConstants.MAINNET_TERMS_OF_SERVICE_URL
         }
     }
 }
