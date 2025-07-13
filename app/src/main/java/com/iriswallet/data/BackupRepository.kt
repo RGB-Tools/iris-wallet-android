@@ -12,6 +12,7 @@ import com.iriswallet.R
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppException
+import com.iriswallet.utils.MnemonicCryptoUtils
 import com.iriswallet.utils.TAG
 import java.io.File
 import java.io.FileOutputStream
@@ -50,7 +51,7 @@ object BackupRepository {
         Log.d(TAG, "Starting backup...")
         initializeDriveClient(gAccount)
 
-        val mnemonic = SharedPreferencesManager.mnemonic
+        val mnemonic = MnemonicCryptoUtils.decryptMnemonic()!!
 
         val backupFile = getBackupFile(mnemonic)
         backupFile.delete()
@@ -100,7 +101,7 @@ object BackupRepository {
 
         AppContainer.storedMnemonic = mnemonic
         Log.d(TAG, "Restoring preferences...")
-        SharedPreferencesManager.mnemonic = mnemonic
+        MnemonicCryptoUtils.encryptAndStoreMnemonic(mnemonic)
         SharedPreferencesManager.backupConfigured = true
         Log.d(TAG, "Restore completed successfully!")
         return true

@@ -7,7 +7,8 @@ import com.iriswallet.utils.AppContainer
 
 object SharedPreferencesManager {
 
-    private const val PREFS_MNEMONIC = "mnemonic"
+    private const val PREFS_MNEMONIC_IV = "mnemonic_iv"
+    private const val PREFS_ENCRYPTED_MNEMONIC = "encrypted_mnemonic"
     const val PREFS_PIN_ACTIONS_CONFIGURED = "pin_actions_configured"
     const val PREFS_PIN_LOGIN_CONFIGURED = "pin_login_configured"
     const val PREFS_ELECTRUM_URL = "electrum_url_pref"
@@ -18,22 +19,18 @@ object SharedPreferencesManager {
     private const val PREFS_BACKUP_CONFIGURED = "backup_configured"
 
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var encryptedSharedPreferences: SharedPreferences
     private lateinit var settingsSharedPreferences: SharedPreferences
 
     fun initObject(
         sharedPreferences: SharedPreferences,
-        encryptedSharedPreferences: SharedPreferences,
         settingsSharedPreferences: SharedPreferences,
     ) {
         this.sharedPreferences = sharedPreferences
-        this.encryptedSharedPreferences = encryptedSharedPreferences
         this.settingsSharedPreferences = settingsSharedPreferences
     }
 
     fun clearAll() {
         sharedPreferences.edit { clear() }
-        encryptedSharedPreferences.edit { clear() }
         settingsSharedPreferences.edit { clear() }
     }
 
@@ -63,10 +60,16 @@ object SharedPreferencesManager {
             settingsSharedPreferences.edit { putString(PREFS_FEE_RATE, value)?.apply() }
         }
 
-    var mnemonic: String
-        get() = encryptedSharedPreferences.getString(PREFS_MNEMONIC, "") ?: ""
+    var mnemonicIv: String?
+        get() = sharedPreferences.getString(PREFS_MNEMONIC_IV, "")
         set(value) {
-            encryptedSharedPreferences.edit { putString(PREFS_MNEMONIC, value)?.apply() }
+            sharedPreferences.edit { putString(PREFS_MNEMONIC_IV, value)?.apply() }
+        }
+
+    var encryptedMnemonic: String?
+        get() = sharedPreferences.getString(PREFS_ENCRYPTED_MNEMONIC, "")
+        set(value) {
+            sharedPreferences.edit { putString(PREFS_ENCRYPTED_MNEMONIC, value)?.apply() }
         }
 
     var pinActionsConfigured: Boolean

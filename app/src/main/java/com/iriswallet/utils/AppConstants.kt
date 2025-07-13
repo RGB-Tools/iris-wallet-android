@@ -9,7 +9,6 @@ object AppConstants {
     const val RGB_DOWNLOAD_LOGS_FILE_NAME = "iris-logs-%s-%s.txt"
     const val RGB_DOWNLOAD_MEDIA_FILE_NAME = "media_%s"
     const val SHARED_PREFERENCES_NAME = "shared_prefs"
-    const val ENCRYPTED_SHARED_PREFERENCES_NAME = "secret_shared_prefs"
 
     const val BACKUP_NAME = "%s.rgb_backup"
     const val BACKUP_SERVER_CLIENT_ID_DEBUG =

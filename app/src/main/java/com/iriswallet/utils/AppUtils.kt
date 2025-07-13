@@ -65,7 +65,7 @@ class AppUtils {
             SharedPreferencesManager.clearAll()
         }
 
-        fun deleteRgbData() {
+        private fun deleteRgbData() {
             Log.i(TAG, "Deleting rgb data...")
             AppContainer.rgbDir.deleteRecursively()
             AppContainer.rgbDir.mkdir()
