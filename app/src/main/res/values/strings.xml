@@ -127,6 +127,15 @@
     <string name="authentication_prompt_title">Android authentication login</string>
     <string name="authentication_prompt_subtitle">Log in using your Android credential</string>
     <string name="no_spendable_balance">You don\'t have spendable balance at the moment.</string>
+    <string name="err_google_sign_in">Error signing in to Google</string>
+    <string name="err_drive_authorization">Error getting authorization for Google Drive</string>
+    <string name="user_denied_drive_access">User denied Drive access via UI</string>
+    <string name="err_no_credential_returned">No credential returned</string>
+    <string name="err_failed_to_verify_google_account">Failed to verify your Google account. %s</string>
+    <string name="user_cancelled">User cancelled</string>
+    <string name="no_google_accounts">No available Google accounts, please add one first</string>
+    <string name="api_error">API error (%s)</string>
+    <string name="unknown_error">Unknown error (%s)</string>
 
     <!-- text field samples -->
     <string name="sample_amount">0</string>
@@ -312,7 +321,6 @@
     <string name="mnemonic_restore_message">Enter your mnemonic phrase, being careful not to be
         observed</string>
     <string name="alert_continue">Continue</string>
-    <string name="err_google_sign_in">Error signing in to Google</string>
     <string name="configure">configure</string>
     <string name="backup_not_configured">Backup not yet configured!</string>
     <string name="backup_completed">Backup successfully completed!</string>

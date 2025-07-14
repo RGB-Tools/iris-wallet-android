@@ -2,9 +2,9 @@ package com.iriswallet.ui
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.data.AppRepository
 import com.iriswallet.data.BackupRepository
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.db.RgbCertifiedAsset
 import com.iriswallet.data.retrofit.Distribution
 import com.iriswallet.data.retrofit.DistributionMode
@@ -357,15 +357,25 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
     }
 
-    fun startBackup(gAccount: GoogleSignInAccount) {
+    fun startBackup(driveAccessToken: String, backupGoogleAccount: String) {
         tryCallWithTimeout(AppConstants.BACKUP_RESTORE_TIMEOUT, _backup) {
-            BackupRepository.doBackup(gAccount)
+            val driveClient = GoogleDriveAuthHelper.initializeDriveClient(driveAccessToken)
+            BackupRepository.doBackup(driveClient)
+            SharedPreferencesManager.backupGoogleAccount = backupGoogleAccount
+            true
         }
     }
 
-    fun restoreBackup(gAccount: GoogleSignInAccount, restoredMnemonic: String) {
+    fun restoreBackup(
+        driveAccessToken: String,
+        backupGoogleAccount: String,
+        restoredMnemonic: String,
+    ) {
         tryCallWithTimeout(AppConstants.BACKUP_RESTORE_TIMEOUT, _restore) {
-            BackupRepository.restoreBackup(gAccount, restoredMnemonic)
+            val driveClient = GoogleDriveAuthHelper.initializeDriveClient(driveAccessToken)
+            BackupRepository.restoreBackup(driveClient, restoredMnemonic)
+            SharedPreferencesManager.backupGoogleAccount = backupGoogleAccount
+            true
         }
     }
 }

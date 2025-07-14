@@ -1,13 +1,8 @@
 package com.iriswallet.data
 
 import android.util.Log
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.FileContent
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
-import com.google.api.services.drive.DriveScopes
 import com.iriswallet.R
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
@@ -24,21 +19,6 @@ object BackupRepository {
 
     private const val ZIP_MIME_TYPE = "application/zip"
 
-    private lateinit var driveClient: Drive
-
-    private fun initializeDriveClient(signInAccount: GoogleSignInAccount) {
-        val credential =
-            GoogleAccountCredential.usingOAuth2(
-                AppContainer.appContext,
-                listOf(DriveScopes.DRIVE_FILE),
-            )
-        credential.selectedAccount = signInAccount.account!!
-        driveClient =
-            Drive.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance(), credential)
-                .setApplicationName(AppContainer.appContext.getString(R.string.app_name_mainnet))
-                .build()
-    }
-
     private fun getBackupFile(mnemonic: String): File {
         val keys = restoreKeys(AppContainer.bitcoinNetwork.toRgbLibNetwork(), mnemonic)
         return File(
@@ -47,10 +27,8 @@ object BackupRepository {
         )
     }
 
-    fun doBackup(gAccount: GoogleSignInAccount): Boolean {
+    fun doBackup(driveClient: Drive) {
         Log.d(TAG, "Starting backup...")
-        initializeDriveClient(gAccount)
-
         val mnemonic = MnemonicCryptoUtils.decryptMnemonic()!!
 
         val backupFile = getBackupFile(mnemonic)
@@ -72,12 +50,10 @@ object BackupRepository {
             }
         }
         Log.d(TAG, "Backup operation completed")
-        return true
     }
 
-    fun restoreBackup(gAccount: GoogleSignInAccount, mnemonic: String): Boolean {
+    fun restoreBackup(driveClient: Drive, mnemonic: String): Boolean {
         Log.d(TAG, "Downloading most recent backup...")
-        initializeDriveClient(gAccount)
         val backupFile = getBackupFile(mnemonic)
         val lastBackups =
             driveClient
@@ -102,8 +78,7 @@ object BackupRepository {
         AppContainer.storedMnemonic = mnemonic
         Log.d(TAG, "Restoring preferences...")
         MnemonicCryptoUtils.encryptAndStoreMnemonic(mnemonic)
-        SharedPreferencesManager.backupConfigured = true
-        Log.d(TAG, "Restore completed successfully!")
+        Log.d(TAG, "Restore operation completed")
         return true
     }
 }

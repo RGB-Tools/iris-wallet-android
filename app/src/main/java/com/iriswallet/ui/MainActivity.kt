@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
         if (mBound) unbindService(connection)
         mBound = false
         if (
-            SharedPreferencesManager.backupConfigured &&
+            !SharedPreferencesManager.backupGoogleAccount.isNullOrBlank() &&
                 RgbRepository.isBackupRequired() &&
                 !(SharedPreferencesManager.pinLoginConfigured && !loggedIn) &&
                 !viewModel.avoidBackup

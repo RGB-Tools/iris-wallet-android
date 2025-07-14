@@ -4,31 +4,34 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.R
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentBackupBinding
 import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.GoogleSignInService
-import com.iriswallet.utils.GoogleSignInServiceListener
-import com.iriswallet.utils.TAG
+import com.iriswallet.utils.GoogleDriveAuthHelper
+import com.iriswallet.utils.GoogleDriveAuthListener
 
 class BackupFragment :
     MainBaseFragment<FragmentBackupBinding>(FragmentBackupBinding::inflate),
-    GoogleSignInServiceListener {
+    GoogleDriveAuthListener {
 
     private var isMnemonicHidden = true
 
-    private lateinit var googleDriveService: GoogleSignInService
+    private lateinit var backupGoogleAccount: String
+    private lateinit var driveAuthHelper: GoogleDriveAuthHelper
+
+    private val authorizeLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            driveAuthHelper.handleAuthorizationResult(result.resultCode)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        googleDriveService = GoogleSignInService(this)
+        driveAuthHelper = GoogleDriveAuthHelper(this, authorizeLauncher, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +40,6 @@ class BackupFragment :
         viewModel.backup.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
                 if (response.data == true) {
-                    SharedPreferencesManager.backupConfigured = true
                     Toast.makeText(
                             activity,
                             getString(R.string.backup_completed),
@@ -86,9 +88,9 @@ class BackupFragment :
             isMnemonicHidden = !isMnemonicHidden
         }
 
-        if (SharedPreferencesManager.backupConfigured) {
+        if (!SharedPreferencesManager.backupGoogleAccount.isNullOrBlank()) {
             binding.backupConfigureBackupBtn.visibility = View.GONE
-            val gAccountEmail = GoogleSignIn.getLastSignedInAccount(mActivity)!!.email
+            val gAccountEmail = SharedPreferencesManager.backupGoogleAccount
             val message = getString(R.string.backup_configured, gAccountEmail)
             val spannable = SpannableString(message)
             spannable.setSpan(
@@ -101,7 +103,7 @@ class BackupFragment :
         } else {
             binding.backupConfigureBackupBtn.setOnClickListener {
                 disableUI()
-                googleDriveService.signInGoogle()
+                driveAuthHelper.initiateSignInAndRequestDriveAccess()
             }
         }
     }
@@ -120,13 +122,21 @@ class BackupFragment :
         mActivity.backEnabled = false
     }
 
-    override fun loggedIn(gAccount: GoogleSignInAccount) {
-        Log.d(TAG, "Logged in")
-        viewModel.startBackup(gAccount)
+    override fun onGoogleSignInSuccess(email: String) {
+        this.backupGoogleAccount = email
     }
 
-    override fun handleLoginError(errorExtraInfo: String?) {
+    override fun onDriveAccessTokenReceived(accessToken: String) {
+        viewModel.startBackup(accessToken, backupGoogleAccount)
+    }
+
+    override fun onGoogleSignInError(errorExtraInfo: String?) {
         toastMsg(R.string.err_google_sign_in, errorExtraInfo)
+        enableUI()
+    }
+
+    override fun onDriveAuthorizationError(errorExtraInfo: String?) {
+        toastMsg(R.string.err_drive_authorization, errorExtraInfo)
         enableUI()
     }
 }

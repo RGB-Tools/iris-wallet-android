@@ -110,7 +110,9 @@ class MainFragment :
     }
 
     private fun handleBackupBannerVisibility() {
-        if (!SharedPreferencesManager.backupConfigured && !backupSnackbarDismissed) {
+        if (
+            SharedPreferencesManager.backupGoogleAccount.isNullOrBlank() && !backupSnackbarDismissed
+        ) {
             Log.d(TAG, "Showing backup banner...")
             binding.mainBackupConfigureBtn.visibility = View.VISIBLE
             binding.mainBackupConfigureBtn.isEnabled = true

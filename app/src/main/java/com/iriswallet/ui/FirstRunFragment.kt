@@ -11,32 +11,38 @@ import android.view.Gravity
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentFirstRunBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppUtils
-import com.iriswallet.utils.GoogleSignInService
-import com.iriswallet.utils.GoogleSignInServiceListener
+import com.iriswallet.utils.GoogleDriveAuthHelper
+import com.iriswallet.utils.GoogleDriveAuthListener
 import com.iriswallet.utils.TAG
 import java.util.Locale
 
 class FirstRunFragment :
     MainBaseFragment<FragmentFirstRunBinding>(FragmentFirstRunBinding::inflate),
-    GoogleSignInServiceListener {
-
-    private lateinit var googleDriveService: GoogleSignInService
+    GoogleDriveAuthListener {
 
     private lateinit var restoredMnemonic: String
 
     private var creatingNewWallet: Boolean = false
 
+    private lateinit var backupGoogleAccount: String
+    private lateinit var driveAuthHelper: GoogleDriveAuthHelper
+
+    private val authorizeLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            driveAuthHelper.handleAuthorizationResult(result.resultCode)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // prevent mixing creation/restore with possible stale data
         AppUtils.deleteAppData()
-        googleDriveService = GoogleSignInService(this)
+        driveAuthHelper = GoogleDriveAuthHelper(this, authorizeLauncher, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -155,19 +161,28 @@ class FirstRunFragment :
             .setView(container)
             .setPositiveButton(getString(R.string.alert_continue)) { _, _ ->
                 restoredMnemonic = editText.text.toString()
-                googleDriveService.signInGoogle()
+                driveAuthHelper.initiateSignInAndRequestDriveAccess()
             }
             .setNegativeButton(getString(R.string.cancel)) { _, _ -> enableUI() }
             .setCancelable(false)
             .show()
     }
 
-    override fun loggedIn(gAccount: GoogleSignInAccount) {
-        viewModel.restoreBackup(gAccount, restoredMnemonic)
+    override fun onGoogleSignInSuccess(email: String) {
+        this.backupGoogleAccount = email
     }
 
-    override fun handleLoginError(errorExtraInfo: String?) {
+    override fun onDriveAccessTokenReceived(accessToken: String) {
+        viewModel.restoreBackup(accessToken, backupGoogleAccount, restoredMnemonic)
+    }
+
+    override fun onGoogleSignInError(errorExtraInfo: String?) {
         toastMsg(R.string.err_google_sign_in, errorExtraInfo)
+        enableUI()
+    }
+
+    override fun onDriveAuthorizationError(errorExtraInfo: String?) {
+        toastMsg(R.string.err_drive_authorization, errorExtraInfo)
         enableUI()
     }
 }
