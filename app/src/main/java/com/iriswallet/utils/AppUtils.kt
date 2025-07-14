@@ -10,10 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Point
 import android.media.ThumbnailUtils
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.text.InputFilter
@@ -38,7 +35,6 @@ import com.iriswallet.data.SharedPreferencesManager
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.lelloman.identicon.drawable.ClassicIdenticonDrawable
 import java.io.File
-import java.io.FileOutputStream
 import java.net.URL
 import java.security.MessageDigest
 import java.util.EnumMap
@@ -53,18 +49,13 @@ class AppUtils {
         ): Int {
             if (scale > 1.0 || scale < 0.1)
                 throw IllegalArgumentException("QR code scale cannot be outside the range 0.1-1.0")
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowMetrics = windowManager.currentWindowMetrics
-                val insets =
-                    windowMetrics.windowInsets.getInsetsIgnoringVisibility(
-                        WindowInsets.Type.systemBars()
-                    )
-                ((windowMetrics.bounds.width() - insets.left - insets.right) * scale).toInt()
-            } else {
-                val size = Point()
-                windowManager.defaultDisplay.getSize(size)
-                (size.x * scale).toInt()
-            }
+
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets =
+                windowMetrics.windowInsets.getInsetsIgnoringVisibility(
+                    WindowInsets.Type.systemBars()
+                )
+            return ((windowMetrics.bounds.width() - insets.left - insets.right) * scale).toInt()
         }
 
         fun deleteAppData() {
@@ -104,21 +95,11 @@ class AppUtils {
         }
 
         fun getImageThumbnail(filePath: String, width: Int, height: Int): Bitmap? {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ThumbnailUtils.createImageThumbnail(File(filePath), Size(width, height), null)
-            } else {
-                ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(filePath), width, height)
-            }
+            return ThumbnailUtils.createImageThumbnail(File(filePath), Size(width, height), null)
         }
 
         fun getVideoThumbnail(filePath: String, width: Int, height: Int): Bitmap? {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                ThumbnailUtils.createVideoThumbnail(File(filePath), Size(width, height), null)
-            else
-                ThumbnailUtils.createVideoThumbnail(
-                    filePath,
-                    MediaStore.Images.Thumbnails.MINI_KIND,
-                )
+            return ThumbnailUtils.createVideoThumbnail(File(filePath), Size(width, height), null)
         }
 
         fun getRgbDir(parentDir: File): File {
@@ -126,32 +107,19 @@ class AppUtils {
         }
 
         fun saveFileToDownloads(context: Context, url: String, fileName: String, mimeType: String) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val contentValues =
-                    ContentValues().apply {
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                        put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                    }
-                val resolver = context.contentResolver
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                if (uri != null) {
-                    URL(url).openStream().use { input ->
-                        resolver.openOutputStream(uri).use { output ->
-                            input.copyTo(output!!, DEFAULT_BUFFER_SIZE)
-                        }
-                    }
+            val contentValues =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
-            } else {
-                val target =
-                    File(
-                        Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DOWNLOADS
-                        ),
-                        fileName,
-                    )
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            if (uri != null) {
                 URL(url).openStream().use { input ->
-                    FileOutputStream(target).use { output -> input.copyTo(output) }
+                    resolver.openOutputStream(uri).use { output ->
+                        input.copyTo(output!!, DEFAULT_BUFFER_SIZE)
+                    }
                 }
             }
         }
@@ -196,19 +164,17 @@ class AppUtils {
                     .setAutoCancel(true)
 
             with(NotificationManagerCompat.from(context)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (
-                        ActivityCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.POST_NOTIFICATIONS,
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        if (requestPermissionLauncher != null) {
-                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            return null
-                        } else {
-                            Log.d(TAG, "Cannot request notification permissions")
-                        }
+                if (
+                    ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    if (requestPermissionLauncher != null) {
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        return null
+                    } else {
+                        Log.d(TAG, "Cannot request notification permissions")
                     }
                 }
                 val notification = builder.build()
@@ -221,17 +187,15 @@ class AppUtils {
             context: Context,
             requestPermissionLauncher: ActivityResultLauncher<String>,
         ): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (
-                    ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    Log.d(TAG, "Requesting notification permissions...")
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    return true
-                }
+            if (
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "Requesting notification permissions...")
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return true
             }
             return false
         }

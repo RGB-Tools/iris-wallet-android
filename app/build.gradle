@@ -19,7 +19,7 @@ android {
 
   defaultConfig {
     applicationId 'com.iriswallet'
-    minSdk 26
+    minSdk 33
     targetSdk 36
     versionCode 63
     versionName '0.2.1'

@@ -89,19 +89,14 @@ class AppAuthenticationService(private val fragment: Fragment) {
             if (canUseBiometric) {
                 basePromptInfo.setNegativeButtonText(fragment.getString(R.string.cancel)).build()
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    basePromptInfo.setAllowedAuthenticators(DEVICE_CREDENTIAL).build()
-                else basePromptInfo.setDeviceCredentialAllowed(true).build()
+                basePromptInfo.setAllowedAuthenticators(DEVICE_CREDENTIAL).build()
             }
         biometricPrompt.authenticate(promptInfo)
     }
 
     private fun canUseBiometric(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            biometricManager.canAuthenticate(BIOMETRIC_STRONG or BIOMETRIC_WEAK)
-        } else {
-            biometricManager.canAuthenticate()
-        } == BiometricManager.BIOMETRIC_SUCCESS
+        return biometricManager.canAuthenticate(BIOMETRIC_STRONG or BIOMETRIC_WEAK) ==
+            BiometricManager.BIOMETRIC_SUCCESS
     }
 
     companion object {
