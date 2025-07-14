@@ -1,14 +1,14 @@
 package com.iriswallet.ui
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.launch
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.behavior.SwipeDismissBehavior
@@ -20,14 +20,15 @@ import com.iriswallet.utils.AppAuthenticationService
 import com.iriswallet.utils.AppAuthenticationServiceListener
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.TAG
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainFragment :
     MainBaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate),
     AppAuthenticationServiceListener {
 
     private lateinit var appAuthenticationService: AppAuthenticationService
-
-    private var doubleBackToExitPressedOnce = false
 
     private var backupSnackbarDismissed = false
 
@@ -38,39 +39,6 @@ class MainFragment :
 
         mActivity.startConnectivityService()
 
-        mActivity.onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!mActivity.backEnabled) {
-                        Toast.makeText(
-                                activity,
-                                getString(R.string.back_disabled),
-                                Toast.LENGTH_SHORT,
-                            )
-                            .show()
-                        return
-                    }
-                    if (doubleBackToExitPressedOnce) {
-                        activity?.finish()
-                        return
-                    }
-                    doubleBackToExitPressedOnce = true
-                    Toast.makeText(
-                            activity,
-                            getString(R.string.back_again_to_exit),
-                            Toast.LENGTH_SHORT,
-                        )
-                        .show()
-                    Handler(Looper.getMainLooper())
-                        .postDelayed(
-                            { doubleBackToExitPressedOnce = false },
-                            AppConstants.WAIT_DOUBLE_BACK_TIME,
-                        )
-                }
-            },
-        )
-
         mActivity.binding.navView.menu.findItem(R.id.backupFragment).setOnMenuItemClickListener {
             launchBackupFragment()
             true
@@ -80,6 +48,40 @@ class MainFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mActivity.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        mActivity.onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                private var backPressedJob: Job? = null
+
+                override fun handleOnBackPressed() {
+                    Log.d(TAG, "handleOnBackPressed: enter")
+                    if (!mActivity.backEnabled) {
+                        Toast.makeText(
+                                activity,
+                                getString(R.string.back_disabled),
+                                Toast.LENGTH_SHORT,
+                            )
+                            .show()
+                        return
+                    }
+                    if (backPressedJob?.isActive == true) {
+                        requireActivity().finish()
+                    } else {
+                        backPressedJob =
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                Toast.makeText(
+                                        requireContext(),
+                                        getString(R.string.back_again_to_exit),
+                                        Toast.LENGTH_SHORT,
+                                    )
+                                    .show()
+                                delay(AppConstants.WAIT_DOUBLE_BACK_TIME)
+                            }
+                    }
+                }
+            },
+        )
 
         val tabLayout = binding.mainTabLayout
         val viewPager = binding.mainViewPager

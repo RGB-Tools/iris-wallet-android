@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -34,6 +35,7 @@ import com.iriswallet.databinding.ActivityMainBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.BitcoinNetwork
 import com.iriswallet.utils.Event
+import com.iriswallet.utils.TAG
 
 class MainActivity : AppCompatActivity() {
 
@@ -132,6 +134,7 @@ class MainActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    Log.d(TAG, "handleOnBackPressed: enter")
                     if (!backEnabled) {
                         Toast.makeText(
                                 baseContext,
@@ -141,7 +144,9 @@ class MainActivity : AppCompatActivity() {
                             .show()
                         return
                     }
-                    navController.popBackStack()
+                    isEnabled = false // disable this callback for the current event
+                    onBackPressedDispatcher.onBackPressed() // re-trigger the dispatch
+                    isEnabled = true // re-enable for future back presses
                 }
             },
         )
