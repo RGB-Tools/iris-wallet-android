@@ -95,7 +95,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
         AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setPositiveButton(getString(R.string.exit)) { _, _ ->
-                android.os.Process.killProcess(android.os.Process.myPid())
+                requireActivity().finishAffinity()
             }
             .setCancelable(false)
             .create()
@@ -113,7 +113,7 @@ abstract class MainBaseFragment<B : ViewBinding>(private val inflate: Inflate<B>
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.err_timeout))
                 .setPositiveButton(getString(R.string.exit)) { _, _ ->
-                    android.os.Process.killProcess(android.os.Process.myPid())
+                    requireActivity().finishAffinity()
                 }
                 .setNegativeButton(getString(R.string.keep_waiting)) { _: DialogInterface, _: Int ->
                 }

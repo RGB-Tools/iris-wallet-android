@@ -9,6 +9,7 @@ import com.google.android.gms.auth.api.identity.AuthorizationClient
 import com.google.android.gms.auth.api.identity.Identity
 import com.iriswallet.R
 import com.iriswallet.data.BackupRepository
+import com.iriswallet.data.RgbRepository
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
@@ -65,8 +66,9 @@ class BackupService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        RgbRepository.closeWallet()
         serviceJob.cancel()
+        super.onDestroy()
         Log.d(TAG, "BackupService destroyed and job cancelled.")
     }
 

@@ -9,24 +9,43 @@ import org.rgbtools.*
 
 object RgbRepository {
 
-    private val wallet: Wallet by lazy {
-        Wallet(
-            WalletData(
-                AppContainer.rgbDir.absolutePath,
-                AppContainer.bitcoinNetwork.toRgbLibNetwork(),
-                DatabaseType.SQLITE,
-                1u,
-                AppContainer.bitcoinKeys.accountXpubVanilla,
-                AppContainer.bitcoinKeys.accountXpubColored,
-                AppContainer.bitcoinKeys.mnemonic,
-                AppContainer.bitcoinKeys.masterFingerprint,
-                AppConstants.DERIVATION_CHANGE_VANILLA.toUByte(),
-                AppConstants.supportedSchemas,
-            )
-        )
-    }
+    private var _wallet: Wallet? = null
+    val wallet: Wallet
+        get() {
+            if (_wallet == null) {
+                _wallet =
+                    Wallet(
+                        WalletData(
+                            AppContainer.rgbDir.absolutePath,
+                            AppContainer.bitcoinNetwork.toRgbLibNetwork(),
+                            DatabaseType.SQLITE,
+                            1u,
+                            AppContainer.bitcoinKeys.accountXpubVanilla,
+                            AppContainer.bitcoinKeys.accountXpubColored,
+                            AppContainer.bitcoinKeys.mnemonic,
+                            AppContainer.bitcoinKeys.masterFingerprint,
+                            AppConstants.DERIVATION_CHANGE_VANILLA.toUByte(),
+                            AppConstants.supportedSchemas,
+                        )
+                    )
+            }
+            return _wallet!!
+        }
 
-    private var online: Online by LazyMutable { goOnline(SharedPreferencesManager.electrumURL) }
+    private var _online: Online? = null
+    val online: Online
+        get() {
+            if (_online == null) {
+                _online = goOnline(SharedPreferencesManager.electrumURL)
+            }
+            return _online!!
+        }
+
+    fun closeWallet() {
+        _wallet?.close()
+        _wallet = null
+        _online = null
+    }
 
     fun backupDo(backupPath: File, mnemonic: String) {
         wallet.backup(backupPath.absolutePath, mnemonic)
@@ -112,8 +131,7 @@ object RgbRepository {
     }
 
     fun goOnlineAgain(electrumURL: String) {
-        val newOnline = goOnline(electrumURL)
-        online = newOnline
+        _online = goOnline(electrumURL)
     }
 
     fun isBackupRequired(): Boolean {

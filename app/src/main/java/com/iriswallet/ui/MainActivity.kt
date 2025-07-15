@@ -179,12 +179,13 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         if (mBound) unbindService(connection)
         mBound = false
-        if (
+        RgbRepository.closeWallet()
+        val needsBackup =
             !SharedPreferencesManager.backupGoogleAccount.isNullOrBlank() &&
                 RgbRepository.isBackupRequired() &&
                 !(SharedPreferencesManager.pinLoginConfigured && !loggedIn) &&
                 !viewModel.avoidBackup
-        )
+        if (needsBackup)
             applicationContext.startForegroundService(Intent(this, BackupService::class.java))
         super.onDestroy()
         _binding = null
