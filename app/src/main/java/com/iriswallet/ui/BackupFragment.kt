@@ -2,6 +2,7 @@ package com.iriswallet.ui
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.view.View
@@ -14,6 +15,11 @@ import com.iriswallet.databinding.FragmentBackupBinding
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.GoogleDriveAuthHelper
 import com.iriswallet.utils.GoogleDriveAuthListener
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.time.Instant
 
 class BackupFragment :
     MainBaseFragment<FragmentBackupBinding>(FragmentBackupBinding::inflate),
@@ -90,14 +96,33 @@ class BackupFragment :
 
         if (!SharedPreferencesManager.backupGoogleAccount.isNullOrBlank()) {
             binding.backupConfigureBackupBtn.visibility = View.GONE
-            val gAccountEmail = SharedPreferencesManager.backupGoogleAccount
-            val message = getString(R.string.backup_configured, gAccountEmail)
+            val gAccountEmail = SharedPreferencesManager.backupGoogleAccount!!
+            val lastBackupTimestampMillis = SharedPreferencesManager.backupLastTime
+            val backupInstant: java.time.Instant =
+                java.time.Instant.ofEpochMilli(lastBackupTimestampMillis)
+            val backupZonedDateTime: ZonedDateTime = backupInstant.atZone(ZoneId.systemDefault())
+            val formatter = DateTimeFormatter.ofPattern("HH:mm, MMM dd", Locale.getDefault())
+            val formattedLastBackupDate = backupZonedDateTime.format(formatter)
+            val message =
+                getString(R.string.backup_configured, gAccountEmail, formattedLastBackupDate)
             val spannable = SpannableString(message)
+            val emailStartIndex = message.indexOf(gAccountEmail)
             spannable.setSpan(
                 StyleSpan(Typeface.BOLD),
-                message.length - gAccountEmail!!.length,
-                message.length,
-                0,
+                emailStartIndex,
+                emailStartIndex + gAccountEmail.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+            val dateStartIndex =
+                message.indexOf(
+                    formattedLastBackupDate,
+                    startIndex = emailStartIndex + gAccountEmail.length,
+                )
+            spannable.setSpan(
+                StyleSpan(Typeface.BOLD),
+                dateStartIndex,
+                dateStartIndex + formattedLastBackupDate.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             binding.backupDataTV.text = spannable
         } else {

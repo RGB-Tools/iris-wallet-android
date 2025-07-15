@@ -44,7 +44,7 @@
     <string name="confirm_delete_transfer">Are you sure you want to delete this transfer?</string>
     <string name="confirm_hide_asset">This will hide the asset from the main list. Once hidden, the
         only way to see the asset again will be to enable the “Show hidden assets” setting. Once
-        shown, it will be possible to unhide it clicking the decicated icon.\n\nAre you sure you
+        shown, it will be possible to unhide it clicking the dedicated icon.\n\nAre you sure you
         want to proceed?</string>
     <string name="confirm_unhide_asset">This will make the asset visible on the main list, even when
         the “Show hidden assets” setting is disabled.\n\nDo you want to proceed?</string>
@@ -304,9 +304,10 @@
     <string name="backup_disclaimer_mnemonic">Write down the mnemonic phrase and store it in a secure place. The mnemonic phrase is used to encrypt the RGB data backup, so it will be needed, together with the data backup, in order to recover your assets.</string>
     <string name="backup_disclaimer_data">Select a Google account where the RGB data backup will be saved. The bitcoin mnemonic phrase will also be required at restore time to decrypt the backup and recover your assets.</string>
     <string name="configure_backup">Configure backup</string>
-    <string name="backup_configured">Backup of RGB offline data is configured.
-        Backups will be performed on app exit, only if data has changed since the last backup.
-        \n\nThe backup copy is stored on the following Google Drive account: %s</string>
+    <string name="backup_configured">Backup of app data is configured.
+        Backups will be performed when exiting gracefully from the app by pressing back two times from the main page, only if data has changed since the last backup.
+        \n\nThe backup copy is stored on the following Google Drive account: %s
+        \n\nThe last backup has been done on: %s</string>
     <string name="backup_notification_title">Performing backup…</string>
     <string name="backup_notification_text">Do not force stop the app while this notification is
         visible</string>

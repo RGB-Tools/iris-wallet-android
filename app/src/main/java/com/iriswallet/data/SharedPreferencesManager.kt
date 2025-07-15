@@ -17,6 +17,7 @@ object SharedPreferencesManager {
     const val PREFS_HIDE_EXHAUSTED_ASSETS = "hide_exhausted_assets"
     const val PREFS_FEE_RATE = "fee_rate"
     private const val PREFS_BACKUP_GOOGLE_ACCOUNT = "backup_google_account"
+    private const val PREFS_BACKUP_LAST_TIME = "backup_last_time"
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var settingsSharedPreferences: SharedPreferences
@@ -38,6 +39,12 @@ object SharedPreferencesManager {
         get() = sharedPreferences.getString(PREFS_BACKUP_GOOGLE_ACCOUNT, null)
         set(value) {
             sharedPreferences.edit { putString(PREFS_BACKUP_GOOGLE_ACCOUNT, value)?.apply() }
+        }
+
+    var backupLastTime: Long
+        get() = sharedPreferences.getLong(PREFS_BACKUP_LAST_TIME, 0)
+        set(value) {
+            sharedPreferences.edit { putLong(PREFS_BACKUP_LAST_TIME, value)?.apply() }
         }
 
     var electrumURL: String

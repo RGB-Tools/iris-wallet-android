@@ -43,6 +43,7 @@ object BackupRepository {
         val newBackupID =
             driveClient.files().create(gFile, FileContent(ZIP_MIME_TYPE, backupFile)).execute().id
         Log.d(TAG, "Backup uploaded. Backup file ID: $newBackupID")
+        SharedPreferencesManager.backupLastTime = System.currentTimeMillis()
         if (oldBackups != null) {
             for (file in oldBackups.files) {
                 Log.d(TAG, "Deleting old backup file ${file.id} ...")
