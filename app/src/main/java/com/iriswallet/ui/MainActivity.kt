@@ -189,6 +189,7 @@ class MainActivity : AppCompatActivity() {
         )
             applicationContext.startForegroundService(Intent(this, BackupService::class.java))
         super.onDestroy()
+        _binding = null
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {

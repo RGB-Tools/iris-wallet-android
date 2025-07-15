@@ -38,15 +38,16 @@ class MainFragment :
         appAuthenticationService = AppAuthenticationService(this)
 
         mActivity.startConnectivityService()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         mActivity.binding.navView.menu.findItem(R.id.backupFragment).setOnMenuItemClickListener {
             launchBackupFragment()
             true
         }
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         mActivity.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         mActivity.onBackPressedDispatcher.addCallback(
