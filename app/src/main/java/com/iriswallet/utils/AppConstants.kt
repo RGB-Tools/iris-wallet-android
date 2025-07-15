@@ -62,13 +62,6 @@ object AppConstants {
 
     const val BTC_TESTNET_FAUCET_URL = "https://btc-faucet.iriswallet.com"
 
-    val rgbTestnetFaucetURLs =
-        listOf(
-            "https://rgb-faucet.iriswallet.com/testnet-planb2023/",
-            "https://rgb-faucet.iriswallet.com/testnet-random2023/",
-        )
-    val rgbMainnetFaucetURLs = listOf("https://rgb-faucet.iriswallet.com/mainnet-random2023/")
-
     const val ASSET_CERTIFICATION_SERVER_URL = "https://iriswallet.com"
 
     const val PRIVACY_POLICY_URL = "https://iriswallet.com/privacy_policy.html"

@@ -27,9 +27,13 @@ class FaucetFragment : MainBaseFragment<FragmentFaucetBinding>(FragmentFaucetBin
 
         viewModel.rgbFaucets.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { response ->
-                if (!response.data.isNullOrEmpty()) {
+                if (response.data != null) {
                     enableUI()
-                    showFaucetGroups(response.data)
+                    if (response.data.isEmpty()) {
+                        toastMsg(R.string.no_faucets_available)
+                    } else {
+                        showFaucetGroups(response.data)
+                    }
                 } else {
                     handleError(response.error!!) {
                         toastMsg(R.string.err_getting_faucet_data, response.error.message)

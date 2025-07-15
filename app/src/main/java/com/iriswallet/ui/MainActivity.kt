@@ -109,8 +109,6 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(setOf(R.id.mainFragment), binding.drawerLayout)
 
-        binding.navView.menu.findItem(R.id.faucetFragment).isVisible =
-            AppContainer.rgbFaucetURLS.isNotEmpty()
         binding.navView.menu.findItem(R.id.issueRgb20AssetFragment).isVisible =
             AppContainer.bitcoinNetwork != BitcoinNetwork.MAINNET
 

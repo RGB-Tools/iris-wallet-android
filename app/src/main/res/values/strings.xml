@@ -123,6 +123,7 @@
         settings.</string>
     <string name="err_creating_wallet">Error creating wallet</string>
     <string name="err_getting_faucet_data">Error getting data from faucets</string>
+    <string name="no_faucets_available">There are no available faucets at the moment</string>
     <string name="err_receiving_from_faucet">Error receiving from faucet</string>
     <string name="authentication_prompt_title">Android authentication login</string>
     <string name="authentication_prompt_subtitle">Log in using your Android credential</string>

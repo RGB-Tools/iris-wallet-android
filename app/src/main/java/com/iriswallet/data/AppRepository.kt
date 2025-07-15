@@ -445,7 +445,7 @@ object AppRepository {
                 assetGroups.add(RgbFaucet(it, url))
             }
         }
-        if (assetGroups.isEmpty())
+        if (AppContainer.rgbFaucetURLS.isNotEmpty() && assetGroups.isEmpty())
             throw AppException(AppContainer.appContext.getString(R.string.faucet_no_assets))
         return assetGroups
     }

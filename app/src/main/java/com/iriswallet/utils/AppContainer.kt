@@ -98,8 +98,8 @@ object AppContainer {
     val rgbFaucetURLS: List<String> by lazy {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> listOf()
-            BitcoinNetwork.TESTNET -> AppConstants.rgbTestnetFaucetURLs
-            BitcoinNetwork.MAINNET -> AppConstants.rgbMainnetFaucetURLs
+            BitcoinNetwork.TESTNET -> listOf()
+            BitcoinNetwork.MAINNET -> listOf()
         }
     }
 
