@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.iriswallet.data.AppRepository
 import com.iriswallet.data.BackupRepository
+import com.iriswallet.data.RgbRepository
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.db.RgbCertifiedAsset
 import com.iriswallet.data.retrofit.Distribution
@@ -47,6 +48,10 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private val _recipient = MutableLiveData<Event<AppResponse<Receiver>>>()
     val recipient: LiveData<Event<AppResponse<Receiver>>>
         get() = _recipient
+
+    private val _wentOnlineAgain = MutableLiveData<Event<AppResponse<Boolean>>>()
+    val wentOnlineAgain: LiveData<Event<AppResponse<Boolean>>>
+        get() = _wentOnlineAgain
 
     private val _sent = MutableLiveData<Event<AppResponse<String>>>()
     val sent: LiveData<Event<AppResponse<String>>>
@@ -252,6 +257,13 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             val data = AppRepository.genReceiveData(asset)
             cacheAssets()
             data
+        }
+    }
+
+    fun goOnlineAgain(electrumURL: String) {
+        tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _wentOnlineAgain) {
+            RgbRepository.goOnlineAgain(electrumURL)
+            true
         }
     }
 

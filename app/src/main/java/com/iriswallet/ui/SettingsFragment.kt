@@ -15,11 +15,16 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.preference.*
+import androidx.fragment.app.activityViewModels
+import androidx.preference.EditTextPreference
+import androidx.preference.EditTextPreferenceDialogFragmentCompat
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback
+import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.textview.MaterialTextView
 import com.iriswallet.R
-import com.iriswallet.data.RgbRepository
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.data.SharedPreferencesManager.PREFS_ELECTRUM_URL
 import com.iriswallet.data.SharedPreferencesManager.PREFS_FEE_RATE
@@ -28,7 +33,12 @@ import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_ACTIONS_CONFIGURED
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PIN_LOGIN_CONFIGURED
 import com.iriswallet.data.SharedPreferencesManager.PREFS_PROXY_CONSIGNMENT_ENDPOINT
 import com.iriswallet.data.SharedPreferencesManager.PREFS_SHOW_HIDDEN_ASSETS
-import com.iriswallet.utils.*
+import com.iriswallet.utils.AppAuthenticationService
+import com.iriswallet.utils.AppAuthenticationServiceListener
+import com.iriswallet.utils.AppConstants
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.IntegerInputFilter
+import com.iriswallet.utils.TAG
 import org.rgbtools.RgbLibException
 import org.rgbtools.TransportEndpoint
 import org.rgbtools.TransportType
@@ -251,28 +261,19 @@ class TransportEndpointEditTextPreferenceFragment : EditTextPreferenceDialogFrag
 
 class ElectrumURLEditTextPreferenceFragment : EditTextPreferenceDialogFragmentCompat() {
 
+    private val viewModel: MainViewModel by activityViewModels()
     private lateinit var dialogMessageTV: MaterialTextView
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
+    private lateinit var attemptedElectrumURL: String
 
-        dialog.setOnShowListener {
-            val positiveBtn = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveBtn.setOnClickListener {
-                val editText = dialog.findViewById<EditText>(android.R.id.edit)
-                var err = false
-                if (editText?.text!!.isNotBlank()) {
-                    try {
-                        RgbRepository.goOnlineAgain(editText.text.toString())
-                    } catch (e: RgbLibException) {
-                        err = true
-                    }
-                }
-                if (!err) {
-                    val updatedPref = editText.text.toString()
-                    if (preference.callChangeListener(updatedPref))
-                        (preference as EditTextPreference).text = updatedPref
-                    dialog.dismiss()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.wentOnlineAgain.observe(this) {
+            it.getContentIfNotHandled()?.let { response ->
+                if (response.data == true) {
+                    if (preference.callChangeListener(attemptedElectrumURL))
+                        (preference as EditTextPreference).text = attemptedElectrumURL
+                    dialog?.dismiss()
                 } else {
                     val existingMessage = preference.dialogMessage.toString()
                     val updatedMessage =
@@ -294,13 +295,27 @@ class ElectrumURLEditTextPreferenceFragment : EditTextPreferenceDialogFragmentCo
                 }
             }
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.setOnShowListener {
+            val positiveBtn = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveBtn.setOnClickListener {
+                val editText = dialog.findViewById<EditText>(android.R.id.edit)
+                if (editText?.text!!.isNotBlank()) {
+                    attemptedElectrumURL = editText.text.toString()
+                    viewModel.goOnlineAgain(attemptedElectrumURL)
+                }
+            }
+        }
         return dialog
     }
 
     override fun onBindDialogView(view: View) {
+        super.onBindDialogView(view)
         val dialogMessageView = view.findViewById<MaterialTextView>(android.R.id.message)
         dialogMessageTV = dialogMessageView
-        super.onBindDialogView(view)
     }
 
     companion object :
