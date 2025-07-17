@@ -26,7 +26,7 @@ class GoogleSignInHelper(private val context: Context) {
         return GetGoogleIdOption.Builder()
             .setServerClientId(AppContainer.backupServerClientID)
             .setFilterByAuthorizedAccounts(false)
-            .setAutoSelectEnabled(true)
+            .setAutoSelectEnabled(false)
             .setNonce(UUID.randomUUID().toString())
             .build()
     }
