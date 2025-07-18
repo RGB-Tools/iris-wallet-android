@@ -137,7 +137,9 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         if (savedStateHandle.contains(AppConstants.BUNDLE_TRANSFER_ID)) {
             Log.d(TAG, "Recovering transfer from state...")
             val cachedTransferId = savedStateHandle.get<Int>(AppConstants.BUNDLE_TRANSFER_ID)!!
-            viewingTransfer = viewingAsset!!.transfers[cachedTransferId]
+            if (viewingAsset != null) {
+                viewingTransfer = viewingAsset!!.transfers[cachedTransferId]
+            }
             savedStateHandle.remove<Int>(AppConstants.BUNDLE_TRANSFER_ID)
         }
         Log.d(TAG, "Restore completed")
