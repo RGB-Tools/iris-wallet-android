@@ -32,8 +32,6 @@ import com.iriswallet.R
 import com.iriswallet.data.RgbRepository
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.ActivityMainBinding
-import com.iriswallet.utils.AppContainer
-import com.iriswallet.utils.BitcoinNetwork
 import com.iriswallet.utils.Event
 import com.iriswallet.utils.TAG
 

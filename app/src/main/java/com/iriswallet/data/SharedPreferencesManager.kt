@@ -9,6 +9,7 @@ object SharedPreferencesManager {
 
     private const val PREFS_MNEMONIC_IV = "mnemonic_iv"
     private const val PREFS_ENCRYPTED_MNEMONIC = "encrypted_mnemonic"
+    private const val PREFS_TERMS_ACCEPTED = "terms_accepted"
     const val PREFS_PIN_ACTIONS_CONFIGURED = "pin_actions_configured"
     const val PREFS_PIN_LOGIN_CONFIGURED = "pin_login_configured"
     const val PREFS_ELECTRUM_URL = "electrum_url_pref"
@@ -77,6 +78,12 @@ object SharedPreferencesManager {
         get() = sharedPreferences.getString(PREFS_ENCRYPTED_MNEMONIC, "")
         set(value) {
             sharedPreferences.edit { putString(PREFS_ENCRYPTED_MNEMONIC, value)?.apply() }
+        }
+
+    var termsAccepted: Boolean
+        get() = sharedPreferences.getBoolean(PREFS_TERMS_ACCEPTED, false)
+        set(value) {
+            sharedPreferences.edit { putBoolean(PREFS_TERMS_ACCEPTED, value)?.apply() }
         }
 
     var pinActionsConfigured: Boolean

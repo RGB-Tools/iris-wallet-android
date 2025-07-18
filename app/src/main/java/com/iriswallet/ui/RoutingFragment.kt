@@ -22,7 +22,7 @@ class RoutingFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appAuthenticationService = AppAuthenticationService(this)
-        if (AppContainer.storedMnemonic.isBlank())
+        if (AppContainer.storedMnemonic.isBlank() || !SharedPreferencesManager.termsAccepted)
             findNavController().navigate(R.id.action_routingFragment_to_firstRunFragment)
     }
 

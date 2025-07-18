@@ -7,6 +7,7 @@ import android.view.ViewTreeObserver
 import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
+import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.databinding.FragmentTermsAndConditionsBinding
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
@@ -50,6 +51,7 @@ class TermsAndConditionsFragment :
             }
         binding.tacScrollView.viewTreeObserver.addOnScrollChangedListener(scrollViewListener)
         binding.tacAcceptBtn.setOnClickListener {
+            SharedPreferencesManager.termsAccepted = true
             MnemonicCryptoUtils.encryptAndStoreMnemonic(AppContainer.bitcoinKeys.mnemonic)
             findNavController().navigate(R.id.action_termsAndConditionsFragment_to_mainFragment)
         }
