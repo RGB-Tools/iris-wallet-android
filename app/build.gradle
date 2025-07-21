@@ -47,9 +47,14 @@ android {
       storeFile file('debug.keystore')
     }
     release {
-      storeFile file("${System.properties['user.home']}/android-keystores/iriswallet.jks")
+      if (keystoreProperties.getProperty('storeFile') != null) {
+        storeFile file(keystoreProperties['storeFile'])
+      } else {
+        println "Warning: storeFile should be set as a variable in the keystore.properties file"
+        storeFile file("${System.properties['user.home']}/android-keystores/iriswallet.jks")
+      }
       storePassword keystoreProperties['storePassword']
-      keyAlias 'upload'
+      keyAlias keystoreProperties['keyAlias']
       keyPassword keystoreProperties['keyPassword']
     }
   }
