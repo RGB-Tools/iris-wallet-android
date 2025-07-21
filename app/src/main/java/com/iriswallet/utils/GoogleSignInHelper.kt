@@ -28,13 +28,16 @@ class GoogleSignInHelper(private val context: Context) {
             .setFilterByAuthorizedAccounts(false)
             .setAutoSelectEnabled(false)
             .setNonce(UUID.randomUUID().toString())
+            .setRequestVerifiedPhoneNumber(false)
             .build()
     }
 
     suspend fun signIn(): GoogleIdTokenCredential? {
         val googleIdOption = createGoogleIdOption()
         val request = GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build()
+
         Log.d(TAG, "Requesting Google ID credential...")
+
         val result = credentialManager.getCredential(context, request)
         return handleSignInResult(result)
     }
@@ -79,6 +82,7 @@ class GoogleSignInHelper(private val context: Context) {
                 if (verifiedIdToken != null) {
                     TokenVerificationResult(true, verifiedIdToken.payload.email)
                 } else {
+                    Log.w(TAG, "Token verifier returned null")
                     TokenVerificationResult(
                         false,
                         null,
@@ -86,6 +90,7 @@ class GoogleSignInHelper(private val context: Context) {
                     )
                 }
             } catch (e: Exception) {
+                Log.w(TAG, "Error verifying ID token", e)
                 val errMessage =
                     when (e) {
                         is GeneralSecurityException -> "Security error: ${e.message}"

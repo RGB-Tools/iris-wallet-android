@@ -56,19 +56,22 @@ class GoogleDriveAuthHelper(
                     return@launch
                 }
                 Log.d(TAG, "Google Sign-In successful. ID: ${googleIdTokenCredential.id}")
+
                 val verificationResult =
                     googleSignInHelper.verifyIdTokenAndGetEmail(googleIdTokenCredential.idToken)
                 if (verificationResult.isSuccess) {
-                    val email = verificationResult.email!!
-                    Log.d(TAG, "ID Token verified successfully. Email: $email")
-                    pendingEmailForDriveAuth = email
-                    listener.onGoogleSignInSuccess(email)
+                    val account =
+                        if (verificationResult.email.isNullOrBlank()) {
+                            googleIdTokenCredential.id
+                        } else {
+                            verificationResult.email!!
+                        }
+                    Log.d(TAG, "ID Token verified successfully. Account: $account")
+                    pendingEmailForDriveAuth = account
+                    listener.onGoogleSignInSuccess(account)
                     requestDriveAccessTokenInternal()
                 } else {
-                    Log.w(
-                        TAG,
-                        "ID Token verification failed. Error: ${verificationResult.errorMessage}",
-                    )
+                    Log.w(TAG, "ID Token verification failed: ${verificationResult.errorMessage}")
                     listener.onGoogleSignInError(
                         fragment.getString(
                             R.string.err_failed_to_verify_google_account,
@@ -83,6 +86,7 @@ class GoogleDriveAuthHelper(
     }
 
     private fun handleSignInException(e: Exception) {
+        Log.w(TAG, "Google Sign-In failed", e)
         val errorExtraInfo =
             when (e) {
                 is GetCredentialCancellationException -> fragment.getString(R.string.user_cancelled)
