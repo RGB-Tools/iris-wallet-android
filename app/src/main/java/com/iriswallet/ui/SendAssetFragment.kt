@@ -41,6 +41,8 @@ class SendAssetFragment :
 
     private var insertedFromClipboard = false
 
+    private var isAutoFillingText = false
+
     private var validData: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,6 +111,16 @@ class SendAssetFragment :
                     override fun afterTextChanged(editable: Editable) {
                         if (editText.hashCode() == binding.sendAmountET.hashCode())
                             fixETAmount(editText, editable.toString())
+                        else if (editText.hashCode() == binding.sendPayToET.hashCode()) {
+                            if (
+                                !insertedFromClipboard &&
+                                    !isAutoFillingText &&
+                                    editable.isNotEmpty()
+                            ) {
+                                val text = editable.toString()
+                                detectContent(text)
+                            }
+                        }
                         binding.sendSendBtn.isEnabled = enableSendBtn()
                     }
                 }
@@ -342,8 +354,13 @@ class SendAssetFragment :
 
         validData = payTo
 
-        binding.sendPayToET.setText(payTo)
-        if (amount != null) binding.sendAmountET.setText(amount)
+        try {
+            isAutoFillingText = true
+            binding.sendPayToET.setText(payTo)
+            if (amount != null) binding.sendAmountET.setText(amount)
+        } finally {
+            isAutoFillingText = false
+        }
         return true
     }
 
