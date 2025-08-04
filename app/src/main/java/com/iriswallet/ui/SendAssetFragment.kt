@@ -51,6 +51,8 @@ class SendAssetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        insertedFromClipboard = false
+
         binding.sendBalanceSpendableLL.detailBalanceLabelTV.text =
             getString(R.string.spendable_balance)
 
@@ -202,7 +204,7 @@ class SendAssetFragment :
         binding.sendPB.visibility = View.INVISIBLE
         isLoading = false
         requireActivity().invalidateOptionsMenu()
-        binding.sendSendBtn.isEnabled = true
+        binding.sendSendBtn.isEnabled = enableSendBtn()
     }
 
     private fun disableUI(showProgress: Boolean = true) {
@@ -343,7 +345,7 @@ class SendAssetFragment :
         validData = payTo
 
         binding.sendPayToET.setText(payTo)
-        if (amount != null) binding.sendAmountET.setText(amount)
+        if (amount?.let { it != "0" } == true) binding.sendAmountET.setText(amount)
         return true
     }
 
@@ -375,7 +377,7 @@ class SendAssetFragment :
         }
         viewModel.sendAsset(
             asset,
-            payTo,
+            validData!!,
             binding.sendAmountET.text.toString(),
             transportEndpoints,
             binding.sendFeeRateET.text.toString().toULong(),

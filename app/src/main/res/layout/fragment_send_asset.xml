@@ -51,7 +51,6 @@
                     <EditText
                         android:id="@+id/sendPayToET"
                         style="@style/et_text"
-                        android:digits="@string/letters_and_digits"
                         android:hint="@string/blinded_utxo_or_invoice"
                         android:imeOptions="actionNext"
                         android:importantForAutofill="no"
