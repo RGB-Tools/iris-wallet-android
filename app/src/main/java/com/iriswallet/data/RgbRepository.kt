@@ -92,8 +92,9 @@ object RgbRepository {
         return wallet.getAddress()
     }
 
-    fun getVanillaBalance(): BtcBalance {
-        return wallet.getBtcBalance(online, skipSync = false)
+    fun getVanillaBalance(sync: Boolean): BtcBalance {
+        val onlineOpt = if (sync) online else null
+        return wallet.getBtcBalance(onlineOpt, skipSync = !sync)
     }
 
     fun getReceiveData(
@@ -196,9 +197,10 @@ object RgbRepository {
         }
     }
 
-    fun listVanillaTransfers(): List<AppTransfer> {
+    fun listVanillaTransfers(sync: Boolean): List<AppTransfer> {
+        val onlineOpt = if (sync) online else null
         val transactions =
-            wallet.listTransactions(online, skipSync = false).filter {
+            wallet.listTransactions(onlineOpt, skipSync = !sync).filter {
                 it.transactionType != TransactionType.RGB_SEND
             }
         return transactions

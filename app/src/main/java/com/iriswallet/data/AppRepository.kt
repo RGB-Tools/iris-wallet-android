@@ -69,15 +69,15 @@ object AppRepository {
 
         if (refresh) RgbRepository.sync()
 
-        val transfers = RgbRepository.listVanillaTransfers().toMutableList()
+        val transfers = RgbRepository.listVanillaTransfers(false).toMutableList()
         val autoTXs =
-            RgbRepository.listTransactions(refresh)
+            RgbRepository.listTransactions(false)
                 .filter { it.transactionType == TransactionType.CREATE_UTXOS }
                 .map { tx -> tx.txid }
         transfers.filter { it.txid in autoTXs }.forEach { it.internal = true }
         bitcoinAsset.transfers = transfers
 
-        val balance = RgbRepository.getVanillaBalance()
+        val balance = RgbRepository.getVanillaBalance(false)
         Log.d(TAG, "Vanilla balance: $balance")
         bitcoinAsset.spendableBalance = balance.vanilla.spendable
         bitcoinAsset.settledBalance = balance.vanilla.settled
