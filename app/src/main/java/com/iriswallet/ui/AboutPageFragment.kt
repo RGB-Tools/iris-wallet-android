@@ -49,19 +49,30 @@ class AboutPageFragment :
         }
 
         binding.aboutDownloadLogsBtn.setOnClickListener {
-            val fileName =
-                AppConstants.RGB_DOWNLOAD_LOGS_FILE_NAME.format(
-                    System.currentTimeMillis(),
+            val zipFileName =
+                AppConstants.LOGS_ZIP_FILE_NAME.format(
                     BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE,
+                    System.currentTimeMillis(),
+                )
+            val zipFile =
+                AppUtils.zipFiles(
+                    AppContainer.appContext,
+                    listOf(
+                        Pair(AppContainer.rgbLogsFile, AppConstants.RGB_DOWNLOAD_LOGS_FILE_NAME),
+                        Pair(AppContainer.appLogsFile, AppContainer.appLogsFile.name),
+                    ),
+                    zipFileName,
                 )
             AppUtils.saveFileToDownloads(
                 requireContext(),
-                AppContainer.rgbLogsFile.toURI().toString(),
-                fileName,
-                "text/plain",
+                zipFile.toURI().toString(),
+                zipFileName,
+                "application/zip",
             )
             showDownloadedNotification()
             Toast.makeText(activity, getString(R.string.downloaded_logs), Toast.LENGTH_LONG).show()
+            zipFile.delete()
             binding.aboutDownloadLogsBtn.isEnabled = false
         }
     }

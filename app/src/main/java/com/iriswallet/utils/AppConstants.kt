@@ -6,7 +6,11 @@ import org.rgbtools.AssetSchema
 object AppConstants {
     const val APP_DB_NAME = "iris_wallet_db"
     const val RGB_DIR_NAME = ".rgb"
-    const val RGB_DOWNLOAD_LOGS_FILE_NAME = "iris-logs-%s-%s.txt"
+    const val LOGS_ZIP_FILE_NAME = "iris_logs-%s-%s-%s.zip"
+    const val APP_LOGS_FILE_NAME = "iris_logs.txt"
+    const val MAX_APP_LOG_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+    const val N_APP_LOG_ENTRIES = 10000
+    const val RGB_DOWNLOAD_LOGS_FILE_NAME = "rgb-lib_logs.txt"
     const val RGB_DOWNLOAD_MEDIA_FILE_NAME = "media_%s"
     const val SHARED_PREFERENCES_NAME = "shared_prefs"
 

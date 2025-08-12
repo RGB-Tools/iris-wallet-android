@@ -287,8 +287,8 @@
     <string name="app_version">App version: %s (code #%d)</string>
     <string name="download_logs">Download debug logs</string>
     <string name="downloaded_logs">Logs successfully downloaded</string>
-    <string name="download_logs_notification_title">Logs file downloaded</string>
-    <string name="download_logs_notification_text">Tap to view the log file in the downloads directory</string>
+    <string name="download_logs_notification_title">Logs zip file downloaded</string>
+    <string name="download_logs_notification_text">Tap to view the log zip file in the downloads directory</string>
     <string name="download_logs_notification_channel_name">Download Logs Service</string>
     <string name="download_logs_notification_channel_description">Channel to notify log file download</string>
     <string name="downloaded_media">Media file successfully downloaded</string>

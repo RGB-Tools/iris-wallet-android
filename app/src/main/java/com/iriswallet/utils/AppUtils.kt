@@ -35,9 +35,18 @@ import com.iriswallet.data.SharedPreferencesManager
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.lelloman.identicon.drawable.ClassicIdenticonDrawable
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URL
 import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.EnumMap
+import java.util.Locale
+import java.util.TimeZone
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -122,6 +131,33 @@ class AppUtils {
                     }
                 }
             }
+        }
+
+        fun zipFiles(context: Context, files: List<Pair<File, String>>, zipFileName: String): File {
+            val zipFile = File(context.cacheDir, zipFileName)
+            ZipOutputStream(FileOutputStream(zipFile)).use { zipOut ->
+                for ((logFile, logFileName) in files) {
+                    if (logFile.exists()) {
+                        try {
+                            FileInputStream(logFile).use { fis ->
+                                zipOut.putNextEntry(ZipEntry(logFileName))
+                                fis.copyTo(zipOut)
+                            }
+                        } catch (e: IOException) {
+                            Log.e(TAG, "Error zipping file ${logFile.name}: ${e.message}", e)
+                        } catch (e: Exception) {
+                            Log.e(
+                                TAG,
+                                "Unexpected error zipping file ${logFile.name}: ${e.message}",
+                                e,
+                            )
+                        }
+                    } else {
+                        Log.w(TAG, "File to zip does not exist: ${logFile.absolutePath}")
+                    }
+                }
+            }
+            return zipFile
         }
 
         fun createNotification(
@@ -297,5 +333,81 @@ class LazyMutable<T>(val initializer: () -> T) : ReadWriteProperty<Any?, T> {
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         synchronized(this) { prop = value }
+    }
+}
+
+object LogHelper {
+    private const val MAX_LOG_FILE_SIZE = AppConstants.MAX_APP_LOG_FILE_SIZE
+    private const val FILE_NAME = AppConstants.APP_LOGS_FILE_NAME
+    private const val N_LOG_ENTRIES = AppConstants.N_APP_LOG_ENTRIES
+
+    private val dateFormat =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS+00", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+
+    @Synchronized
+    private fun writeToLogFile(logEntry: String) {
+        try {
+            AppContainer.appContext.openFileOutput(FILE_NAME, Context.MODE_APPEND).use { fos ->
+                fos.bufferedWriter().use { writer ->
+                    val timestamp = dateFormat.format(Date())
+                    writer.write("$timestamp $logEntry")
+                    writer.newLine()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("LogHelper", "Error writing log to file", e)
+        }
+    }
+
+    @Synchronized
+    fun truncateLogFile() {
+        if (
+            AppContainer.appLogsFile.exists() &&
+                AppContainer.appLogsFile.length() > MAX_LOG_FILE_SIZE
+        ) {
+            // truncate file to keep the last portion of the logs
+            try {
+                val lines = AppContainer.appLogsFile.readLines().takeLast(N_LOG_ENTRIES)
+                AppContainer.appLogsFile.writeText(lines.joinToString("\n"))
+            } catch (e: IOException) {
+                Log.e("LogHelper", "Error truncating log file", e)
+            }
+        }
+    }
+
+    private fun logToFile(level: String, tag: String, message: String) {
+        writeToLogFile("$level/$tag: $message")
+    }
+
+    fun d(tag: String, message: String) {
+        Log.d(tag, message)
+        logToFile("DEBUG", tag, message)
+    }
+
+    fun e(tag: String, message: String) {
+        Log.e(tag, message)
+        logToFile("ERROR", tag, message)
+    }
+
+    fun i(tag: String, message: String) {
+        Log.i(tag, message)
+        logToFile("INFO", tag, message)
+    }
+
+    fun w(tag: String, message: String) {
+        Log.w(tag, message)
+        logToFile("WARN", tag, message)
+    }
+
+    fun v(tag: String, message: String) {
+        Log.v(tag, message)
+        logToFile("VERBOSE", tag, message)
+    }
+
+    fun wtf(tag: String, message: String) {
+        Log.wtf(tag, message)
+        logToFile("ASSERT", tag, message)
     }
 }

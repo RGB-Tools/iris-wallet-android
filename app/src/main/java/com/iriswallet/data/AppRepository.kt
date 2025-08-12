@@ -15,6 +15,7 @@ import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppException
 import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.LogHelper
 import com.iriswallet.utils.Receiver
 import com.iriswallet.utils.RgbFaucet
 import com.iriswallet.utils.TAG
@@ -387,7 +388,7 @@ object AppRepository {
     fun getOfflineAssets(): List<AppAsset> {
         // delete stale lock file to allow wallet instantiation in case of previous crash
         if (AppContainer.rgbRuntimeLockFile.exists()) {
-            Log.w(TAG, "Deleting stale lock file...")
+            LogHelper.w(TAG, "Deleting stale lock file...")
             AppContainer.rgbRuntimeLockFile.delete()
         }
 
@@ -411,6 +412,7 @@ object AppRepository {
         appAssets.filter { hiddenAssetsIds.contains(it.id) }.forEach { it.hidden = true }
 
         Log.d(TAG, "Offline APP assets: $appAssets")
+        LogHelper.d(TAG, "Got offline APP assets")
         return appAssets
     }
 

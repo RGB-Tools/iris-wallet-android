@@ -28,6 +28,7 @@ object RgbRepository {
                             AppConstants.supportedSchemas,
                         )
                     )
+                LogHelper.i(TAG, "Wallet instantiated")
             }
             return _wallet!!
         }
@@ -45,6 +46,7 @@ object RgbRepository {
         _wallet?.close()
         _wallet = null
         _online = null
+        LogHelper.i(TAG, "Wallet closed")
     }
 
     fun backupDo(backupPath: File, mnemonic: String) {

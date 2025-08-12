@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager
 import com.iriswallet.data.SharedPreferencesManager
 import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.LogHelper
 import com.iriswallet.utils.MnemonicCryptoUtils
 
 class IrisWallet : Application() {
@@ -18,5 +19,6 @@ class IrisWallet : Application() {
             PreferenceManager.getDefaultSharedPreferences(this),
         )
         AppContainer.storedMnemonic = MnemonicCryptoUtils.decryptMnemonic().orEmpty()
+        LogHelper.truncateLogFile()
     }
 }

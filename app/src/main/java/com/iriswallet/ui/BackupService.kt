@@ -15,6 +15,7 @@ import com.iriswallet.utils.AppConstants
 import com.iriswallet.utils.AppContainer
 import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.GoogleDriveAuthHelper
+import com.iriswallet.utils.LogHelper
 import com.iriswallet.utils.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,7 @@ class BackupService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        LogHelper.i(TAG, "BackupService created")
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
         val notification =
@@ -95,9 +97,10 @@ class BackupService : Service() {
             try {
                 Log.d(TAG, "Doing backup in service...")
                 BackupRepository.doBackup(driveClient)
+                LogHelper.i(TAG, "Backup done")
                 stopSelf()
             } catch (e: Exception) {
-                Log.e(TAG, "Backup failed: $e")
+                LogHelper.e(TAG, "Backup failed: $e")
                 val intent = Intent(this@BackupService, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 AppUtils.createNotification(

@@ -55,6 +55,7 @@ object AppContainer {
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
     val rgbRuntimeLockFile: File by lazy { File(rgbWalletDir, "rgb_runtime.lock") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.APP_DB_NAME)!! }
+    val appLogsFile: File by lazy { File(appContext.filesDir, AppConstants.APP_LOGS_FILE_NAME) }
 
     val clipboard: ClipboardManager by lazy {
         appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
