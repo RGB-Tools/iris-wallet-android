@@ -384,7 +384,13 @@ object AppRepository {
             }
     }
 
-    fun getAssets(): List<AppAsset> {
+    fun getOfflineAssets(): List<AppAsset> {
+        // delete stale lock file to allow wallet instantiation in case of previous crash
+        if (AppContainer.rgbRuntimeLockFile.exists()) {
+            Log.w(TAG, "Deleting stale lock file...")
+            AppContainer.rgbRuntimeLockFile.delete()
+        }
+
         updateBitcoinAsset(refresh = false)
         updateRGBAssets(refresh = false)
 

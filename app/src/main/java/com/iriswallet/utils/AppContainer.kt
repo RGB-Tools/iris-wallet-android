@@ -53,6 +53,7 @@ object AppContainer {
     val rgbDir: File by lazy { getRgbDir(appContext.filesDir) }
     private val rgbWalletDir: File by lazy { File(rgbDir, bitcoinKeys.masterFingerprint) }
     val rgbLogsFile: File by lazy { File(rgbWalletDir, "log") }
+    val rgbRuntimeLockFile: File by lazy { File(rgbWalletDir, "rgb_runtime.lock") }
     internal val dbPath: File by lazy { appContext.getDatabasePath(AppConstants.APP_DB_NAME)!! }
 
     val clipboard: ClipboardManager by lazy {

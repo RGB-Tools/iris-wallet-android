@@ -207,7 +207,7 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     fun getOfflineAssets() {
         tryCallWithTimeout(AppConstants.LONG_TIMEOUT, _offlineAssets) {
-            val assets = AppRepository.getAssets()
+            val assets = AppRepository.getOfflineAssets()
             cacheAssets()
             assets
         }
