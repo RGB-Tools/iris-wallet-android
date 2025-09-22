@@ -27,7 +27,6 @@ of the app:
 The project produces an application supporting the following architectures:
 - `x86_64`
 - `arm64-v8a`
-- `armeabi-v7a`
 
 
 ## Code formatting
