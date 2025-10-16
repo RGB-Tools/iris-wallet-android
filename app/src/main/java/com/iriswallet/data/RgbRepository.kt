@@ -250,6 +250,9 @@ object RgbRepository {
             throw AppException(
                 AppContainer.appContext.getString(R.string.invalid_transport_endpoints)
             )
+        } catch (e: RgbLibException) {
+            LogHelper.e(TAG, "Error sending: $e")
+            throw e
         }
     }
 
