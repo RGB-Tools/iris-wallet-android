@@ -220,9 +220,9 @@ object RgbRepository {
                     RefreshFilter(RefreshTransferStatus.WAITING_COUNTERPARTY, false),
                 )
             else listOf()
-        return wallet.refresh(online, asset?.id, filter, false).values.any {
-            it.updatedStatus != null
-        }
+        val refreshResult = wallet.refresh(online, asset?.id, filter, false)
+        LogHelper.d(TAG, "Refresh result: $refreshResult")
+        return refreshResult.values.any { it.updatedStatus != null }
     }
 
     fun send(
