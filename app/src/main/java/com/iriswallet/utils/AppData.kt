@@ -267,7 +267,7 @@ data class AppTransfer(
     val amount: ULong? = null,
     val expiration: Long? = null,
     val txid: String? = null,
-    val blindedUTXO: String? = null,
+    val recipientId: String? = null,
     val receiveUTXO: AppOutpoint? = null,
     val changeUTXO: AppOutpoint? = null,
     val transportEndpoints: List<AppTransferTransportEndpoint>? = null,
@@ -275,6 +275,7 @@ data class AppTransfer(
     val idx: Int? = null,
     val batchTransferIdx: Int? = null,
     val invoiceString: String? = null,
+    val consignmentPath: String? = null,
 ) : Parcelable {
     constructor(
         transaction: Transaction
@@ -304,7 +305,7 @@ data class AppTransfer(
                 amount = amount,
                 expiration = transfer.expiration,
                 txid = transfer.txid,
-                blindedUTXO = transfer.recipientId,
+                recipientId = transfer.recipientId,
                 receiveUTXO = transfer.receiveUtxo?.let { AppOutpoint(it) },
                 changeUTXO = transfer.changeUtxo?.let { AppOutpoint(it) },
                 transportEndpoints =
@@ -312,6 +313,7 @@ data class AppTransfer(
                 idx = transfer.idx,
                 batchTransferIdx = transfer.batchTransferIdx,
                 invoiceString = transfer.invoiceString,
+                consignmentPath = transfer.consignmentPath,
             )
         }
     }

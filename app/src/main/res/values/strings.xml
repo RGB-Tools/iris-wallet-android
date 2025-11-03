@@ -296,6 +296,11 @@
     <string name="download_media_notification_text">Tap to view the media file in the downloads directory</string>
     <string name="download_media_notification_channel_name">Download Media Service</string>
     <string name="download_media_notification_channel_description">Channel to notify media file download</string>
+    <string name="downloaded_consignment">Consignment file successfully downloaded</string>
+    <string name="download_consignment_notification_title">Consignment file downloaded</string>
+    <string name="download_consignment_notification_text">Tap to view the consignment file in the downloads directory</string>
+    <string name="download_consignment_notification_channel_name">Download Consignment Service</string>
+    <string name="download_consignment_notification_channel_description">Channel to notify consignment file download</string>
     <string name="pending_asset_faucet">Pending asset from faucet. Please wait, it should arrive in
         a few minutes</string>
     <string name="show_mnemonic">Show mnemonic</string>
@@ -327,4 +332,6 @@
     <string name="backup_not_configured">Backup not yet configured!</string>
     <string name="backup_completed">Backup successfully completed!</string>
     <string name="err_doing_backup">Error doing backup</string>
+    <string name="consignment_file">Consignment file</string>
+    <string name="download">Download</string>
 </resources>

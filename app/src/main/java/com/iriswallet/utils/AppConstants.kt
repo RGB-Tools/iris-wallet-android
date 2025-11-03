@@ -10,8 +10,10 @@ object AppConstants {
     const val APP_LOGS_FILE_NAME = "iris_logs.txt"
     const val MAX_APP_LOG_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
     const val N_APP_LOG_ENTRIES = 10000
+    const val RGB_PREFIX = "rgb:"
     const val RGB_DOWNLOAD_LOGS_FILE_NAME = "rgb-lib_logs.txt"
     const val RGB_DOWNLOAD_MEDIA_FILE_NAME = "media_%s"
+    const val RGB_DOWNLOAD_CONSIGNMENT_FILE_NAME = "consignment_%s_%s.rgbc"
     const val SHARED_PREFERENCES_NAME = "shared_prefs"
 
     const val BACKUP_NAME = "%s.rgb_backup"
@@ -98,6 +100,9 @@ object AppConstants {
 
     const val DOWNLOAD_LOGS_NOTIFICATION_CHANNEL = "IrisWallet.downloadLogs"
     const val DOWNLOAD_LOGS_NOTIFICATION_ID = 135
+
+    const val DOWNLOAD_CONSIGNMENT_NOTIFICATION_CHANNEL = "IrisWallet.downloadConsignment"
+    const val DOWNLOAD_CONSIGNMENT_NOTIFICATION_ID = 136
 
     const val BACKUP_LOGS_NOTIFICATION_CHANNEL = "IrisWallet.doBackup"
     const val BACKUP_LOGS_NOTIFICATION_ID = 136

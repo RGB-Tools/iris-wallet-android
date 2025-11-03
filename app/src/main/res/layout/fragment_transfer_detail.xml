@@ -138,6 +138,19 @@
                         android:textIsSelectable="true"
                         style="@style/detail_text" />
 
+                    <TextView
+                        android:id="@+id/transferConsignmentDownloadLabelTV"
+                        android:text="@string/consignment_file"
+                        style="@style/detail_label"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/transferConsignmentDownloadBtn"
+                        android:text="@string/download"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        style="@style/green_button"
+                        android:layout_gravity="left" />
+
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>

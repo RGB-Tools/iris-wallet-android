@@ -1,5 +1,6 @@
 package com.iriswallet.ui
 
+import android.app.DownloadManager
 import android.content.Intent
 import android.graphics.Paint
 import android.net.Uri
@@ -8,6 +9,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
@@ -16,17 +19,28 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.iriswallet.R
 import com.iriswallet.databinding.FragmentTransferDetailBinding
-import com.iriswallet.utils.*
+import com.iriswallet.utils.AppAsset
+import com.iriswallet.utils.AppConstants
+import com.iriswallet.utils.AppContainer
+import com.iriswallet.utils.AppTransfer
+import com.iriswallet.utils.AppTransferKind
+import com.iriswallet.utils.AppUtils
 import com.iriswallet.utils.AppUtils.Companion.toBulletedList
+import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import org.rgbtools.*
+import java.util.Locale
+import org.rgbtools.TransferStatus
 
 class TransferDetailFragment :
     MainBaseFragment<FragmentTransferDetailBinding>(FragmentTransferDetailBinding::inflate) {
 
     private lateinit var transfer: AppTransfer
     lateinit var asset: AppAsset
+
+    private var requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) showDownloadedNotification()
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,6 +101,22 @@ class TransferDetailFragment :
     private fun disableUI() {
         mActivity.backEnabled = false
         binding.transferPB.visibility = View.VISIBLE
+    }
+
+    private fun showDownloadedNotification() {
+        val intent = Intent()
+        intent.action = DownloadManager.ACTION_VIEW_DOWNLOADS
+        AppUtils.createNotification(
+            requireContext(),
+            AppConstants.DOWNLOAD_CONSIGNMENT_NOTIFICATION_CHANNEL,
+            AppConstants.DOWNLOAD_CONSIGNMENT_NOTIFICATION_ID,
+            R.string.download_consignment_notification_channel_name,
+            R.string.download_consignment_notification_channel_description,
+            R.string.download_consignment_notification_title,
+            R.string.download_consignment_notification_text,
+            intent,
+            requestPermissionLauncher = requestPermissionLauncher,
+        )
     }
 
     private fun drawTransferDetails() {
@@ -155,11 +185,11 @@ class TransferDetailFragment :
         binding.transferInvoiceLabelTV.visibility = View.GONE
         binding.transferInvoiceTV.visibility = View.GONE
 
-        if (asset.bitcoin() || transfer.blindedUTXO.isNullOrBlank()) {
+        if (asset.bitcoin() || transfer.recipientId.isNullOrBlank()) {
             binding.transferBlindedUtxoLabelTV.visibility = View.GONE
             binding.transferBlindedUtxoTV.visibility = View.GONE
         } else {
-            binding.transferBlindedUtxoTV.text = transfer.blindedUTXO
+            binding.transferBlindedUtxoTV.text = transfer.recipientId
             if (
                 transfer.status == TransferStatus.WAITING_COUNTERPARTY &&
                     transfer.kind == AppTransferKind.RECEIVE
@@ -224,6 +254,35 @@ class TransferDetailFragment :
                         color = ContextCompat.getColor(requireContext(), R.color.caribbean_green)
                     )
             binding.transferEndpointsTV.text = bulletedList
+        }
+
+        if (transfer.consignmentPath != null) {
+            binding.transferConsignmentDownloadBtn.isEnabled = true
+            binding.transferConsignmentDownloadBtn.setOnClickListener {
+                val fileNameSuffix =
+                    (if (transfer.kind == AppTransferKind.ISSUANCE) asset.id
+                        else transfer.recipientId!!)
+                        .replace(AppConstants.RGB_PREFIX, "")
+                        .replace(":", "_")
+                val fileName =
+                    AppConstants.RGB_DOWNLOAD_CONSIGNMENT_FILE_NAME.format(
+                        transfer.kind.toString().lowercase(),
+                        fileNameSuffix,
+                    )
+                AppUtils.saveFileToDownloads(
+                    requireContext(),
+                    File(transfer.consignmentPath!!).toURI().toString(),
+                    fileName,
+                    "application/octet-stream",
+                )
+                showDownloadedNotification()
+                Toast.makeText(
+                        activity,
+                        getString(R.string.downloaded_consignment),
+                        Toast.LENGTH_LONG,
+                    )
+                    .show()
+            }
         }
     }
 }
