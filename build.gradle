@@ -2,21 +2,21 @@
 buildscript {
   ext {
     androidx_credentials_version = '1.5.0'
-    androidx_lifecycle_version = '2.9.4'
-    androidx_navigation_version = '2.9.5'
+    androidx_lifecycle_version = '2.10.0'
+    androidx_navigation_version = '2.9.6'
     retrofit_version = '3.0.0'
-    room_version = '2.8.1'
+    room_version = '2.8.4'
   }
   dependencies {
     classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$androidx_navigation_version")
-    classpath('com.google.gms:google-services:4.4.3')
+    classpath('com.google.gms:google-services:4.4.4')
   }
 }
 
 plugins {
-  id 'com.android.application' version '8.13.0' apply false
-  id 'com.diffplug.spotless' version '8.0.0'
-  id 'com.google.devtools.ksp' version '2.2.20-2.0.3' apply false
+  id 'com.android.application' version '8.13.2' apply false
+  id 'com.diffplug.spotless' version '8.1.0'
+  id 'com.google.devtools.ksp' version '2.3.3' apply false
   id 'idea'
-  id 'org.jetbrains.kotlin.android' version '2.2.20' apply false
+  id 'org.jetbrains.kotlin.android' version '2.3.0' apply false
 }
