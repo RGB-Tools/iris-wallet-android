@@ -49,7 +49,7 @@ class AssetMetadataFragment :
 
     private fun showMetadata(metadata: org.rgbtools.Metadata) {
         binding.metadataTypeTV.text = metadata.assetSchema.toString()
-        binding.metadataIssuedSupplyTV.text = metadata.issuedSupply.toString()
+        binding.metadataIssuedSupplyTV.text = metadata.initialSupply.toString()
         binding.metadataDateTV.text =
             SimpleDateFormat(AppConstants.TRANSFER_DATE_FMT, Locale.US)
                 .format(metadata.timestamp * 1000)

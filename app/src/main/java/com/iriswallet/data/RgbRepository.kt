@@ -162,7 +162,7 @@ object RgbRepository {
     }
 
     fun listAssets(): List<AppAsset> {
-        val assets = wallet.listAssets(listOf())
+        val assets = wallet.listAssets(listOf(AssetSchema.NIA, AssetSchema.CFA))
         val assetsNia = assets.nia!!.sortedBy { assetNia -> assetNia.addedAt }
         Log.d(TAG, "NIA assets: $assetsNia")
         val assetsCfa = assets.cfa!!.sortedBy { assetCfa -> assetCfa.addedAt }
@@ -231,7 +231,7 @@ object RgbRepository {
         amount: ULong,
         transportEndpoints: List<String>,
         feeRate: ULong,
-    ): SendResult {
+    ): OperationResult {
         try {
             val assignment =
                 if (asset.schema == AssetSchema.UDA) Assignment.NonFungible

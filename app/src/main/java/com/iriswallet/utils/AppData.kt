@@ -245,7 +245,8 @@ data class AppTransferTransportEndpoint(
 enum class AppTransferKind {
     ISSUANCE,
     RECEIVE,
-    SEND;
+    SEND,
+    INFLATION;
 
     companion object {
         fun fromRgbLibTransferKind(transferKind: TransferKind): AppTransferKind {
@@ -254,6 +255,7 @@ enum class AppTransferKind {
                 TransferKind.RECEIVE_BLIND -> RECEIVE
                 TransferKind.RECEIVE_WITNESS -> RECEIVE
                 TransferKind.SEND -> SEND
+                TransferKind.INFLATION -> INFLATION
             }
         }
     }

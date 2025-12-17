@@ -206,7 +206,7 @@ dependencies {
 
   // RGB-Tools
   //noinspection Aligned16KB
-  implementation 'org.rgbtools:rgb-lib-android:0.3.0-beta.3'
+  implementation 'org.rgbtools:rgb-lib-android:0.3.0-beta.4'
 
   // Squareup
   implementation 'com.squareup.okhttp3:logging-interceptor:5.1.0'
