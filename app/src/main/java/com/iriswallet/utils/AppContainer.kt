@@ -33,6 +33,7 @@ object AppContainer {
         when (BuildConfig.FLAVOR) {
             "bitcoinSignet" -> BitcoinNetwork.SIGNET
             "bitcoinTestnet" -> BitcoinNetwork.TESTNET
+            "bitcoinTestnet4" -> BitcoinNetwork.TESTNET4
             "bitcoinMainnet" -> BitcoinNetwork.MAINNET
             else -> throw RuntimeException("Unknown product flavor")
         }
@@ -69,6 +70,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.signetHelpFaucets
             BitcoinNetwork.TESTNET -> AppConstants.testnetHelpFaucets
+            BitcoinNetwork.TESTNET4 -> listOf()
             BitcoinNetwork.MAINNET -> listOf()
         }
     }
@@ -77,6 +79,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> null
             BitcoinNetwork.TESTNET -> AppConstants.BTC_TESTNET_FAUCET_URL
+            BitcoinNetwork.TESTNET4 -> null
             BitcoinNetwork.MAINNET -> null
         }
     }
@@ -85,6 +88,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.SIGNET_EXPLORER_URL
             BitcoinNetwork.TESTNET -> AppConstants.TESTNET_EXPLORER_URL
+            BitcoinNetwork.TESTNET4 -> AppConstants.TESTNET4_EXPLORER_URL
             BitcoinNetwork.MAINNET -> AppConstants.MAINNET_EXPLORER_URL
         }
     }
@@ -93,6 +97,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.SIGNET_ELECTRUM_URL
             BitcoinNetwork.TESTNET -> AppConstants.TESTNET_ELECTRUM_URL
+            BitcoinNetwork.TESTNET4 -> AppConstants.TESTNET4_ELECTRUM_URL
             BitcoinNetwork.MAINNET -> AppConstants.MAINNET_ELECTRUM_URL
         }
     }
@@ -101,6 +106,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> listOf()
             BitcoinNetwork.TESTNET -> listOf()
+            BitcoinNetwork.TESTNET4 -> listOf()
             BitcoinNetwork.MAINNET -> listOf()
         }
     }
@@ -122,6 +128,7 @@ object AppContainer {
             when (bitcoinNetwork) {
                 BitcoinNetwork.SIGNET -> "s"
                 BitcoinNetwork.TESTNET -> "t"
+                BitcoinNetwork.TESTNET4 -> "t"
                 BitcoinNetwork.MAINNET -> ""
             }
         prefix + AppConstants.BITCOIN_ASSET_ID
@@ -131,7 +138,8 @@ object AppContainer {
         val network =
             when (bitcoinNetwork) {
                 BitcoinNetwork.SIGNET,
-                BitcoinNetwork.TESTNET ->
+                BitcoinNetwork.TESTNET,
+                BitcoinNetwork.TESTNET4 ->
                     " (${bitcoinNetwork.toString()
                 .lowercase()})"
                 BitcoinNetwork.MAINNET -> ""
@@ -143,6 +151,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> R.drawable.bitcoin_signet
             BitcoinNetwork.TESTNET -> R.drawable.bitcoin_testnet
+            BitcoinNetwork.TESTNET4 -> R.drawable.bitcoin_testnet
             BitcoinNetwork.MAINNET -> R.drawable.bitcoin_mainnet
         }
     }
@@ -151,6 +160,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> R.raw.terms_of_service_testnet
             BitcoinNetwork.TESTNET -> R.raw.terms_of_service_testnet
+            BitcoinNetwork.TESTNET4 -> R.raw.terms_of_service_testnet
             BitcoinNetwork.MAINNET -> R.raw.terms_of_service_mainnet
         }
     }
@@ -159,6 +169,7 @@ object AppContainer {
         when (bitcoinNetwork) {
             BitcoinNetwork.SIGNET -> AppConstants.TESTNET_TERMS_OF_SERVICE_URL
             BitcoinNetwork.TESTNET -> AppConstants.TESTNET_TERMS_OF_SERVICE_URL
+            BitcoinNetwork.TESTNET4 -> AppConstants.TESTNET_TERMS_OF_SERVICE_URL
             BitcoinNetwork.MAINNET -> AppConstants.MAINNET_TERMS_OF_SERVICE_URL
         }
     }

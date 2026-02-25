@@ -51,10 +51,12 @@ object AppConstants {
 
     const val SIGNET_ELECTRUM_URL = "ssl://electrum.iriswallet.com:50033"
     const val TESTNET_ELECTRUM_URL = "ssl://electrum.iriswallet.com:50013"
+    const val TESTNET4_ELECTRUM_URL = "ssl://electrum.iriswallet.com:50053"
     const val MAINNET_ELECTRUM_URL = "ssl://electrum.iriswallet.com:50003"
 
     const val SIGNET_EXPLORER_URL = "https://mempool.space/signet/tx/"
     const val TESTNET_EXPLORER_URL = "https://mempool.space/testnet/tx/"
+    const val TESTNET4_EXPLORER_URL = "https://mempool.space/testnet4/tx/"
     const val MAINNET_EXPLORER_URL = "https://mempool.space/tx/"
 
     val signetHelpFaucets = listOf("https://signetfaucet.com/", "https://alt.signetfaucet.com/")

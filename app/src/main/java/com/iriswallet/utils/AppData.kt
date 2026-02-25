@@ -135,12 +135,14 @@ data class AppResponse<T>(
 enum class BitcoinNetwork {
     SIGNET,
     TESTNET,
+    TESTNET4,
     MAINNET;
 
     fun toRgbLibNetwork(): BitcoinNetwork {
         return when (this) {
             SIGNET -> BitcoinNetwork.SIGNET
             TESTNET -> BitcoinNetwork.TESTNET
+            TESTNET4 -> BitcoinNetwork.TESTNET4
             MAINNET -> BitcoinNetwork.MAINNET
         }
     }
