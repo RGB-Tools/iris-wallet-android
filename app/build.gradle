@@ -89,6 +89,11 @@ android {
       manifestPlaceholders = [appName: '@string/app_name_testnet']
       versionNameSuffix '-testnet'
     }
+    bitcoinTestnet4 {
+      applicationIdSuffix '.testnet4'
+      manifestPlaceholders = [appName: '@string/app_name_testnet4']
+      versionNameSuffix '-testnet4'
+    }
     bitcoinMainnet {
       applicationIdSuffix '.mainnet'
       manifestPlaceholders = [appName: '@string/app_name_mainnet']

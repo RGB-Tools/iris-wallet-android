@@ -18,6 +18,8 @@ of the app:
 - bitcoinSignetRelease
 - bitcoinTestnetDebug
 - bitcoinTestnetRelease
+- bitcoinTestnet4Debug
+- bitcoinTestnet4Release
 - bitcoinMainnetDebug
 - bitcoinMainnetRelease
 
